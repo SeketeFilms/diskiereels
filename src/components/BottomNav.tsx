@@ -1,4 +1,4 @@
-import { Film, Search, Upload, Bell, User, MessageCircle } from 'lucide-react';
+import { Film, Search, Upload, User, MessageCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';

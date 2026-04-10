@@ -127,7 +127,7 @@ const Settings = () => {
       
       const { data: contentSettings } = await supabase.from('content_settings').select('*').eq('user_id', user.id).single();
       if (contentSettings) {
-        setSoccerOnlyMode(contentSettings.soccer_only_mode);
+        setSoccerOnlyMode(contentSettings.cartoon_only_mode ?? true);
         setContentCategories(contentSettings.content_categories || []);
         setCommentsVisibility(contentSettings.comments_visibility);
         setInteractionLimits(contentSettings.interaction_limits);
@@ -232,7 +232,7 @@ const Settings = () => {
   const saveContentSettings = async () => {
     if (!userId) return;
     try {
-      await supabase.from('content_settings').upsert({ user_id: userId, soccer_only_mode: soccerOnlyMode, content_categories: contentCategories, comments_visibility: commentsVisibility, interaction_limits: interactionLimits });
+      await supabase.from('content_settings').upsert({ user_id: userId, cartoon_only_mode: soccerOnlyMode, content_categories: contentCategories, comments_visibility: commentsVisibility, interaction_limits: interactionLimits });
       toast.success('Content settings saved');
     } catch (error) {
       toast.error('Failed to save');
