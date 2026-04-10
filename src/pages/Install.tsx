@@ -60,7 +60,7 @@ const Install = () => {
       {/* Header */}
       <div className="mb-8 flex flex-col items-center text-center">
         <img
-          src="https://storage.googleapis.com/gpt-engineer-file-uploads/YhjAWGaWarSE2KQXMcw8kze1WNk2/uploads/1770415691079-DiskieReels_Logo_copy.png"
+          src="/diskiereels-logo.png"
           alt="DiskieReels"
           className="mb-4 h-20 w-20 rounded-2xl shadow-lg"
         />
