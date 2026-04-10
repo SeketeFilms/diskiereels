@@ -140,10 +140,10 @@ const NotificationBell = () => {
   const showPushNotification = async (notification: any) => {
     if (Notification.permission === 'granted') {
       const registration = await navigator.serviceWorker.ready;
-      registration.showNotification('ToonlyReels', {
+      registration.showNotification('DiskieReels', {
         body: getNotificationText(notification),
-        icon: '/toonreels-logo.png',
-        badge: '/toonreels-logo.png',
+        icon: '/diskiereels-logo.png',
+        badge: '/diskiereels-logo.png',
       });
     } else if (Notification.permission !== 'denied') {
       const permission = await Notification.requestPermission();

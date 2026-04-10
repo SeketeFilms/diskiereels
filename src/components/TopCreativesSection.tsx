@@ -28,17 +28,17 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewCreator, setPreviewCreator] = useState<TopCreator | null>(null);
-  const [animationTriggered, setAnimationTriggered] = useState(false);
+  const [soccer contentTriggered, setSoccer ContentTriggered] = useState(false);
 
   useEffect(() => {
     fetchTopCreators();
   }, []);
 
-  // Trigger animation after loading
+  // Trigger soccer content after loading
   useEffect(() => {
     if (!isLoading && topCreators.length > 0) {
       // Small delay to ensure DOM is ready
-      const timer = setTimeout(() => setAnimationTriggered(true), 100);
+      const timer = setTimeout(() => setSoccer ContentTriggered(true), 100);
       return () => clearTimeout(timer);
     }
   }, [isLoading, topCreators]);
@@ -239,10 +239,10 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
     ctx.fillText(`❤️ ${formatCount(creator.weeklyLikes)} likes (${likesGrowthText})`, 500, statsStartY + 80);
     ctx.fillText(`🎬 ${creator.videoCount} videos`, 500, statsStartY + 160);
 
-    // Footer with ToonlyReels branding
+    // Footer with DiskieReels branding
     ctx.font = 'bold 36px system-ui, -apple-system, sans-serif';
     ctx.fillStyle = 'rgba(255,255,255,0.8)';
-    ctx.fillText('ToonlyReels • Week of ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), 500, 940);
+    ctx.fillText('DiskieReels • Week of ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), 500, 940);
 
     return canvas.toDataURL('image/png');
   };
@@ -263,7 +263,7 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
     }
 
     const link = document.createElement('a');
-    link.download = `toonlyreels-top-creator-${creator.username}.png`;
+    link.download = `diskiereels-top-creator-${creator.username}.png`;
     link.href = imageUrl;
     link.click();
     toast.success('Image downloaded!');
@@ -279,13 +279,13 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
     // Convert data URL to Blob
     const response = await fetch(imageUrl);
     const blob = await response.blob();
-    const file = new File([blob], `toonlyreels-top-creator-${creator.username}.png`, { type: 'image/png' });
+    const file = new File([blob], `diskiereels-top-creator-${creator.username}.png`, { type: 'image/png' });
 
     // Check if Web Share API supports sharing files
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({
-          title: `🏆 #${rank} Top Creator on ToonlyReels`,
+          title: `🏆 #${rank} Top Creator on DiskieReels`,
           text: `Check out @${creator.username} - This week's #${rank} top creator with ${formatCount(creator.weeklyViews)} views!`,
           files: [file]
         });
@@ -294,7 +294,7 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
         if (error.name !== 'AbortError') {
           // Fallback to clipboard
           await navigator.clipboard.writeText(
-            `🏆 Check out @${creator.username} - #${rank} Top Creator on ToonlyReels with ${formatCount(creator.weeklyViews)} views this week!`
+            `🏆 Check out @${creator.username} - #${rank} Top Creator on DiskieReels with ${formatCount(creator.weeklyViews)} views this week!`
           );
           toast.success('Link copied to clipboard!');
         }
@@ -302,7 +302,7 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
     } else {
       // Fallback to clipboard
       await navigator.clipboard.writeText(
-        `🏆 Check out @${creator.username} - #${rank} Top Creator on ToonlyReels with ${formatCount(creator.weeklyViews)} views this week!`
+        `🏆 Check out @${creator.username} - #${rank} Top Creator on DiskieReels with ${formatCount(creator.weeklyViews)} views this week!`
       );
       toast.success('Link copied to clipboard!');
     }
@@ -349,13 +349,13 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
           This Week's Top Creatives
         </h2>
         
-        {/* Horizontal scroll on laptop with slide-in animation */}
+        {/* Horizontal scroll on laptop with slide-in soccer content */}
         <div className="hidden lg:flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {topCreators.map((creator, index) => (
             <div
               key={creator.id}
               className={`flex-shrink-0 w-32 bg-gradient-to-br from-primary/20 via-accent/20 to-fun-yellow/20 rounded-xl p-3 border border-border hover:border-primary/50 transition-all group ${
-                animationTriggered 
+                soccer contentTriggered 
                   ? 'opacity-100 translate-x-0' 
                   : index % 2 === 0 ? 'opacity-0 -translate-x-16' : 'opacity-0 translate-x-16'
               }`}
@@ -448,13 +448,13 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
           ))}
         </div>
 
-        {/* Grid on mobile with slide-in animation */}
+        {/* Grid on mobile with slide-in soccer content */}
         <div className="lg:hidden grid grid-cols-3 gap-2">
           {topCreators.slice(0, 3).map((creator, index) => (
             <div
               key={creator.id}
               className={`bg-gradient-to-br from-primary/20 via-accent/20 to-fun-yellow/20 rounded-xl p-2 border border-border ${
-                animationTriggered 
+                soccer contentTriggered 
                   ? 'opacity-100 translate-y-0' 
                   : 'opacity-0 translate-y-8'
               }`}
@@ -550,7 +550,7 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
               <Button
                 onClick={() => {
                   const link = document.createElement('a');
-                  link.download = `toonlyreels-top-creator-${previewCreator.username}.png`;
+                  link.download = `diskiereels-top-creator-${previewCreator.username}.png`;
                   link.href = previewImage;
                   link.click();
                   toast.success('Image downloaded!');

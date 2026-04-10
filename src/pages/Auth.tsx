@@ -111,7 +111,7 @@ const Auth = () => {
   };
 
   const checkIfAccountNeedsSavePrompt = (userId: string) => {
-    const savedAccounts = JSON.parse(localStorage.getItem('toonreels_saved_accounts') || '[]');
+    const savedAccounts = JSON.parse(localStorage.getItem('diskiereels_saved_accounts') || '[]');
     const existingAccount = savedAccounts.find((acc: any) => acc.id === userId);
     // Show prompt if account doesn't exist or doesn't have login saved
     return !existingAccount || !existingAccount.loginSaved;
@@ -227,7 +227,7 @@ const Auth = () => {
             <Play className="h-8 w-8 text-primary-foreground fill-primary-foreground" />
           </div>
           <CardTitle className="text-3xl font-black">
-            {isSignUp ? 'Join ToonlyReels!' : 'Welcome Back!'}
+            {isSignUp ? 'Join DiskieReels!' : 'Welcome Back!'}
           </CardTitle>
           <CardDescription>
             {isSignUp ? 'Create your account to start watching' : 'Sign in to continue'}
@@ -262,8 +262,8 @@ const Auth = () => {
                       <Label htmlFor="viewer" className="flex items-center gap-2 cursor-pointer flex-1">
                         <Eye className="h-5 w-5 text-fun-blue" />
                         <div>
-                          <div className="font-semibold">Watch Cartoons</div>
-                          <div className="text-sm text-muted-foreground">Enjoy amazing animations</div>
+                          <div className="font-semibold">Watch Soccers</div>
+                          <div className="text-sm text-muted-foreground">Enjoy amazing soccer contents</div>
                         </div>
                       </Label>
                     </div>
@@ -272,8 +272,8 @@ const Auth = () => {
                       <Label htmlFor="creative" className="flex items-center gap-2 cursor-pointer flex-1">
                         <Sparkles className="h-5 w-5 text-fun-yellow" />
                         <div>
-                          <div className="font-semibold">Upload My Animations</div>
-                          <div className="text-sm text-muted-foreground">Share your creative work</div>
+                          <div className="font-semibold">Upload My Reelss</div>
+                          <div className="text-sm text-muted-foreground">Share your best soccer moments</div>
                         </div>
                       </Label>
                     </div>

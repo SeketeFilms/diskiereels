@@ -334,7 +334,7 @@ const Search = () => {
               <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search creators, toonz, #hashtags..."
+                placeholder="Search creators, reels, #hashtags..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -369,7 +369,7 @@ const Search = () => {
                           {c.follower_count} {c.follower_count === 1 ? 'follower' : 'followers'}
                         </p>
                       </div>
-                      {c.is_verified && c.username === 'ToonlyReelsOff' ? (
+                      {c.is_verified && c.username === 'DiskieReelsOff' ? (
                         <span className="text-yellow-400 text-base drop-shadow-[0_0_1px_rgba(0,0,0,1)] [text-shadow:_-1px_-1px_0_#000,_1px_-1px_0_#000,_-1px_1px_0_#000,_1px_1px_0_#000]">
                           ⭐
                         </span>
@@ -527,11 +527,11 @@ const Search = () => {
         );
       })()}
 
-      {/* Popular Animations */}
+      {/* Popular Soccer Contents */}
       {!hasSearched && selectedCategory === 'all' && trendingVideos.length > 0 && (
         <div className="p-4 border-b border-border">
           <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
-            🎬 Popular Animations
+            🎬 Popular Soccer Contents
           </h2>
           <div className="hidden lg:flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {trendingVideos.slice(0, 8).map((video) => (
@@ -542,7 +542,7 @@ const Search = () => {
                   videoUrl={video.video_url}
                   viewsCount={video.views_count}
                   likesCount={video.likes_count}
-                  onClick={() => handleVideoClick(video.id, trendingVideos.slice(0, 8), '🎬 Popular Animations')}
+                  onClick={() => handleVideoClick(video.id, trendingVideos.slice(0, 8), '🎬 Popular Soccer Contents')}
                   formatCount={formatCount}
                   compact
                   showStatsTopRight
@@ -559,7 +559,7 @@ const Search = () => {
                 videoUrl={video.video_url}
                 viewsCount={video.views_count}
                 likesCount={video.likes_count}
-                onClick={() => handleVideoClick(video.id, trendingVideos.slice(0, 8), '🎬 Popular Animations')}
+                onClick={() => handleVideoClick(video.id, trendingVideos.slice(0, 8), '🎬 Popular Soccer Contents')}
                 formatCount={formatCount}
                 showStatsTopRight
               />
@@ -584,7 +584,7 @@ const Search = () => {
         ) : videos.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">
-              {hasSearched ? 'No toonz found for your search' : 'No toonz in this category yet'}
+              {hasSearched ? 'No reels found for your search' : 'No reels in this category yet'}
             </p>
           </div>
         ) : (
@@ -598,7 +598,7 @@ const Search = () => {
                     videoUrl={video.video_url}
                     viewsCount={video.views_count}
                     likesCount={video.likes_count}
-                    onClick={() => handleVideoClick(video.id, videos, hasSearched ? 'Search Results' : selectedCategory === 'all' ? 'All Toonz' : selectedCategory)}
+                    onClick={() => handleVideoClick(video.id, videos, hasSearched ? 'Search Results' : selectedCategory === 'all' ? 'All Reels' : selectedCategory)}
                     formatCount={formatCount}
                     compact
                     showStatsTopRight
@@ -615,7 +615,7 @@ const Search = () => {
                     videoUrl={video.video_url}
                     viewsCount={video.views_count}
                     likesCount={video.likes_count}
-                    onClick={() => handleVideoClick(video.id, videos, hasSearched ? 'Search Results' : selectedCategory === 'all' ? 'All Toonz' : selectedCategory)}
+                    onClick={() => handleVideoClick(video.id, videos, hasSearched ? 'Search Results' : selectedCategory === 'all' ? 'All Reels' : selectedCategory)}
                     formatCount={formatCount}
                     showStatsTopRight
                   />

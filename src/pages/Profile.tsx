@@ -675,8 +675,8 @@ const Profile = () => {
                     variant="secondary"
                     size="icon"
                     className="rounded-full"
-                    onClick={() => navigate('/toonly-studio')}
-                    title="ToonlyStudio"
+                    onClick={() => navigate('/diskie-studio')}
+                    title="DiskieStudio"
                   >
                     <BarChart3 className="h-5 w-5" />
                   </Button>
@@ -770,13 +770,13 @@ const Profile = () => {
                     <h1 className="text-xl md:text-2xl font-black text-white drop-shadow-lg">
                       {profile.username}
                     </h1>
-                    {/* Verification Badge - special for ToonReelsOff */}
-                    {profile.user_type === 'creative' && profile.is_verified && profile.username === 'ToonReelsOff' && (
+                    {/* Verification Badge - special for DiskieReelsOff */}
+                    {profile.user_type === 'creative' && profile.is_verified && profile.username === 'DiskieReelsOff' && (
                       <span className="text-yellow-400 text-xl drop-shadow-[0_0_1px_rgba(0,0,0,1)] [text-shadow:_-1px_-1px_0_#000,_1px_-1px_0_#000,_-1px_1px_0_#000,_1px_1px_0_#000]">
                         ⭐
                       </span>
                     )}
-                    {profile.user_type === 'creative' && profile.is_verified && profile.username !== 'ToonReelsOff' && (
+                    {profile.user_type === 'creative' && profile.is_verified && profile.username !== 'DiskieReelsOff' && (
                       <BadgeCheck className="h-5 w-5 text-blue-500 drop-shadow-lg" fill="white" />
                     )}
                     {isOwnProfile && (
@@ -960,13 +960,13 @@ const Profile = () => {
         {isOwnProfile && isCreative && (
           <div className="px-4 pt-3 md:hidden">
             <button
-              onClick={() => navigate('/toonly-studio')}
+              onClick={() => navigate('/diskie-studio')}
               className="w-full bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border border-primary/20 rounded-2xl p-3 hover:border-primary/40 transition-all"
             >
               <div className="flex items-center justify-between mb-2.5">
                 <div className="flex items-center gap-2">
                   <BarChart3 className="h-4 w-4 text-primary" />
-                  <span className="text-xs font-bold">ToonlyStudio</span>
+                  <span className="text-xs font-bold">DiskieStudio</span>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </div>
@@ -985,7 +985,7 @@ const Profile = () => {
                 </div>
                 <div className="text-center">
                   <p className="text-sm font-black">{videos.length}</p>
-                  <p className="text-[9px] text-muted-foreground">Toonz</p>
+                  <p className="text-[9px] text-muted-foreground">Reels</p>
                 </div>
               </div>
             </button>
@@ -997,7 +997,7 @@ const Profile = () => {
           <div className="p-4">
             <h2 className="text-xl font-black mb-4 flex items-center gap-2">
               <Video className="h-6 w-6 text-primary" />
-              My Animations
+              My Soccer Contents
             </h2>
             
             {videos.length === 0 ? (
@@ -1005,7 +1005,7 @@ const Profile = () => {
                 <Video className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">No videos yet</p>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Start creating amazing animations!
+                  Start creating amazing soccer contents!
                 </p>
                 <Button
                   onClick={() => navigate('/upload')}
@@ -1342,7 +1342,7 @@ const Profile = () => {
         </DialogContent>
       </Dialog>
 
-      {/* ToonlyAI is now global - rendered in App.tsx */}
+      {/* DiskieAI is now global - rendered in App.tsx */}
 
       </div>
     </>

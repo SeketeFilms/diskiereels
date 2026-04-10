@@ -25,9 +25,9 @@ import TermsOfService from "./pages/TermsOfService";
 import ParentDashboard from "./pages/ParentDashboard";
 import Install from "./pages/Install";
 import StarsDashboard from "./pages/StarsDashboard";
-import ToonlyStudio from "./pages/ToonlyStudio";
+import DiskieStudio from "./pages/DiskieStudio";
 import Leaderboard from "./pages/Leaderboard";
-import ToonlyAI from "./components/ToonlyAI";
+import DiskieAI from "./components/DiskieAI";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,8 +55,8 @@ const AppContent = () => {
     return (
       <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#333333' }}>
         <img 
-          src="/toonlyreels-splash-logo.png" 
-          alt="ToonlyReels" 
+          src="/diskiereels-splash-logo.png" 
+          alt="DiskieReels" 
           className="h-28 w-28 object-contain rounded-2xl"
         />
       </div>
@@ -89,11 +89,11 @@ const AppContent = () => {
         <Route path="/parent-dashboard" element={<ParentDashboard />} />
         <Route path="/install" element={<Install />} />
         <Route path="/stars-dashboard" element={<StarsDashboard />} />
-        <Route path="/toonly-studio" element={<ToonlyStudio />} />
+        <Route path="/diskie-studio" element={<DiskieStudio />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <ToonlyAI />
+      <DiskieAI />
     </>
   );
 };

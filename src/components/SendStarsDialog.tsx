@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Star, Sparkles } from 'lucide-react';
-import StarGiftAnimation from './StarGiftAnimation';
+import StarGiftSoccer Content from './StarGiftSoccer Content';
 
 interface SendStarsDialogProps {
   open: boolean;
@@ -22,8 +22,8 @@ const SendStarsDialog = ({ open, onOpenChange, creatorId, creatorUsername, video
   const [selectedAmount, setSelectedAmount] = useState(5);
   const [sending, setSending] = useState(false);
   const [showBuySection, setShowBuySection] = useState(false);
-  const [showGiftAnimation, setShowGiftAnimation] = useState(false);
-  const [giftAnimationAmount, setGiftAnimationAmount] = useState(0);
+  const [showGiftSoccer Content, setShowGiftSoccer Content] = useState(false);
+  const [giftSoccer ContentAmount, setGiftSoccer ContentAmount] = useState(0);
   const [starPacks, setStarPacks] = useState<Array<{ id: string; name: string; stars_amount: number; price_cents: number }>>([]);
 
   useEffect(() => {
@@ -163,8 +163,8 @@ const SendStarsDialog = ({ open, onOpenChange, creatorId, creatorUsername, video
       });
 
       setBalance(prev => prev - selectedAmount);
-      setGiftAnimationAmount(selectedAmount);
-      setShowGiftAnimation(true);
+      setGiftSoccer ContentAmount(selectedAmount);
+      setShowGiftSoccer Content(true);
       onOpenChange(false);
     } catch {
       toast.error('Failed to send stars');
@@ -175,12 +175,12 @@ const SendStarsDialog = ({ open, onOpenChange, creatorId, creatorUsername, video
 
   return (
     <>
-      {showGiftAnimation && (
-        <StarGiftAnimation
-          amount={giftAnimationAmount}
+      {showGiftSoccer Content && (
+        <StarGiftSoccer Content
+          amount={giftSoccer ContentAmount}
           onComplete={() => {
-            setShowGiftAnimation(false);
-            toast.success(`Sent ${giftAnimationAmount} ⭐ to @${creatorUsername}!`);
+            setShowGiftSoccer Content(false);
+            toast.success(`Sent ${giftSoccer ContentAmount} ⭐ to @${creatorUsername}!`);
           }}
         />
       )}

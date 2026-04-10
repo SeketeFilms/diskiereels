@@ -35,7 +35,7 @@ const ChangelogModal = ({ open, onClose, isNewVersion, currentVersion, changelog
           </div>
           <DialogDescription>
             {isNewVersion 
-              ? `ToonlyReels has been updated to version ${currentVersion}!`
+              ? `DiskieReels has been updated to version ${currentVersion}!`
               : `Current version: ${currentVersion}`
             }
           </DialogDescription>

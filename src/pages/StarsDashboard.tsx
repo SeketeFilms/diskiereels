@@ -216,7 +216,7 @@ const StarsDashboard = () => {
             <div className="space-y-3 text-sm text-muted-foreground">
               <div className="flex gap-3">
                 <span className="text-lg">🌟</span>
-                <p>Viewers buy Star packs and send them to creators on toonz they love.</p>
+                <p>Viewers buy Star packs and send them to creators on reels they love.</p>
               </div>
               <div className="flex gap-3">
                 <span className="text-lg">📊</span>

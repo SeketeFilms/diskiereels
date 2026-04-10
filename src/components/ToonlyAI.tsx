@@ -12,13 +12,13 @@ interface Message {
   content: string;
 }
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/toonlyai-chat`;
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/diskieai-chat`;
 
-const ToonlyAI = () => {
+const DiskieAI = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Hi there! 👋 I'm ToonlyAI, your friendly helper! Ask me anything about ToonlyReels - how to upload videos, customize your profile, find cool content, or just chat about animation! 🎬✨" }
+    { role: 'assistant', content: "Hi there! 👋 I'm DiskieAI, your friendly helper! Ask me anything about DiskieReels - how to upload videos, customize your profile, find cool content, or just chat about soccer content! 🎬✨" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -32,8 +32,8 @@ const ToonlyAI = () => {
   // Listen for sidebar toggle event
   useEffect(() => {
     const handler = () => setIsOpen(prev => !prev);
-    window.addEventListener('toggle-toonlyai', handler);
-    return () => window.removeEventListener('toggle-toonlyai', handler);
+    window.addEventListener('toggle-diskieai', handler);
+    return () => window.removeEventListener('toggle-diskieai', handler);
   }, []);
 
   // Scroll to bottom when messages change
@@ -55,7 +55,7 @@ const ToonlyAI = () => {
 
     if (!resp.ok) {
       const errorData = await resp.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Failed to connect to ToonlyAI');
+      throw new Error(errorData.error || 'Failed to connect to DiskieAI');
     }
 
     if (!resp.body) throw new Error('No response stream');
@@ -120,7 +120,7 @@ const ToonlyAI = () => {
     try {
       await streamChat(newMessages.filter(m => m.role === 'user' || m.content !== messages[0].content));
     } catch (error) {
-      console.error('ToonlyAI error:', error);
+      console.error('DiskieAI error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to get response');
       setMessages(prev => [
         ...prev,
@@ -161,7 +161,7 @@ const ToonlyAI = () => {
                 <Bot className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-bold text-sm">ToonlyAI</h3>
+                <h3 className="font-bold text-sm">DiskieAI</h3>
                 <p className="text-xs text-muted-foreground">Your friendly helper ✨</p>
               </div>
             </div>
@@ -213,7 +213,7 @@ const ToonlyAI = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask ToonlyAI anything..."
+                placeholder="Ask DiskieAI anything..."
                 className="min-h-[40px] max-h-[100px] resize-none text-sm"
                 rows={1}
                 disabled={isLoading}
@@ -234,4 +234,4 @@ const ToonlyAI = () => {
   );
 };
 
-export default ToonlyAI;
+export default DiskieAI;

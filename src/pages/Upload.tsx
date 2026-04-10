@@ -350,7 +350,7 @@ const Upload = () => {
           >
             <ArrowLeft className="h-6 w-6" />
           </Button>
-          <h1 className="text-2xl font-black">Upload Animation</h1>
+          <h1 className="text-2xl font-black">Upload Soccer Content</h1>
         </div>
 
         <Card className="shadow-elevated">
@@ -366,7 +366,7 @@ const Upload = () => {
                   id="title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value.slice(0, 100))}
-                  placeholder="Give your animation a catchy title"
+                  placeholder="Give your soccer content a catchy title"
                   maxLength={100}
                   required
                 />
@@ -427,7 +427,7 @@ const Upload = () => {
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value.slice(0, 500))}
-                  placeholder="Add more details about your animation"
+                  placeholder="Add more details about your soccer content"
                   rows={3}
                 />
                 <p className="text-xs text-muted-foreground text-right">{description.length}/500</p>
@@ -442,7 +442,7 @@ const Upload = () => {
                     </div>
                     <div>
                       <Label htmlFor="watermark" className="text-sm font-medium cursor-pointer">
-                        Add ToonlyReels Watermark
+                        Add DiskieReels Watermark
                       </Label>
                       <p className="text-xs text-muted-foreground mt-0.5">
                         Protect your content with our watermark (Optional)
@@ -561,7 +561,7 @@ const Upload = () => {
                 disabled={loading}
                 size="lg"
               >
-                {loading ? 'Uploading...' : 'Upload Animation'}
+                {loading ? 'Uploading...' : 'Upload Soccer Content'}
               </Button>
             </form>
           </CardContent>

@@ -34,7 +34,7 @@ const Settings = () => {
   const [selectedAvatar, setSelectedAvatar] = useState("🦊");
   const [ageRange, setAgeRange] = useState("7-9");
   const [profilePin, setProfilePin] = useState("");
-  const [cartoonOnlyMode, setCartoonOnlyMode] = useState(true);
+  const [soccerOnlyMode, setSoccerOnlyMode] = useState(true);
   const [contentCategories, setContentCategories] = useState<string[]>(["comedy", "adventure", "learning", "music"]);
   const [commentsVisibility, setCommentsVisibility] = useState("emoji_only");
   const [interactionLimits, setInteractionLimits] = useState(true);
@@ -127,7 +127,7 @@ const Settings = () => {
       
       const { data: contentSettings } = await supabase.from('content_settings').select('*').eq('user_id', user.id).single();
       if (contentSettings) {
-        setCartoonOnlyMode(contentSettings.cartoon_only_mode);
+        setSoccerOnlyMode(contentSettings.soccer_only_mode);
         setContentCategories(contentSettings.content_categories || []);
         setCommentsVisibility(contentSettings.comments_visibility);
         setInteractionLimits(contentSettings.interaction_limits);
@@ -232,7 +232,7 @@ const Settings = () => {
   const saveContentSettings = async () => {
     if (!userId) return;
     try {
-      await supabase.from('content_settings').upsert({ user_id: userId, cartoon_only_mode: cartoonOnlyMode, content_categories: contentCategories, comments_visibility: commentsVisibility, interaction_limits: interactionLimits });
+      await supabase.from('content_settings').upsert({ user_id: userId, soccer_only_mode: soccerOnlyMode, content_categories: contentCategories, comments_visibility: commentsVisibility, interaction_limits: interactionLimits });
       toast.success('Content settings saved');
     } catch (error) {
       toast.error('Failed to save');
@@ -594,10 +594,10 @@ const Settings = () => {
             <SectionHeader title="Safety & Content" section="safety" />
             <CollapsibleContent className="mt-2 bg-card rounded-xl border border-border p-3">
               <Accordion type="single" collapsible>
-                <AccordionItem value="cartoon">
-                  <AccordionTrigger className="text-xs">Cartoon-Only Mode</AccordionTrigger>
+                <AccordionItem value="soccer">
+                  <AccordionTrigger className="text-xs">Soccer-Only Mode</AccordionTrigger>
                   <AccordionContent className="space-y-3">
-                    <div className="flex justify-between"><Label className="text-xs">Enabled</Label><Switch checked={cartoonOnlyMode} onCheckedChange={setCartoonOnlyMode} /></div>
+                    <div className="flex justify-between"><Label className="text-xs">Enabled</Label><Switch checked={soccerOnlyMode} onCheckedChange={setSoccerOnlyMode} /></div>
                     <Button onClick={saveContentSettings} size="sm" className="h-7 text-xs">Save</Button>
                   </AccordionContent>
                 </AccordionItem>
@@ -888,7 +888,7 @@ const Settings = () => {
             <CollapsibleContent className="mt-2 bg-card rounded-xl border border-border p-3">
               <div className="space-y-3">
                 <p className="text-xs text-muted-foreground">
-                  Keep ToonlyReels up to date for the best experience.
+                  Keep DiskieReels up to date for the best experience.
                 </p>
                 {updateAvailable ? (
                   <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
@@ -954,15 +954,15 @@ const Settings = () => {
             <CollapsibleContent className="mt-2 bg-card rounded-xl border border-border p-3">
               <Accordion type="single" collapsible>
                 <AccordionItem value="what">
-                  <AccordionTrigger className="text-xs">What is ToonlyReels?</AccordionTrigger>
+                  <AccordionTrigger className="text-xs">What is DiskieReels?</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-xs text-muted-foreground">ToonlyReels is a kid-safe cartoon reels platform made by SEMO Group. Kids can watch short animated clips, music toons, fun stories, and educational shorts — all age filtered.</p>
+                    <p className="text-xs text-muted-foreground">DiskieReels is a kid-safe soccer reels platform made by SEMO Group. Kids can watch short animated clips, music toons, fun stories, and educational shorts — all age filtered.</p>
                   </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="cartoon">
-                  <AccordionTrigger className="text-xs">Why only cartoon content?</AccordionTrigger>
+                <AccordionItem value="soccer">
+                  <AccordionTrigger className="text-xs">Why only soccer content?</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-xs text-muted-foreground">ToonlyReels is designed strictly for kids. We automatically block adult themes, scary content, violence, political content, and anything unsafe.</p>
+                    <p className="text-xs text-muted-foreground">DiskieReels is designed strictly for kids. We automatically block adult themes, scary content, violence, political content, and anything unsafe.</p>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="report">
@@ -980,7 +980,7 @@ const Settings = () => {
                 <AccordionItem value="messaging">
                   <AccordionTrigger className="text-xs">Can kids message each other?</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-xs text-muted-foreground">Messaging is off and kids cannot message each other. ToonlyReels does not allow messaging between users to ensure maximum child safety.</p>
+                    <p className="text-xs text-muted-foreground">Messaging is off and kids cannot message each other. DiskieReels does not allow messaging between users to ensure maximum child safety.</p>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="uploads">
@@ -1008,12 +1008,12 @@ const Settings = () => {
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="contact">
-                  <AccordionTrigger className="text-xs">How do I contact ToonlyReels?</AccordionTrigger>
+                  <AccordionTrigger className="text-xs">How do I contact DiskieReels?</AccordionTrigger>
                   <AccordionContent>
                     <div className="text-xs text-muted-foreground space-y-1">
                       <p>Email: info@semogroup.com</p>
                       <p>Website: www.semogroup.com</p>
-                      <p>App Icon: TR (ToonlyReels official avatar)</p>
+                      <p>App Icon: TR (DiskieReels official avatar)</p>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -1030,11 +1030,11 @@ const Settings = () => {
                   <AccordionTrigger className="text-xs">View Terms</AccordionTrigger>
                   <AccordionContent className="space-y-2 text-xs text-muted-foreground">
                     <p className="font-semibold">Last updated: 2025</p>
-                    <p>Welcome to ToonlyReels, a kid-friendly cartoon reels app created by SEMO Group. By using ToonlyReels, you agree to these Terms of Use.</p>
+                    <p>Welcome to DiskieReels, a kid-friendly soccer reels app created by SEMO Group. By using DiskieReels, you agree to these Terms of Use.</p>
                     
                     <div>
                       <p className="font-semibold text-foreground">1. Eligibility</p>
-                      <p>ToonlyReels is designed for users ages 4–15. Parents/guardians must supervise younger users.</p>
+                      <p>DiskieReels is designed for users ages 4–15. Parents/guardians must supervise younger users.</p>
                     </div>
 
                     <div>
@@ -1049,7 +1049,7 @@ const Settings = () => {
 
                     <div>
                       <p className="font-semibold text-foreground">4. Content Ownership</p>
-                      <p>You keep ownership of your uploaded reels, but you give ToonlyReels permission to store, display, moderate, and distribute within the app. We NEVER sell user data or videos.</p>
+                      <p>You keep ownership of your uploaded reels, but you give DiskieReels permission to store, display, moderate, and distribute within the app. We NEVER sell user data or videos.</p>
                     </div>
 
                     <div>
@@ -1085,7 +1085,7 @@ const Settings = () => {
                 <AccordionItem value="privacy">
                   <AccordionTrigger className="text-xs">View Privacy Policy</AccordionTrigger>
                   <AccordionContent className="space-y-2 text-xs text-muted-foreground">
-                    <p className="font-semibold">ToonlyReels is COPPA-compliant and designed for child safety.</p>
+                    <p className="font-semibold">DiskieReels is COPPA-compliant and designed for child safety.</p>
                     
                     <div>
                       <p className="font-semibold text-foreground">1. What information we collect</p>
@@ -1145,11 +1145,11 @@ const Settings = () => {
                 <AccordionItem value="safety">
                   <AccordionTrigger className="text-xs">View Safety Guide</AccordionTrigger>
                   <AccordionContent className="space-y-2 text-xs text-muted-foreground">
-                    <p className="font-semibold">ToonlyReels is built around kid safety first.</p>
+                    <p className="font-semibold">DiskieReels is built around kid safety first.</p>
                     
                     <div>
                       <p className="font-semibold text-foreground">1. Safe Content System</p>
-                      <p>We use AI detection for harmful videos, human moderation, strict cartoon-only rules, and automatic age filtering.</p>
+                      <p>We use AI detection for harmful videos, human moderation, strict soccer-only rules, and automatic age filtering.</p>
                     </div>
 
                     <div>
@@ -1209,7 +1209,7 @@ const Settings = () => {
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="protection">
-                  <AccordionTrigger className="text-xs">How does ToonlyReels protect kids?</AccordionTrigger>
+                  <AccordionTrigger className="text-xs">How does DiskieReels protect kids?</AccordionTrigger>
                   <AccordionContent>
                     <p className="text-xs text-muted-foreground">Filters violent/adult content, human moderators, parental PIN, and messaging locked by default.</p>
                   </AccordionContent>
@@ -1223,7 +1223,7 @@ const Settings = () => {
                 <AccordionItem value="icon">
                   <AccordionTrigger className="text-xs">App Icon / Avatar Info</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-xs text-muted-foreground">The official ToonlyReels app icon is: TR with a red-orange gradient background.</p>
+                    <p className="text-xs text-muted-foreground">The official DiskieReels app icon is: TR with a red-orange gradient background.</p>
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
