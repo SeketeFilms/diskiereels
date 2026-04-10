@@ -125,7 +125,7 @@ export type Database = {
       }
       content_settings: {
         Row: {
-          soccer_only_mode: boolean | null
+          cartoon_only_mode: boolean | null
           comments_visibility: string | null
           content_categories: string[] | null
           created_at: string | null
@@ -135,7 +135,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          soccer_only_mode?: boolean | null
+          cartoon_only_mode?: boolean | null
           comments_visibility?: string | null
           content_categories?: string[] | null
           created_at?: string | null
@@ -145,7 +145,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          soccer_only_mode?: boolean | null
+          cartoon_only_mode?: boolean | null
           comments_visibility?: string | null
           content_categories?: string[] | null
           created_at?: string | null
