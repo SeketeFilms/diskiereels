@@ -18,7 +18,7 @@ const DiskieAI = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Hi there! 👋 I'm DiskieAI, your friendly helper! Ask me anything about DiskieReels - how to upload videos, customize your profile, find cool content, or just chat about soccer! 🎬✨ 🎬✨" }
+    { role: 'assistant', content: "Hi there! 👋 I'm DiskieAI, your friendly helper! Ask me anything about DiskieReels - how to upload soccer reels, customize your profile, find the best highlights, or just chat about football! ⚽🎬✨" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
