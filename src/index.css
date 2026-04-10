@@ -1,0 +1,194 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Bright Theme - YouTube Red & White */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 0 100% 50%; /* YouTube Red */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 25 95% 53%; /* Fun Orange accent */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 96%;
+    --ring: 0 100% 50%;
+
+    --radius: 1rem;
+
+    /* Playful colors for kids */
+    --fun-yellow: 48 96% 53%;
+    --fun-green: 142 71% 45%;
+    --fun-blue: 217 91% 60%;
+    --fun-purple: 271 76% 53%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(0 100% 50%), hsl(0 100% 65%));
+    --gradient-fun: linear-gradient(135deg, hsl(0 100% 50%), hsl(25 95% 53%), hsl(48 96% 53%));
+
+    /* Shadows */
+    --shadow-card: 0 4px 12px hsl(0 0% 0% / 0.08);
+    --shadow-elevated: 0 8px 24px hsl(0 0% 0% / 0.12);
+  }
+
+  .dark {
+    /* Dark Theme - YouTube Red & Black */
+    --background: 0 0% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 100% 50%; /* YouTube Red */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 25 95% 53%; /* Fun Orange accent */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
+    --ring: 0 100% 50%;
+
+    /* Playful colors for kids */
+    --fun-yellow: 48 96% 53%;
+    --fun-green: 142 71% 45%;
+    --fun-blue: 217 91% 60%;
+    --fun-purple: 271 76% 53%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(0 100% 50%), hsl(0 100% 65%));
+    --gradient-fun: linear-gradient(135deg, hsl(0 100% 50%), hsl(25 95% 53%), hsl(48 96% 53%));
+
+    /* Shadows */
+    --shadow-card: 0 4px 12px hsl(0 0% 0% / 0.4);
+    --shadow-elevated: 0 8px 24px hsl(0 0% 0% / 0.6);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    /* Mobile performance optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* GPU acceleration for smooth animations on mobile */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Optimize touch interactions */
+  button, a, [role="button"] {
+    touch-action: manipulation;
+  }
+  
+  /* Reduce paint complexity for video containers */
+  video {
+    will-change: auto;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+  
+  /* Optimize scrolling performance */
+  .feed-container,
+  [data-scroll-container] {
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(0) scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-50px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-150px) scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes scale-pulse {
+  0%, 100% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-100vh) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Hide scrollbar for cleaner swipe experience */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Fullscreen video overlay backdrop */
+.fullscreen-backdrop {
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(8px);
+}
