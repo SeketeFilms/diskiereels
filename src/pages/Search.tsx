@@ -11,14 +11,14 @@ import TopCreativesSection from '@/components/TopCreativesSection';
 import ExploreReelViewer from '@/components/ExploreReelViewer';
 
 const CATEGORIES = [
-  { id: 'all', label: 'All', emoji: '🎬' },
-  { id: 'comedy', label: 'Comedy', emoji: '😂' },
-  { id: 'adventure', label: 'Adventure', emoji: '🚀' },
-  { id: 'learning', label: 'Learning', emoji: '📚' },
-  { id: 'music', label: 'Music', emoji: '🎵' },
-  { id: 'animals', label: 'Animals', emoji: '🐾' },
-  { id: 'superheroes', label: 'Heroes', emoji: '🦸' },
-  { id: 'fairytales', label: 'Fairytales', emoji: '🏰' },
+  { id: 'all', label: 'All', emoji: '⚽' },
+  { id: 'goals', label: 'Goals', emoji: '🥅' },
+  { id: 'skills', label: 'Skills', emoji: '🔥' },
+  { id: 'highlights', label: 'Highlights', emoji: '🏆' },
+  { id: 'tackles', label: 'Tackles', emoji: '💪' },
+  { id: 'freekicks', label: 'Free Kicks', emoji: '🎯' },
+  { id: 'celebrations', label: 'Celebrations', emoji: '🎉' },
+  { id: 'training', label: 'Training', emoji: '🏃' },
 ];
 
 interface Video {

@@ -223,8 +223,8 @@ const Auth = () => {
       </div>
       <Card className="w-full max-w-md shadow-elevated animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-500">
         <CardHeader className="text-center">
-          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent mx-auto">
-            <Play className="h-8 w-8 text-primary-foreground fill-primary-foreground" />
+          <div className="mb-4 mx-auto">
+            <img src="/diskiereels-logo.png" alt="DiskieReels" className="h-20 w-20 mx-auto" />
           </div>
           <CardTitle className="text-3xl font-black">
             {isSignUp ? 'Join DiskieReels!' : 'Welcome Back!'}
