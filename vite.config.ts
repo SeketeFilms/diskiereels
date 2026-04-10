@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
         name: 'DiskieReels - Soccer Reels & Highlights',
         short_name: 'DiskieReels',
         description: 'Watch and share the best soccer reels and highlights',
-        theme_color: '#FF6B6B',
+        theme_color: '#1a1a2e',
         background_color: '#FFFFFF',
         display: 'standalone',
         orientation: 'portrait',
