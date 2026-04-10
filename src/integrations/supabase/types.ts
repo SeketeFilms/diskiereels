@@ -125,7 +125,7 @@ export type Database = {
       }
       content_settings: {
         Row: {
-          soccer_only_mode: boolean | null
+          cartoon_only_mode: boolean | null
           comments_visibility: string | null
           content_categories: string[] | null
           created_at: string | null
@@ -135,7 +135,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          soccer_only_mode?: boolean | null
+          cartoon_only_mode?: boolean | null
           comments_visibility?: string | null
           content_categories?: string[] | null
           created_at?: string | null
@@ -145,7 +145,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          soccer_only_mode?: boolean | null
+          cartoon_only_mode?: boolean | null
           comments_visibility?: string | null
           content_categories?: string[] | null
           created_at?: string | null
@@ -153,6 +153,30 @@ export type Database = {
           interaction_limits?: boolean | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string | null
+          participant_one: string
+          participant_two: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          participant_one: string
+          participant_two: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          participant_one?: string
+          participant_two?: string
         }
         Relationships: []
       }
@@ -310,6 +334,41 @@ export type Database = {
             columns: ["video_id"]
             isOneToOne: false
             referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]

@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
-// Eager load all main navigation routes for instant switching
 import Auth from "./pages/Auth";
 import Feed from "./pages/Feed";
 import Search from "./pages/Search";
@@ -20,7 +19,6 @@ import VideoAnalytics from "./pages/VideoAnalytics";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
-import ParentDashboard from "./pages/ParentDashboard";
 import Install from "./pages/Install";
 import StarsDashboard from "./pages/StarsDashboard";
 import DiskieStudio from "./pages/DiskieStudio";
@@ -58,7 +56,6 @@ const AppContent = () => {
         <Route path="/milestones" element={<Milestones />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
-        <Route path="/parent-dashboard" element={<ParentDashboard />} />
         <Route path="/install" element={<Install />} />
         <Route path="/stars-dashboard" element={<StarsDashboard />} />
         <Route path="/diskie-studio" element={<DiskieStudio />} />
@@ -76,7 +73,6 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        
         <BrowserRouter>
           <AppContent />
         </BrowserRouter>
