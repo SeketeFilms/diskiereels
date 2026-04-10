@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 
-interface LikeSoccer ContentProps {
+interface LikeAnimationProps {
   x: number;
   y: number;
   onComplete: () => void;
@@ -15,7 +15,7 @@ interface Particle {
   color: string;
 }
 
-const LikeSoccer Content = ({ x, y, onComplete }: LikeSoccer ContentProps) => {
+const LikeAnimation = ({ x, y, onComplete }: LikeAnimationProps) => {
   const [visible, setVisible] = useState(true);
   const [particles, setParticles] = useState<Particle[]>([]);
 
@@ -58,7 +58,7 @@ const LikeSoccer Content = ({ x, y, onComplete }: LikeSoccer ContentProps) => {
           left: '50%',
           top: '50%',
           transform: 'translate(-50%, -50%)',
-          soccer content: 'ring-explode 0.6s ease-out forwards',
+          animation: 'ring-explode 0.6s ease-out forwards',
         }}
       />
       <div
@@ -69,7 +69,7 @@ const LikeSoccer Content = ({ x, y, onComplete }: LikeSoccer ContentProps) => {
           left: '50%',
           top: '50%',
           transform: 'translate(-50%, -50%)',
-          soccer content: 'ring-explode 0.6s ease-out 0.1s forwards',
+          animation: 'ring-explode 0.6s ease-out 0.1s forwards',
         }}
       />
       <div
@@ -80,7 +80,7 @@ const LikeSoccer Content = ({ x, y, onComplete }: LikeSoccer ContentProps) => {
           left: '50%',
           top: '50%',
           transform: 'translate(-50%, -50%)',
-          soccer content: 'ring-explode 0.6s ease-out 0.2s forwards',
+          animation: 'ring-explode 0.6s ease-out 0.2s forwards',
         }}
       />
 
@@ -96,7 +96,7 @@ const LikeSoccer Content = ({ x, y, onComplete }: LikeSoccer ContentProps) => {
             left: '50%',
             top: '50%',
             transform: 'translate(-50%, -50%)',
-            soccer content: `particle-burst-${particle.id % 4} 0.8s ease-out forwards`,
+            animation: `particle-burst-${particle.id % 4} 0.8s ease-out forwards`,
           }}
         />
       ))}
@@ -109,7 +109,7 @@ const LikeSoccer Content = ({ x, y, onComplete }: LikeSoccer ContentProps) => {
           top: '50%',
           transform: 'translate(-50%, -50%)',
           filter: 'drop-shadow(0 0 20px rgba(239, 68, 68, 0.8))',
-          soccer content: 'heart-pop 0.8s ease-out forwards',
+          animation: 'heart-pop 0.8s ease-out forwards',
         }}
       />
 
@@ -177,4 +177,4 @@ const LikeSoccer Content = ({ x, y, onComplete }: LikeSoccer ContentProps) => {
   );
 };
 
-export default LikeSoccer Content;
+export default LikeAnimation;

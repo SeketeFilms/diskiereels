@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Heart, MessageCircle, Download, Flag, Trash2, Volume2, VolumeX, Bookmark, BookmarkCheck, Settings, Repeat, Ban, BadgeCheck, Subtitles, Star } from 'lucide-react';
 import { toast } from 'sonner';
-import LikeSoccer Content from '@/components/LikeSoccer Content';
+import LikeAnimation from '@/components/LikeAnimation';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import DownloadQualityDialog from '@/components/DownloadQualityDialog';
@@ -137,7 +137,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
   const [isFollowing, setIsFollowing] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
-  const [likeSoccer Contents, setLikeSoccer Contents] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const [likeAnimations, setLikeAnimations] = useState<Array<{ id: number; x: number; y: number }>>([]);
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -167,7 +167,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
   const subtitleDragStart = useRef<{ x: number; y: number; posX: number; posY: number } | null>(null);
   
   const lastTapRef = useRef<number>(0);
-  const soccer contentIdRef = useRef<number>(0);
+  const animationIdRef = useRef<number>(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const watchStartTimeRef = useRef<number>(Date.now());
@@ -577,7 +577,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       lastTimeUpdate = now;
       
       if (rafId) return;
-      rafId = requestSoccer ContentFrame(() => {
+      rafId = requestAnimationFrame(() => {
         rafId = null;
         const time = videoEl.currentTime;
         // Only re-render if time changed by >0.4s (visible on progress bar)
@@ -869,8 +869,8 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       const x = 'touches' in e ? e.changedTouches[0]?.clientX || 0 : e.clientX;
       const y = 'touches' in e ? e.changedTouches[0]?.clientY || 0 : e.clientY;
       
-      const id = soccer contentIdRef.current++;
-      setLikeSoccer Contents(prev => [...prev, { id, x, y }]);
+      const id = animationIdRef.current++;
+      setLikeAnimations(prev => [...prev, { id, x, y }]);
       
       // Trigger haptic and sound feedback on like
       triggerLikeHaptic();
@@ -982,8 +982,8 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     }
   };
 
-  const removeSoccer Content = (id: number) => {
-    setLikeSoccer Contents(prev => prev.filter(anim => anim.id !== id));
+  const removeAnimation = (id: number) => {
+    setLikeAnimations(prev => prev.filter(anim => anim.id !== id));
   };
 
   const handleProgressBarClick = useCallback((e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
@@ -1314,13 +1314,13 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
           width: isFullscreen && !isMobile ? '100vw' : '100%',
         }}
       >
-      {/* Like soccer contents */}
-      {likeSoccer Contents.map(anim => (
-        <LikeSoccer Content
+      {/* Like animations */}
+      {likeAnimations.map(anim => (
+        <LikeAnimation
           key={anim.id}
           x={anim.x}
           y={anim.y}
-          onComplete={() => removeSoccer Content(anim.id)}
+          onComplete={() => removeAnimation(anim.id)}
         />
       ))}
       

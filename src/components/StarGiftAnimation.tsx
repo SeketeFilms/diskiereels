@@ -11,12 +11,12 @@ interface StarParticle {
   rotation: number;
 }
 
-interface StarGiftSoccer ContentProps {
+interface StarGiftAnimationProps {
   amount: number;
   onComplete: () => void;
 }
 
-const StarGiftSoccer Content = ({ amount, onComplete }: StarGiftSoccer ContentProps) => {
+const StarGiftAnimation = ({ amount, onComplete }: StarGiftAnimationProps) => {
   const [particles, setParticles] = useState<StarParticle[]>([]);
   const [showBurst, setShowBurst] = useState(true);
 
@@ -61,7 +61,7 @@ const StarGiftSoccer Content = ({ amount, onComplete }: StarGiftSoccer ContentPr
           style={{
             left: `${p.x}%`,
             top: `${p.y}%`,
-            soccer content: `starFly ${p.duration}s ease-out ${p.delay}s forwards`,
+            animation: `starFly ${p.duration}s ease-out ${p.delay}s forwards`,
             transform: `rotate(${p.rotation}deg)`,
           }}
         >
@@ -92,4 +92,4 @@ const StarGiftSoccer Content = ({ amount, onComplete }: StarGiftSoccer ContentPr
   );
 };
 
-export default StarGiftSoccer Content;
+export default StarGiftAnimation;

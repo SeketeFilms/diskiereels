@@ -28,17 +28,17 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewCreator, setPreviewCreator] = useState<TopCreator | null>(null);
-  const [soccer contentTriggered, setSoccer ContentTriggered] = useState(false);
+  const [animationTriggered, setAnimationTriggered] = useState(false);
 
   useEffect(() => {
     fetchTopCreators();
   }, []);
 
-  // Trigger soccer content after loading
+  // Trigger animation after loading
   useEffect(() => {
     if (!isLoading && topCreators.length > 0) {
       // Small delay to ensure DOM is ready
-      const timer = setTimeout(() => setSoccer ContentTriggered(true), 100);
+      const timer = setTimeout(() => setAnimationTriggered(true), 100);
       return () => clearTimeout(timer);
     }
   }, [isLoading, topCreators]);
@@ -349,13 +349,13 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
           This Week's Top Creatives
         </h2>
         
-        {/* Horizontal scroll on laptop with slide-in soccer content */}
+        {/* Horizontal scroll on laptop with slide-in animation */}
         <div className="hidden lg:flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {topCreators.map((creator, index) => (
             <div
               key={creator.id}
               className={`flex-shrink-0 w-32 bg-gradient-to-br from-primary/20 via-accent/20 to-fun-yellow/20 rounded-xl p-3 border border-border hover:border-primary/50 transition-all group ${
-                soccer contentTriggered 
+                animationTriggered 
                   ? 'opacity-100 translate-x-0' 
                   : index % 2 === 0 ? 'opacity-0 -translate-x-16' : 'opacity-0 translate-x-16'
               }`}
@@ -448,13 +448,13 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
           ))}
         </div>
 
-        {/* Grid on mobile with slide-in soccer content */}
+        {/* Grid on mobile with slide-in animation */}
         <div className="lg:hidden grid grid-cols-3 gap-2">
           {topCreators.slice(0, 3).map((creator, index) => (
             <div
               key={creator.id}
               className={`bg-gradient-to-br from-primary/20 via-accent/20 to-fun-yellow/20 rounded-xl p-2 border border-border ${
-                soccer contentTriggered 
+                animationTriggered 
                   ? 'opacity-100 translate-y-0' 
                   : 'opacity-0 translate-y-8'
               }`}

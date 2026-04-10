@@ -22,7 +22,7 @@ export default function DiagnosticsOverlay({ enabled = false }: DiagnosticsOverl
   useEffect(() => {
     if (!isVisible) return;
 
-    let soccer contentFrameId: number;
+    let animationFrameId: number;
     
     const measureFps = (currentTime: number) => {
       frameCountRef.current++;
@@ -34,12 +34,12 @@ export default function DiagnosticsOverlay({ enabled = false }: DiagnosticsOverl
         lastTimeRef.current = currentTime;
       }
       
-      soccer contentFrameId = requestSoccer ContentFrame(measureFps);
+      animationFrameId = requestAnimationFrame(measureFps);
     };
     
-    soccer contentFrameId = requestSoccer ContentFrame(measureFps);
+    animationFrameId = requestAnimationFrame(measureFps);
     
-    return () => cancelSoccer ContentFrame(soccer contentFrameId);
+    return () => cancelAnimationFrame(animationFrameId);
   }, [isVisible]);
 
   // Network request tracking

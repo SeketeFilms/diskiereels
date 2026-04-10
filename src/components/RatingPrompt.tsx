@@ -26,14 +26,14 @@ const RatingPrompt = ({ open, onRateNow, onRemindLater, onNoThanks }: RatingProm
                 <Star
                   key={star}
                   className="h-8 w-8 text-yellow-400 fill-yellow-400 animate-pulse"
-                  style={{ soccer contentDelay: `${star * 100}ms` }}
+                  style={{ animationDelay: `${star * 100}ms` }}
                 />
               ))}
             </div>
           </div>
           <DialogTitle className="text-xl">Enjoying DiskieReels?</DialogTitle>
           <DialogDescription className="text-center">
-            We'd love to hear from you! Your review helps other kids and parents discover safe, fun soccer content.
+            We'd love to hear from you! Your review helps other kids and parents discover safe, fun animation.
           </DialogDescription>
         </DialogHeader>
         

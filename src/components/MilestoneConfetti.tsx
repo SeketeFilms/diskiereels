@@ -84,7 +84,7 @@ const MilestoneConfetti = ({ milestone, type, onComplete }: MilestoneConfettiPro
             backgroundColor: piece.color,
             borderRadius: 2,
             transform: `rotate(${piece.rotation}deg)`,
-            soccer content: `confetti-fall ${piece.duration}s ease-in ${piece.delay}s forwards`,
+            animation: `confetti-fall ${piece.duration}s ease-in ${piece.delay}s forwards`,
           }}
         />
       ))}
@@ -92,7 +92,7 @@ const MilestoneConfetti = ({ milestone, type, onComplete }: MilestoneConfettiPro
       {/* Milestone badge */}
       <div 
         className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2"
-        style={{ soccer content: 'milestone-pop 0.6s ease-out forwards' }}
+        style={{ animation: 'milestone-pop 0.6s ease-out forwards' }}
       >
         <div className="bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 rounded-2xl p-1 shadow-2xl">
           <div className="bg-background/90 backdrop-blur-sm rounded-xl px-6 py-4 text-center">
