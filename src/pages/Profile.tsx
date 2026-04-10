@@ -993,7 +993,8 @@ const Profile = () => {
         )}
 
         {/* Videos Grid */}
-        {profile.user_type === 'creative' && (
+        {(
+
           <div className="p-4">
             <h2 className="text-xl font-black mb-4 flex items-center gap-2">
               <Video className="h-6 w-6 text-primary" />
@@ -1109,8 +1110,7 @@ const Profile = () => {
           </div>
         )}
 
-        {/* Saved Videos for Viewers */}
-        {profile.user_type === 'viewer' && isOwnProfile && (
+        {isOwnProfile && savedVideos.length > 0 && (
           <div className="p-4">
             <h2 className="text-xl font-black mb-4 flex items-center gap-2">
               <Bookmark className="h-6 w-6 text-primary" />
