@@ -239,10 +239,10 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
     ctx.fillText(`❤️ ${formatCount(creator.weeklyLikes)} likes (${likesGrowthText})`, 500, statsStartY + 80);
     ctx.fillText(`🎬 ${creator.videoCount} videos`, 500, statsStartY + 160);
 
-    // Footer with ToonlyReels branding
+    // Footer with DiskieReels branding
     ctx.font = 'bold 36px system-ui, -apple-system, sans-serif';
     ctx.fillStyle = 'rgba(255,255,255,0.8)';
-    ctx.fillText('ToonlyReels • Week of ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), 500, 940);
+    ctx.fillText('DiskieReels • Week of ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), 500, 940);
 
     return canvas.toDataURL('image/png');
   };
@@ -263,7 +263,7 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
     }
 
     const link = document.createElement('a');
-    link.download = `toonlyreels-top-creator-${creator.username}.png`;
+    link.download = `diskiereels-top-creator-${creator.username}.png`;
     link.href = imageUrl;
     link.click();
     toast.success('Image downloaded!');
@@ -279,13 +279,13 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
     // Convert data URL to Blob
     const response = await fetch(imageUrl);
     const blob = await response.blob();
-    const file = new File([blob], `toonlyreels-top-creator-${creator.username}.png`, { type: 'image/png' });
+    const file = new File([blob], `diskiereels-top-creator-${creator.username}.png`, { type: 'image/png' });
 
     // Check if Web Share API supports sharing files
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({
-          title: `🏆 #${rank} Top Creator on ToonlyReels`,
+          title: `🏆 #${rank} Top Creator on DiskieReels`,
           text: `Check out @${creator.username} - This week's #${rank} top creator with ${formatCount(creator.weeklyViews)} views!`,
           files: [file]
         });
@@ -294,7 +294,7 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
         if (error.name !== 'AbortError') {
           // Fallback to clipboard
           await navigator.clipboard.writeText(
-            `🏆 Check out @${creator.username} - #${rank} Top Creator on ToonlyReels with ${formatCount(creator.weeklyViews)} views this week!`
+            `🏆 Check out @${creator.username} - #${rank} Top Creator on DiskieReels with ${formatCount(creator.weeklyViews)} views this week!`
           );
           toast.success('Link copied to clipboard!');
         }
@@ -302,7 +302,7 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
     } else {
       // Fallback to clipboard
       await navigator.clipboard.writeText(
-        `🏆 Check out @${creator.username} - #${rank} Top Creator on ToonlyReels with ${formatCount(creator.weeklyViews)} views this week!`
+        `🏆 Check out @${creator.username} - #${rank} Top Creator on DiskieReels with ${formatCount(creator.weeklyViews)} views this week!`
       );
       toast.success('Link copied to clipboard!');
     }
@@ -550,7 +550,7 @@ const TopCreativesSection = ({ formatCount }: TopCreativesSectionProps) => {
               <Button
                 onClick={() => {
                   const link = document.createElement('a');
-                  link.download = `toonlyreels-top-creator-${previewCreator.username}.png`;
+                  link.download = `diskiereels-top-creator-${previewCreator.username}.png`;
                   link.href = previewImage;
                   link.click();
                   toast.success('Image downloaded!');

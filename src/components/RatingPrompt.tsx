@@ -31,9 +31,9 @@ const RatingPrompt = ({ open, onRateNow, onRemindLater, onNoThanks }: RatingProm
               ))}
             </div>
           </div>
-          <DialogTitle className="text-xl">Enjoying ToonlyReels?</DialogTitle>
+          <DialogTitle className="text-xl">Enjoying DiskieReels?</DialogTitle>
           <DialogDescription className="text-center">
-            We'd love to hear from you! Your review helps other kids and parents discover safe, fun cartoon content.
+            We'd love to hear from you! Your review helps other kids and parents discover safe, fun animation.
           </DialogDescription>
         </DialogHeader>
         

@@ -261,7 +261,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
   // Fetch trending tags only once and cache them
   useEffect(() => {
     // Use sessionStorage cache to avoid refetching on every video
-    const cached = sessionStorage.getItem('toonreels_trending_tags');
+    const cached = sessionStorage.getItem('diskiereels_trending_tags');
     if (cached) {
       try {
         const { tags, timestamp } = JSON.parse(cached);
@@ -304,7 +304,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     setTrendingTags(topTags);
     
     // Cache the result
-    sessionStorage.setItem('toonreels_trending_tags', JSON.stringify({
+    sessionStorage.setItem('diskiereels_trending_tags', JSON.stringify({
       tags: topTags,
       timestamp: Date.now()
     }));
@@ -1192,12 +1192,12 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         finalBlob = videoBlob;
         fileExtension = 'mp4';
       } else {
-        setDownloadStage('Adding ToonlyReels watermark...');
+        setDownloadStage('Adding DiskieReels watermark...');
         
         // Apply watermark client-side using Canvas API with cancellation support
         const controller = addWatermarkToVideo(
           videoBlob, 
-          data.creator_username || 'ToonlyReels',
+          data.creator_username || 'DiskieReels',
           (progress) => {
             setDownloadProgress(50 + Math.floor(progress * 0.45)); // 50-95%
           }
@@ -1215,7 +1215,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       const url = URL.createObjectURL(finalBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${data.title || video.title}_ToonlyReels.${fileExtension}`;
+      link.download = `${data.title || video.title}_DiskieReels.${fileExtension}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1225,7 +1225,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       triggerHaptic('heavy');
       playSuccessSound();
       
-      toast.success(skipWatermark ? 'Downloaded successfully!' : 'Downloaded with ToonlyReels watermark!');
+      toast.success(skipWatermark ? 'Downloaded successfully!' : 'Downloaded with DiskieReels watermark!');
     } catch (error) {
       if ((error as Error).message === 'Download cancelled') {
         toast.info('Download cancelled');
@@ -1391,12 +1391,12 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
       
-      {/* ToonlyReels Branding - Top Left */}
+      {/* DiskieReels Branding - Top Left */}
       <div className="absolute top-12 left-3 z-20">
-        <span className="text-white/40 text-xl font-bold tracking-wide">ToonlyReels</span>
+        <span className="text-white/40 text-xl font-bold tracking-wide">DiskieReels</span>
       </div>
       
-      {/* Top Controls - aligned with ToonlyReels branding */}
+      {/* Top Controls - aligned with DiskieReels branding */}
       <div className="absolute top-12 right-3 z-20 flex items-center gap-2">
         {/* Settings (Quality & Speed) */}
         <DropdownMenu open={showSettingsMenu} onOpenChange={setShowSettingsMenu}>
@@ -1531,7 +1531,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
               </AvatarFallback>
             </Avatar>
             <span className="font-medium text-xs">{video.profiles.username}</span>
-            {video.profiles.is_verified && video.profiles.username === 'ToonlyReelsOff' ? (
+            {video.profiles.is_verified && video.profiles.username === 'DiskieReelsOff' ? (
               <span className="text-yellow-400 text-sm drop-shadow-[0_0_1px_rgba(0,0,0,1)] [text-shadow:_-1px_-1px_0_#000,_1px_-1px_0_#000,_-1px_1px_0_#000,_1px_1px_0_#000]">
                 ⭐
               </span>

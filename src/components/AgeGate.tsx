@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Shield, Users, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
-import toonreelsLogo from "@/assets/toonreels-logo.png";
+import diskiereelsLogo from "@/assets/diskiereels-logo.png";
 
 interface AgeGateProps {
   onVerified: () => void;
@@ -20,8 +20,8 @@ const AgeGate = ({ onVerified }: AgeGateProps) => {
 
   const handleVerify = () => {
     if (canProceed) {
-      localStorage.setItem("toonlyreels_age_verified", "true");
-      localStorage.setItem("toonlyreels_verification_date", new Date().toISOString());
+      localStorage.setItem("diskiereels_age_verified", "true");
+      localStorage.setItem("diskiereels_verification_date", new Date().toISOString());
       onVerified();
     }
   };
@@ -31,14 +31,14 @@ const AgeGate = ({ onVerified }: AgeGateProps) => {
       <Card className="w-full max-w-md shadow-elevated border-2 border-primary/20">
         <CardHeader className="text-center pb-2">
           <div className="mx-auto mb-4">
-            <img src={toonreelsLogo} alt="ToonlyReels" className="w-20 h-20 mx-auto" />
+            <img src={diskiereelsLogo} alt="DiskieReels" className="w-20 h-20 mx-auto" />
           </div>
           <CardTitle className="text-2xl font-black flex items-center justify-center gap-2">
             <Shield className="h-6 w-6 text-primary" />
             Parental Verification
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-2">
-            ToonlyReels is designed for children ages 4-15
+            DiskieReels is designed for children all ages
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -50,7 +50,7 @@ const AgeGate = ({ onVerified }: AgeGateProps) => {
                 <p className="font-semibold mb-1">COPPA Compliance Notice</p>
                 <p>
                   In accordance with the Children's Online Privacy Protection Act (COPPA), 
-                  we require parental consent before children under 13 can use ToonlyReels.
+                  we require parental consent before users can use DiskieReels.
                 </p>
               </div>
             </div>
@@ -78,7 +78,7 @@ const AgeGate = ({ onVerified }: AgeGateProps) => {
                 className="mt-0.5"
               />
               <Label htmlFor="parent" className="text-sm cursor-pointer leading-relaxed">
-                I am a <span className="font-semibold">parent or legal guardian</span> and I consent to my child using ToonlyReels
+                I am a <span className="font-semibold">parent or legal guardian</span> and I consent to my child using DiskieReels
               </Label>
             </div>
 

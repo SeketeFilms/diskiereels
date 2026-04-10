@@ -1,5 +1,5 @@
 /**
- * Adds ToonlyReels watermark and creator outro to a video using Canvas API
+ * Adds DiskieReels watermark and creator outro to a video using Canvas API
  */
 
 export interface WatermarkController {
@@ -101,7 +101,7 @@ export function addWatermarkToVideo(
           ctx.shadowOffsetX = 2;
           ctx.shadowOffsetY = 2;
           
-          ctx.fillText('ToonlyReels', canvas.width / 2, canvas.height - 60);
+          ctx.fillText('DiskieReels', canvas.width / 2, canvas.height - 60);
           
           ctx.font = '24px Arial';
           ctx.fillText(`@${creatorUsername}`, canvas.width / 2, canvas.height - 25);
@@ -114,7 +114,7 @@ export function addWatermarkToVideo(
           ctx.shadowOffsetX = 2;
           ctx.shadowOffsetY = 2;
           ctx.textAlign = 'left';
-          ctx.fillText('ToonlyReels', 10, canvas.height - 10);
+          ctx.fillText('DiskieReels', 10, canvas.height - 10);
         }
         
         ctx.shadowBlur = 0;

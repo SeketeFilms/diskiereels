@@ -47,7 +47,7 @@ const Install = () => {
       <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-center">
         <CheckCircle2 className="mb-4 h-16 w-16 text-green-500" />
         <h1 className="mb-2 text-2xl font-bold text-foreground">Already Installed!</h1>
-        <p className="mb-6 text-muted-foreground">ToonlyReels is installed on your device. Enjoy!</p>
+        <p className="mb-6 text-muted-foreground">DiskieReels is installed on your device. Enjoy!</p>
         <Button onClick={() => window.location.href = "/feed"} className="gap-2">
           Open App <ArrowRight className="h-4 w-4" />
         </Button>
@@ -60,13 +60,13 @@ const Install = () => {
       {/* Header */}
       <div className="mb-8 flex flex-col items-center text-center">
         <img
-          src="https://storage.googleapis.com/gpt-engineer-file-uploads/YhjAWGaWarSE2KQXMcw8kze1WNk2/uploads/1770415691079-ToonlyReels_Logo_copy.png"
-          alt="ToonlyReels"
+          src="/diskiereels-logo.png"
+          alt="DiskieReels"
           className="mb-4 h-20 w-20 rounded-2xl shadow-lg"
         />
-        <h1 className="text-3xl font-bold text-foreground">Get ToonlyReels</h1>
+        <h1 className="text-3xl font-bold text-foreground">Get DiskieReels</h1>
         <p className="mt-2 max-w-sm text-muted-foreground">
-          Install ToonlyReels on your phone for the best experience — fast, fun, and works offline!
+          Install DiskieReels on your phone for the best experience — fast, fun, and works offline!
         </p>
       </div>
 
@@ -146,7 +146,7 @@ const Install = () => {
         {[
           { icon: "⚡", text: "Loads instantly — no browser delays" },
           { icon: "📱", text: "Full-screen experience like a real app" },
-          { icon: "🔔", text: "Get notified about new cartoons" },
+          { icon: "🔔", text: "Get notified about new soccer reels" },
           { icon: "📶", text: "Works even with a slow connection" },
         ].map((item, i) => (
           <div key={i} className="flex items-center gap-3 rounded-xl bg-muted/50 px-4 py-3">

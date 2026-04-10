@@ -14,7 +14,7 @@ const MILESTONES = {
   views: [1000, 10000, 50000, 100000, 200000, 500000, 20000000],
 };
 
-const STORAGE_KEY = 'toonlyreels_achieved_milestones';
+const STORAGE_KEY = 'diskiereels_achieved_milestones';
 
 const getAchievedMilestones = (): Record<string, number[]> => {
   try {

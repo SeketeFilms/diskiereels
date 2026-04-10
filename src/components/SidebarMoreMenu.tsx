@@ -41,7 +41,7 @@ const SidebarMoreMenu = ({ isCreative }: SidebarMoreMenuProps) => {
 
   const loadAccountsAndCurrentUser = async () => {
     // Load saved accounts from localStorage
-    const accounts = localStorage.getItem('toonreels_saved_accounts');
+    const accounts = localStorage.getItem('diskiereels_saved_accounts');
     if (accounts) {
       setSavedAccounts(JSON.parse(accounts));
     }
@@ -75,14 +75,14 @@ const SidebarMoreMenu = ({ isCreative }: SidebarMoreMenuProps) => {
         
         if (!existingAccount) {
           const updatedAccounts = [...existingAccounts, currentAccount].slice(0, MAX_ACCOUNTS);
-          localStorage.setItem('toonreels_saved_accounts', JSON.stringify(updatedAccounts));
+          localStorage.setItem('diskiereels_saved_accounts', JSON.stringify(updatedAccounts));
           setSavedAccounts(updatedAccounts);
         } else {
           // Update existing account info but preserve login settings
           const updatedAccounts = existingAccounts.map((acc: SavedAccount) => 
             acc.id === user.id ? currentAccount : acc
           );
-          localStorage.setItem('toonreels_saved_accounts', JSON.stringify(updatedAccounts));
+          localStorage.setItem('diskiereels_saved_accounts', JSON.stringify(updatedAccounts));
           setSavedAccounts(updatedAccounts);
         }
       }
@@ -163,7 +163,7 @@ const SidebarMoreMenu = ({ isCreative }: SidebarMoreMenuProps) => {
       return;
     }
     const updatedAccounts = savedAccounts.filter(acc => acc.id !== accountId);
-    localStorage.setItem('toonreels_saved_accounts', JSON.stringify(updatedAccounts));
+    localStorage.setItem('diskiereels_saved_accounts', JSON.stringify(updatedAccounts));
     setSavedAccounts(updatedAccounts);
     toast.success('Account removed');
   };
@@ -274,14 +274,14 @@ const SidebarMoreMenu = ({ isCreative }: SidebarMoreMenuProps) => {
           </div>
         ) : (
           <div className="space-y-1">
-            {/* ToonlyStudio - Only for Creatives */}
+            {/* DiskieStudio - Only for Creatives */}
             {isCreative && (
               <button 
-                onClick={() => handleNavigate('/toonly-studio')}
+                onClick={() => handleNavigate('/diskie-studio')}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-muted transition-colors"
               >
                 <BarChart3 className="h-4 w-4" />
-                <span>ToonlyStudio</span>
+                <span>DiskieStudio</span>
               </button>
             )}
 

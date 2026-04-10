@@ -158,7 +158,7 @@ const DownloadQualityDialog = ({
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {isPremium 
-                  ? 'Download faster without ToonlyReels watermark' 
+                  ? 'Download faster without DiskieReels watermark' 
                   : 'Upgrade to Premium for watermark-free downloads'}
               </p>
             </div>

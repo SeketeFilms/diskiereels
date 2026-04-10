@@ -2,7 +2,7 @@ import { Film, Search, Upload, Bell, User, Settings } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import toonreelsLogo from '@/assets/toonreels-logo.png';
+import diskiereelsLogo from '@/assets/diskiereels-logo.png';
 import SidebarMoreMenu from './SidebarMoreMenu';
 
 // Persistent cache that survives component re-mounts
@@ -149,7 +149,7 @@ const DesktopSidebar = () => {
 
   // Main nav items - Reels, Explore, Upload (creative only), Notifications, Profile, Settings
   const navItems = [
-    { path: '/feed', icon: Film, label: 'Toonz', badge: 0 },
+    { path: '/feed', icon: Film, label: 'Reels', badge: 0 },
     { path: '/search', icon: Search, label: 'Explore', badge: 0 },
     ...(isLoaded && isCreative ? [{ path: '/upload', icon: Upload, label: 'Upload', badge: 0 }] : []),
     { path: '/notifications', icon: Bell, label: 'Notifications', badge: unreadCount },
@@ -161,8 +161,8 @@ const DesktopSidebar = () => {
     <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 lg:w-64 bg-card border-r border-border flex-col z-50">
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-6 border-b border-border">
-        <img src={toonreelsLogo} alt="ToonlyReels" className="w-10 h-10" />
-        <span className="text-xl font-black text-foreground">ToonlyReels</span>
+        <img src={diskiereelsLogo} alt="DiskieReels" className="w-10 h-10" />
+        <span className="text-xl font-black text-foreground">DiskieReels</span>
       </div>
 
       {/* Navigation */}
@@ -193,7 +193,7 @@ const DesktopSidebar = () => {
       {/* Footer with More Menu */}
       <div className="p-3 border-t border-border space-y-1">
         <SidebarMoreMenu isCreative={isCreative} />
-        <p className="text-xs text-muted-foreground text-center py-2">© 2025 ToonlyReels</p>
+        <p className="text-xs text-muted-foreground text-center py-2">© 2025 DiskieReels</p>
       </div>
     </aside>
   );

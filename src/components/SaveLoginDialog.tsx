@@ -54,7 +54,7 @@ const SaveLoginDialog = ({
     try {
       // Get existing saved accounts
       const existingAccounts = JSON.parse(
-        localStorage.getItem('toonreels_saved_accounts') || '[]'
+        localStorage.getItem('diskiereels_saved_accounts') || '[]'
       );
 
       // Update or add the account with saved login
@@ -82,7 +82,7 @@ const SaveLoginDialog = ({
       // Keep max 3 accounts
       const limitedAccounts = existingAccounts.slice(0, 3);
       localStorage.setItem(
-        'toonreels_saved_accounts',
+        'diskiereels_saved_accounts',
         JSON.stringify(limitedAccounts)
       );
 
@@ -99,7 +99,7 @@ const SaveLoginDialog = ({
   const handleSkip = () => {
     // Save account without PIN
     const existingAccounts = JSON.parse(
-      localStorage.getItem('toonreels_saved_accounts') || '[]'
+      localStorage.getItem('diskiereels_saved_accounts') || '[]'
     );
 
     const accountIndex = existingAccounts.findIndex(
@@ -123,7 +123,7 @@ const SaveLoginDialog = ({
 
     const limitedAccounts = existingAccounts.slice(0, 3);
     localStorage.setItem(
-      'toonreels_saved_accounts',
+      'diskiereels_saved_accounts',
       JSON.stringify(limitedAccounts)
     );
 

@@ -17,22 +17,22 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'robots.txt'],
       manifest: {
-        name: 'ToonlyReels - Animated Fun for Kids',
-        short_name: 'ToonlyReels',
-        description: 'Watch and share amazing animated cartoons for kids',
-        theme_color: '#FF6B6B',
+        name: 'DiskieReels - Soccer Reels & Highlights',
+        short_name: 'DiskieReels',
+        description: 'Watch and share the best soccer reels and highlights',
+        theme_color: '#1a1a2e',
         background_color: '#FFFFFF',
         display: 'standalone',
         orientation: 'portrait',
         icons: [
           {
-            src: '/toonreels-icon.png',
+            src: '/diskiereels-icon.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any maskable'
           },
           {
-            src: '/toonreels-icon.png',
+            src: '/diskiereels-icon.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'

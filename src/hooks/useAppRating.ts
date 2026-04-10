@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-const RATING_STORAGE_KEY = 'toonlyreels_rating_data';
+const RATING_STORAGE_KEY = 'diskiereels_rating_data';
 const POSITIVE_ACTIONS_THRESHOLD = 5;
 const DISMISS_COOLDOWN_DAYS = 7;
 
@@ -57,7 +57,7 @@ export const useAppRating = () => {
     setShowRatingPrompt(false);
     
     // Open Play Store
-    window.open('https://play.google.com/store/apps/details?id=app.toonlyreels', '_blank');
+    window.open('https://play.google.com/store/apps/details?id=app.diskiereels', '_blank');
   }, [getRatingData, saveRatingData]);
 
   const handleRemindLater = useCallback(() => {

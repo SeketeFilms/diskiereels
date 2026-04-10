@@ -24,7 +24,7 @@ interface MilestoneBadge {
   color: string;
 }
 
-const MILESTONES_STORAGE_KEY = 'toonlyreels_achieved_milestones';
+const MILESTONES_STORAGE_KEY = 'diskiereels_achieved_milestones';
 
 const getAchievedMilestones = (): Record<string, number[]> => {
   try {
@@ -64,7 +64,7 @@ interface Transaction {
 const ELIGIBILITY_FOLLOWERS = 5000;
 const ELIGIBILITY_WATCH_HOURS = 1000000;
 
-const ToonlyStudio = () => {
+const DiskieStudio = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') || 'overview';
@@ -127,7 +127,7 @@ const ToonlyStudio = () => {
       .eq('user_id', uid);
 
     if (!roles?.some(r => r.role === 'creative')) {
-      toast.error('ToonlyStudio is only available for creatives');
+      toast.error('DiskieStudio is only available for creatives');
       navigate('/profile');
       return;
     }
@@ -210,8 +210,8 @@ const ToonlyStudio = () => {
     { id: 'followers-10000', type: 'followers', value: 10000, label: '10K Followers', icon: <Users className="w-5 h-5" />, achieved: achievedMilestones.followers?.includes(10000), color: 'from-blue-500 to-purple-500' },
     { id: 'followers-100000', type: 'followers', value: 100000, label: '100K Followers', icon: <Users className="w-5 h-5" />, achieved: achievedMilestones.followers?.includes(100000), color: 'from-blue-500 to-purple-500' },
     { id: 'followers-500000', type: 'followers', value: 500000, label: '500K Followers', icon: <Users className="w-5 h-5" />, achieved: achievedMilestones.followers?.includes(500000), color: 'from-blue-500 to-purple-500' },
-    { id: 'uploads-500', type: 'uploads', value: 500, label: '500 Toonz', icon: <Video className="w-5 h-5" />, achieved: achievedMilestones.uploads?.includes(500), color: 'from-green-500 to-emerald-500' },
-    { id: 'uploads-1000', type: 'uploads', value: 1000, label: '1K Toonz', icon: <Video className="w-5 h-5" />, achieved: achievedMilestones.uploads?.includes(1000), color: 'from-green-500 to-emerald-500' },
+    { id: 'uploads-500', type: 'uploads', value: 500, label: '500 Reels', icon: <Video className="w-5 h-5" />, achieved: achievedMilestones.uploads?.includes(500), color: 'from-green-500 to-emerald-500' },
+    { id: 'uploads-1000', type: 'uploads', value: 1000, label: '1K Reels', icon: <Video className="w-5 h-5" />, achieved: achievedMilestones.uploads?.includes(1000), color: 'from-green-500 to-emerald-500' },
   ];
 
   const achievedCount = allMilestones.filter(m => m.achieved).length;
@@ -244,7 +244,7 @@ const ToonlyStudio = () => {
             <div>
               <h1 className="text-lg font-black flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-primary" />
-                ToonlyStudio
+                DiskieStudio
               </h1>
               <p className="text-xs text-muted-foreground">Your creator command center</p>
             </div>
@@ -278,7 +278,7 @@ const ToonlyStudio = () => {
                     <Video className="h-4 w-4 text-primary" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] text-muted-foreground leading-none">Toonz</p>
+                    <p className="text-[10px] text-muted-foreground leading-none">Reels</p>
                     <p className="text-lg font-black leading-tight">{videos.length}</p>
                   </div>
                 </Card>
@@ -340,7 +340,7 @@ const ToonlyStudio = () => {
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" onClick={() => navigate('/upload')} className="h-10 gap-1.5 rounded-xl text-xs">
                   <Upload className="h-4 w-4" />
-                  Upload Toonz
+                  Upload Reels
                 </Button>
                 <Button variant="outline" onClick={() => navigate('/leaderboard')} className="h-10 gap-1.5 rounded-xl text-xs">
                   <Trophy className="h-4 w-4" />
@@ -352,7 +352,7 @@ const ToonlyStudio = () => {
             {/* ===== CONTENT ===== */}
             <TabsContent value="content" className="mt-4 space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="font-bold text-sm">Your Toonz ({videos.length})</h2>
+                <h2 className="font-bold text-sm">Your Reels ({videos.length})</h2>
                 <Button size="sm" variant="outline" onClick={() => navigate('/upload')} className="gap-1">
                   <Upload className="h-3 w-3" />
                   New
@@ -362,8 +362,8 @@ const ToonlyStudio = () => {
               {videos.length === 0 ? (
                 <Card className="p-8 text-center">
                   <Video className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                  <p className="text-sm text-muted-foreground">No toonz uploaded yet</p>
-                  <Button size="sm" onClick={() => navigate('/upload')} className="mt-3">Upload First Toonz</Button>
+                  <p className="text-sm text-muted-foreground">No reels uploaded yet</p>
+                  <Button size="sm" onClick={() => navigate('/upload')} className="mt-3">Upload First Reels</Button>
                 </Card>
               ) : (
                 <div className="space-y-2">
@@ -413,7 +413,7 @@ const ToonlyStudio = () => {
               </div>
 
               <Card className="p-4">
-                <h3 className="font-bold text-sm mb-3">Top 5 Toonz by Views</h3>
+                <h3 className="font-bold text-sm mb-3">Top 5 Reels by Views</h3>
                 {chartData.length > 0 ? (
                   <ResponsiveContainer width="100%" height={220}>
                     <BarChart data={chartData} layout="vertical">
@@ -425,7 +425,7 @@ const ToonlyStudio = () => {
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-8">Upload toonz to see analytics</p>
+                  <p className="text-sm text-muted-foreground text-center py-8">Upload reels to see analytics</p>
                 )}
               </Card>
 
@@ -521,7 +521,7 @@ const ToonlyStudio = () => {
               <Card className="p-5">
                 <h2 className="font-bold mb-3">How Stars Work</h2>
                 <div className="space-y-3 text-sm text-muted-foreground">
-                  <div className="flex gap-3"><span className="text-lg">🌟</span><p>Viewers buy Star packs and send them to creators on toonz they love.</p></div>
+                  <div className="flex gap-3"><span className="text-lg">🌟</span><p>Viewers buy Star packs and send them to creators on reels they love.</p></div>
                   <div className="flex gap-3"><span className="text-lg">📊</span><p>Reach {ELIGIBILITY_FOLLOWERS.toLocaleString()} followers + {ELIGIBILITY_WATCH_HOURS.toLocaleString()} watch hours to unlock monetization.</p></div>
                   <div className="flex gap-3"><span className="text-lg">💰</span><p>Eligible creators earn 70% of gifted Stars value. Platform keeps 30%.</p></div>
                   <div className="flex gap-3"><span className="text-lg">📈</span><p>Track your earnings and Star gifts in real-time.</p></div>
@@ -631,4 +631,4 @@ const ToonlyStudio = () => {
   );
 };
 
-export default ToonlyStudio;
+export default DiskieStudio;

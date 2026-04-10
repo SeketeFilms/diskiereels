@@ -45,12 +45,12 @@ const PrivacyPolicy = () => {
             <section className="space-y-3">
               <h2 className="text-base font-semibold text-foreground">1. Introduction</h2>
               <p>
-                ToonlyReels ("App", "we", "us", or "our") is operated by SEMO Group. This Privacy 
+                DiskieReels ("App", "we", "us", or "our") is operated by SEMO Group. This Privacy 
                 Policy explains how we collect, use, disclose, and safeguard information when 
                 you use our mobile application.
               </p>
               <p className="font-semibold text-foreground">
-                ToonlyReels is designed for children ages 4-15 and participates in the Google Play 
+                DiskieReels is designed for children all ages and participates in the Google Play 
                 "Designed for Families" program. We are fully COPPA compliant.
               </p>
             </section>
@@ -119,7 +119,7 @@ const PrivacyPolicy = () => {
                 We are committed to protecting children's privacy. In compliance with COPPA:
               </p>
               <ul className="list-disc list-inside space-y-1 pl-2">
-                <li>We require parental consent before children under 13 can use the App</li>
+                <li>We require parental consent before users can use the App</li>
                 <li>We collect only the minimum information necessary</li>
                 <li>We do NOT require real names or personal identifiers</li>
                 <li>We do NOT serve behavioral or targeted advertising to children</li>
@@ -175,7 +175,7 @@ const PrivacyPolicy = () => {
                   🚫 No Behavioral Advertising
                 </p>
                 <p className="text-xs mt-1">
-                  ToonlyReels does NOT serve behavioral or targeted advertisements to children. 
+                  DiskieReels does NOT serve behavioral or targeted advertisements to children. 
                   Any advertisements shown are contextual and age-appropriate, and do not track 
                   children across apps or websites.
                 </p>
@@ -211,7 +211,7 @@ const PrivacyPolicy = () => {
 
             <section className="space-y-3">
               <h2 className="text-base font-semibold text-foreground">10. Cookies & Local Storage</h2>
-              <p>ToonlyReels uses local storage only for:</p>
+              <p>DiskieReels uses local storage only for:</p>
               <ul className="list-disc list-inside space-y-1 pl-2">
                 <li>Remembering your login session</li>
                 <li>Storing app preferences and settings</li>
@@ -226,7 +226,7 @@ const PrivacyPolicy = () => {
             <section className="space-y-3">
               <h2 className="text-base font-semibold text-foreground">11. Third-Party Services</h2>
               <p>
-                ToonlyReels may use the following third-party services:
+                DiskieReels may use the following third-party services:
               </p>
               <ul className="list-disc list-inside space-y-1 pl-2">
                 <li>Cloud hosting for secure data storage</li>
@@ -268,14 +268,14 @@ const PrivacyPolicy = () => {
                 exercise your parental rights, please contact us:
               </p>
               <div className="bg-muted/50 rounded-lg p-4 space-y-1">
-                <p className="font-medium text-foreground">ToonlyReels by SEMO Group</p>
+                <p className="font-medium text-foreground">DiskieReels by SEMO Group</p>
                 <p>Email: info@semogroup.com</p>
               </div>
             </section>
 
             <div className="pt-4 border-t border-border">
               <p className="text-xs text-center text-muted-foreground/70">
-                © 2026 ToonlyReels by SEMO Group. All rights reserved.
+                © 2026 DiskieReels by SEMO Group. All rights reserved.
               </p>
             </div>
           </div>

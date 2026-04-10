@@ -479,7 +479,7 @@ const Feed = () => {
               <p className="text-white/60">
                 {activeTab === 'following' 
                   ? 'Follow some creators to see their content here' 
-                  : 'Check back later for amazing animations'}
+                  : 'Check back later for amazing soccer reels'}
               </p>
             </div>
           </div>

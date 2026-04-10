@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Play, Sparkles, Eye, Loader2 } from 'lucide-react';
+import { Sparkles, Eye, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import SaveLoginDialog from '@/components/SaveLoginDialog';
@@ -111,7 +111,7 @@ const Auth = () => {
   };
 
   const checkIfAccountNeedsSavePrompt = (userId: string) => {
-    const savedAccounts = JSON.parse(localStorage.getItem('toonreels_saved_accounts') || '[]');
+    const savedAccounts = JSON.parse(localStorage.getItem('diskiereels_saved_accounts') || '[]');
     const existingAccount = savedAccounts.find((acc: any) => acc.id === userId);
     // Show prompt if account doesn't exist or doesn't have login saved
     return !existingAccount || !existingAccount.loginSaved;
@@ -223,11 +223,11 @@ const Auth = () => {
       </div>
       <Card className="w-full max-w-md shadow-elevated animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-500">
         <CardHeader className="text-center">
-          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent mx-auto">
-            <Play className="h-8 w-8 text-primary-foreground fill-primary-foreground" />
+          <div className="mb-4 mx-auto">
+            <img src="/diskiereels-logo.png" alt="DiskieReels" className="h-20 w-20 mx-auto" />
           </div>
           <CardTitle className="text-3xl font-black">
-            {isSignUp ? 'Join ToonlyReels!' : 'Welcome Back!'}
+            {isSignUp ? 'Join DiskieReels!' : 'Welcome Back!'}
           </CardTitle>
           <CardDescription>
             {isSignUp ? 'Create your account to start watching' : 'Sign in to continue'}
@@ -262,8 +262,8 @@ const Auth = () => {
                       <Label htmlFor="viewer" className="flex items-center gap-2 cursor-pointer flex-1">
                         <Eye className="h-5 w-5 text-fun-blue" />
                         <div>
-                          <div className="font-semibold">Watch Cartoons</div>
-                          <div className="text-sm text-muted-foreground">Enjoy amazing animations</div>
+                          <div className="font-semibold">Watch Soccers</div>
+                          <div className="text-sm text-muted-foreground">Enjoy amazing soccer reels</div>
                         </div>
                       </Label>
                     </div>
@@ -272,8 +272,8 @@ const Auth = () => {
                       <Label htmlFor="creative" className="flex items-center gap-2 cursor-pointer flex-1">
                         <Sparkles className="h-5 w-5 text-fun-yellow" />
                         <div>
-                          <div className="font-semibold">Upload My Animations</div>
-                          <div className="text-sm text-muted-foreground">Share your creative work</div>
+                          <div className="font-semibold">Upload My Reelss</div>
+                          <div className="text-sm text-muted-foreground">Share your best soccer moments</div>
                         </div>
                       </Label>
                     </div>

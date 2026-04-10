@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const APP_VERSION = '202601C';
-const VERSION_STORAGE_KEY = 'toonlyreels_last_seen_version';
+const VERSION_STORAGE_KEY = 'diskiereels_last_seen_version';
 
 export interface ChangelogEntry {
   version: string;
