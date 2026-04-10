@@ -35,7 +35,7 @@ const Settings = () => {
   const [ageRange, setAgeRange] = useState("7-9");
   const [profilePin, setProfilePin] = useState("");
   const [soccerOnlyMode, setSoccerOnlyMode] = useState(true);
-  const [contentCategories, setContentCategories] = useState<string[]>(["comedy", "adventure", "learning", "music"]);
+  const [contentCategories, setContentCategories] = useState<string[]>(["goals", "skills", "highlights", "training"]);
   const [commentsVisibility, setCommentsVisibility] = useState("emoji_only");
   const [interactionLimits, setInteractionLimits] = useState(true);
   const [screenTimeLimit, setScreenTimeLimit] = useState(60);
