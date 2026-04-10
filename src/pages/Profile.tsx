@@ -997,7 +997,7 @@ const Profile = () => {
           <div className="p-4">
             <h2 className="text-xl font-black mb-4 flex items-center gap-2">
               <Video className="h-6 w-6 text-primary" />
-              My Soccer Contents
+              My Soccer Reels
             </h2>
             
             {videos.length === 0 ? (
@@ -1005,7 +1005,7 @@ const Profile = () => {
                 <Video className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">No videos yet</p>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Start creating amazing soccer contents!
+                  Start creating amazing soccer reels!
                 </p>
                 <Button
                   onClick={() => navigate('/upload')}

@@ -121,7 +121,7 @@ export function addWatermarkToVideo(
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
         
-        requestSoccer ContentFrame(drawFrame);
+        requestAnimationFrame(drawFrame);
       };
       
       video.addEventListener('play', () => {

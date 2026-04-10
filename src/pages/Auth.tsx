@@ -263,7 +263,7 @@ const Auth = () => {
                         <Eye className="h-5 w-5 text-fun-blue" />
                         <div>
                           <div className="font-semibold">Watch Soccers</div>
-                          <div className="text-sm text-muted-foreground">Enjoy amazing soccer contents</div>
+                          <div className="text-sm text-muted-foreground">Enjoy amazing soccer reels</div>
                         </div>
                       </Label>
                     </div>

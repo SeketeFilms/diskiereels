@@ -527,11 +527,11 @@ const Search = () => {
         );
       })()}
 
-      {/* Popular Soccer Contents */}
+      {/* Popular Soccer Reels */}
       {!hasSearched && selectedCategory === 'all' && trendingVideos.length > 0 && (
         <div className="p-4 border-b border-border">
           <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
-            🎬 Popular Soccer Contents
+            🎬 Popular Soccer Reels
           </h2>
           <div className="hidden lg:flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {trendingVideos.slice(0, 8).map((video) => (
@@ -542,7 +542,7 @@ const Search = () => {
                   videoUrl={video.video_url}
                   viewsCount={video.views_count}
                   likesCount={video.likes_count}
-                  onClick={() => handleVideoClick(video.id, trendingVideos.slice(0, 8), '🎬 Popular Soccer Contents')}
+                  onClick={() => handleVideoClick(video.id, trendingVideos.slice(0, 8), '🎬 Popular Soccer Reels')}
                   formatCount={formatCount}
                   compact
                   showStatsTopRight
@@ -559,7 +559,7 @@ const Search = () => {
                 videoUrl={video.video_url}
                 viewsCount={video.views_count}
                 likesCount={video.likes_count}
-                onClick={() => handleVideoClick(video.id, trendingVideos.slice(0, 8), '🎬 Popular Soccer Contents')}
+                onClick={() => handleVideoClick(video.id, trendingVideos.slice(0, 8), '🎬 Popular Soccer Reels')}
                 formatCount={formatCount}
                 showStatsTopRight
               />
