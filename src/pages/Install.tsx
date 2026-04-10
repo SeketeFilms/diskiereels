@@ -146,7 +146,7 @@ const Install = () => {
         {[
           { icon: "⚡", text: "Loads instantly — no browser delays" },
           { icon: "📱", text: "Full-screen experience like a real app" },
-          { icon: "🔔", text: "Get notified about new soccers" },
+          { icon: "🔔", text: "Get notified about new soccer reels" },
           { icon: "📶", text: "Works even with a slow connection" },
         ].map((item, i) => (
           <div key={i} className="flex items-center gap-3 rounded-xl bg-muted/50 px-4 py-3">
