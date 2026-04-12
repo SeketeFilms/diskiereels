@@ -983,6 +983,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ensure_current_user_profile: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
