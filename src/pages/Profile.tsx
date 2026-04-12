@@ -158,6 +158,13 @@ const Profile = () => {
       
       const currentUser = session.user;
       setCurrentUserId(currentUser.id);
+
+      // Self-heal: ensure profile exists
+      try {
+        await supabase.rpc('ensure_current_user_profile');
+      } catch (e) {
+        console.warn('Profile bootstrap check failed:', e);
+      }
       
       // Determine target user
       const targetUserId = userIdParam || currentUser.id;
@@ -670,17 +677,15 @@ const Profile = () => {
               /* Own profile buttons - hidden on desktop (in sidebar More menu) */
               <div className="flex gap-2 md:hidden">
                 <NotificationBell />
-                {isCreative && (
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="rounded-full"
-                    onClick={() => navigate('/diskie-studio')}
-                    title="DiskieStudio"
-                  >
-                    <BarChart3 className="h-5 w-5" />
-                  </Button>
-                )}
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="rounded-full"
+                  onClick={() => navigate('/diskie-studio')}
+                  title="DiskieStudio"
+                >
+                  <BarChart3 className="h-5 w-5" />
+                </Button>
                 <Button
                   variant="secondary"
                   size="icon"
@@ -957,7 +962,7 @@ const Profile = () => {
         </div>
 
         {/* Quick-access Studio Stats Card for creators (mobile) */}
-        {isOwnProfile && isCreative && (
+        {isOwnProfile && (
           <div className="px-4 pt-3 md:hidden">
             <button
               onClick={() => navigate('/diskie-studio')}

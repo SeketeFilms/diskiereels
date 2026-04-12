@@ -274,16 +274,14 @@ const SidebarMoreMenu = ({ isCreative }: SidebarMoreMenuProps) => {
           </div>
         ) : (
           <div className="space-y-1">
-            {/* DiskieStudio - Only for Creatives */}
-            {isCreative && (
-              <button 
-                onClick={() => handleNavigate('/diskie-studio')}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-muted transition-colors"
-              >
-                <BarChart3 className="h-4 w-4" />
-                <span>DiskieStudio</span>
-              </button>
-            )}
+            {/* DiskieStudio - Available to all users */}
+            <button 
+              onClick={() => handleNavigate('/diskie-studio')}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-muted transition-colors"
+            >
+              <BarChart3 className="h-4 w-4" />
+              <span>DiskieStudio</span>
+            </button>
 
             {/* Switch Accounts */}
             <button 

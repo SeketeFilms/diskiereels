@@ -751,13 +751,13 @@ const Settings = () => {
                 <AccordionItem value="what">
                   <AccordionTrigger className="text-xs">What is DiskieReels?</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-xs text-muted-foreground">DiskieReels is a kid-safe soccer reels platform made by SEMO Group. Kids can watch short animated clips, music toons, fun stories, and educational shorts — all age filtered.</p>
+                    <p className="text-xs text-muted-foreground">DiskieReels is a soccer reels platform made by SEMO Group. Watch, create, and share the best soccer highlights, skills, goals, and football moments with fans worldwide.</p>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="soccer">
-                  <AccordionTrigger className="text-xs">Why only soccer content?</AccordionTrigger>
+                  <AccordionTrigger className="text-xs">What kind of content can I post?</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-xs text-muted-foreground">DiskieReels is designed strictly for kids. We automatically block adult themes, scary content, violence, political content, and anything unsafe.</p>
+                    <p className="text-xs text-muted-foreground">DiskieReels is focused on soccer/football content — goals, skills, match highlights, training clips, fan reactions, and more. Everyone can upload reels!</p>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="report">
@@ -769,19 +769,19 @@ const Settings = () => {
                 <AccordionItem value="comments">
                   <AccordionTrigger className="text-xs">Are comments safe?</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-xs text-muted-foreground">Comments are filtered with AI kid-safe moderation, keyword blocking, and human review for flagged comments. Parents can disable comments completely in Settings → Parental Controls.</p>
+                    <p className="text-xs text-muted-foreground">Comments are moderated. You can report inappropriate comments and block users from your profile.</p>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="messaging">
-                  <AccordionTrigger className="text-xs">Can kids message each other?</AccordionTrigger>
+                  <AccordionTrigger className="text-xs">How does messaging work?</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-xs text-muted-foreground">Messaging is off and kids cannot message each other. DiskieReels does not allow messaging between users to ensure maximum child safety.</p>
+                    <p className="text-xs text-muted-foreground">DiskieReels has real-time direct messaging! Search for any user and start a conversation. Messages update instantly so you can chat about the beautiful game ⚽</p>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="uploads">
                   <AccordionTrigger className="text-xs">How do uploads work?</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-xs text-muted-foreground">Creators can upload reels from the Upload tab. All uploads are reviewed before being public.</p>
+                    <p className="text-xs text-muted-foreground">Everyone can upload soccer reels! Tap the Upload button in the navigation, pick a vertical video (9:16, max 2 min, max 250MB), add a title and hashtags, and share it with the community.</p>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="download">
@@ -793,7 +793,7 @@ const Settings = () => {
                 <AccordionItem value="accounttype">
                   <AccordionTrigger className="text-xs">Can I change my account type?</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-xs text-muted-foreground">If you accidentally chose the wrong account type (Viewer vs Creative) during signup, you can change it <span className="font-semibold text-destructive">once and only once</span> in Settings → Account & Profile → Account Type. This is permanent and cannot be reversed.</p>
+                    <p className="text-xs text-muted-foreground">All accounts on DiskieReels can upload and view reels. There's no need to switch account types — everyone has full access!</p>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="delete">
@@ -808,7 +808,7 @@ const Settings = () => {
                     <div className="text-xs text-muted-foreground space-y-1">
                       <p>Email: info@semogroup.com</p>
                       <p>Website: www.semogroup.com</p>
-                      <p>App Icon: TR (DiskieReels official avatar)</p>
+                      <p>App: DiskieReels ⚽</p>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -825,7 +825,7 @@ const Settings = () => {
                   <AccordionTrigger className="text-xs">View Terms</AccordionTrigger>
                   <AccordionContent className="space-y-2 text-xs text-muted-foreground">
                     <p className="font-semibold">Last updated: 2025</p>
-                    <p>Welcome to DiskieReels, a kid-friendly soccer reels app created by SEMO Group. By using DiskieReels, you agree to these Terms of Use.</p>
+                    <p>Welcome to DiskieReels, a soccer reels platform created by SEMO Group. By using DiskieReels, you agree to these Terms of Use.</p>
                     
                     <div>
                       <p className="font-semibold text-foreground">1. Eligibility</p>

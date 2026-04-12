@@ -151,7 +151,7 @@ const DesktopSidebar = () => {
   const navItems = [
     { path: '/feed', icon: Film, label: 'Reels', badge: 0 },
     { path: '/search', icon: Search, label: 'Explore', badge: 0 },
-    ...(isLoaded && isCreative ? [{ path: '/upload', icon: Upload, label: 'Upload', badge: 0 }] : []),
+    { path: '/upload', icon: Upload, label: 'Upload', badge: 0 },
     { path: '/notifications', icon: Bell, label: 'Notifications', badge: unreadCount },
     { path: currentUserId ? `/profile/${currentUserId}` : '/profile', icon: User, label: 'Profile', badge: 0 },
     { path: '/settings', icon: Settings, label: 'Settings', badge: 0 },
@@ -193,7 +193,7 @@ const DesktopSidebar = () => {
       {/* Footer with More Menu */}
       <div className="p-3 border-t border-border space-y-1">
         <SidebarMoreMenu isCreative={isCreative} />
-        <p className="text-xs text-muted-foreground text-center py-2">© 2025 DiskieReels</p>
+        <p className="text-xs text-muted-foreground text-center py-2">© 2026 DiskieReels</p>
       </div>
     </aside>
   );
