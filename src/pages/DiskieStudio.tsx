@@ -121,11 +121,6 @@ const DiskieStudio = () => {
     const uid = session.user.id;
     setUserId(uid);
 
-    const { data: roles } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', uid);
-
     // All users can access DiskieStudio now
 
     const [vidRes, follRes, balRes, monRes, txRes, analyticsRes] = await Promise.all([
