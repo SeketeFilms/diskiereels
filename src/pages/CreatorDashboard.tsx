@@ -45,18 +45,6 @@ const CreatorDashboard = () => {
         return;
       }
 
-      // Check if user is creative
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id);
-
-      if (!roles?.some(r => r.role === 'creative')) {
-        toast.error('Dashboard is only available for creatives');
-        navigate('/profile');
-        return;
-      }
-
       // Fetch all videos
       const { data: videos, error: videosError } = await supabase
         .from('videos')

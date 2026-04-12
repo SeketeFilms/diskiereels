@@ -75,7 +75,7 @@ const Install = () => {
         <Button
           onClick={handleInstall}
           size="lg"
-          className="mb-8 gap-3 rounded-full bg-[#FF6B6B] px-8 py-6 text-lg font-semibold text-white shadow-xl hover:bg-[#FF5252]"
+          className="mb-8 gap-3 rounded-full bg-primary px-8 py-6 text-lg font-semibold text-primary-foreground shadow-xl hover:bg-primary/90"
         >
           <Download className="h-6 w-6" />
           Install App

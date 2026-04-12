@@ -121,16 +121,7 @@ const DiskieStudio = () => {
     const uid = session.user.id;
     setUserId(uid);
 
-    const { data: roles } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', uid);
-
-    if (!roles?.some(r => r.role === 'creative')) {
-      toast.error('DiskieStudio is only available for creatives');
-      navigate('/profile');
-      return;
-    }
+    // All users can access DiskieStudio now
 
     const [vidRes, follRes, balRes, monRes, txRes, analyticsRes] = await Promise.all([
       supabase.from('videos').select('id, title, views_count, likes_count, created_at, thumbnail_url').eq('creator_id', uid).order('created_at', { ascending: false }),

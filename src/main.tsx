@@ -4,6 +4,20 @@ import "./index.css";
 
 import { registerSW } from 'virtual:pwa-register';
 
+// Guard: never register SW in iframes or preview hosts
+const isInIframe = (() => {
+  try { return window.self !== window.top; } catch { return true; }
+})();
+const isPreviewHost =
+  window.location.hostname.includes("id-preview--") ||
+  window.location.hostname.includes("lovableproject.com");
+
+if (isPreviewHost || isInIframe) {
+  navigator.serviceWorker?.getRegistrations().then((regs) => {
+    regs.forEach((r) => r.unregister());
+  });
+}
+
 // Clear old caches on app start to prevent stale UI
 const clearOldCaches = async () => {
   if ('caches' in window) {
@@ -28,19 +42,17 @@ clearOldCaches().catch(console.error);
 createRoot(document.getElementById("root")!).render(<App />);
 
 // Register the PWA service worker with aggressive updates
-const updateSW = registerSW({
-  immediate: true,
-  onNeedRefresh() {
-    // Auto-apply updates for a "always latest" experience
-    updateSW(true);
-  },
-  onRegisteredSW(_swUrl, registration) {
-    // Clear old caches when SW is registered
-    clearOldCaches().catch(console.error);
-    
-    // Check once on load, then periodically
-    registration?.update();
-    window.setInterval(() => registration?.update(), 60_000);
-  },
-});
+if (!isPreviewHost && !isInIframe) {
+  const updateSW = registerSW({
+    immediate: true,
+    onNeedRefresh() {
+      updateSW(true);
+    },
+    onRegisteredSW(_swUrl, registration) {
+      clearOldCaches().catch(console.error);
+      registration?.update();
+      window.setInterval(() => registration?.update(), 60_000);
+    },
+  });
+}
 
