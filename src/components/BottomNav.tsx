@@ -1,4 +1,4 @@
-import { Film, Search, Upload, User, MessageCircle } from 'lucide-react';
+import { Film, Search, Upload, User, Bell } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,7 +9,7 @@ const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const isMounted = useRef(true);
   const hasChecked = useRef(false);
 
@@ -22,26 +22,32 @@ const BottomNav = () => {
     } catch { if (isMounted.current) setCurrentUserId(null); }
   }, []);
 
-  // Fetch unread message count
-  const fetchUnreadCount = useCallback(async (userId: string) => {
+  const fetchUnreadNotifCount = useCallback(async (userId: string) => {
     try {
-      // Get conversations for this user
+      const { count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('is_read', false);
+
+      // Also count unread messages
       const { data: convos } = await supabase
         .from('conversations')
         .select('id')
         .or(`participant_one.eq.${userId},participant_two.eq.${userId}`);
-      
-      if (!convos || convos.length === 0) { setUnreadCount(0); return; }
 
-      const convoIds = convos.map(c => c.id);
-      const { count } = await supabase
-        .from('messages')
-        .select('*', { count: 'exact', head: true })
-        .in('conversation_id', convoIds)
-        .eq('is_read', false)
-        .neq('sender_id', userId);
+      let msgCount = 0;
+      if (convos && convos.length > 0) {
+        const { count: mc } = await supabase
+          .from('messages')
+          .select('*', { count: 'exact', head: true })
+          .in('conversation_id', convos.map(c => c.id))
+          .eq('is_read', false)
+          .neq('sender_id', userId);
+        msgCount = mc || 0;
+      }
 
-      if (isMounted.current) setUnreadCount(count || 0);
+      if (isMounted.current) setUnreadNotifCount((count || 0) + msgCount);
     } catch { /* ignore */ }
   }, []);
 
@@ -50,28 +56,24 @@ const BottomNav = () => {
     if (!hasChecked.current) { hasChecked.current = true; checkUser(); }
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') { checkUser(); }
-      else if (event === 'SIGNED_OUT') { cachedUserId = null; setCurrentUserId(null); setUnreadCount(0); }
+      else if (event === 'SIGNED_OUT') { cachedUserId = null; setCurrentUserId(null); setUnreadNotifCount(0); }
     });
     return () => { isMounted.current = false; subscription.unsubscribe(); };
   }, [checkUser]);
 
-  // Fetch unread count when userId changes + subscribe to realtime
   useEffect(() => {
     if (!currentUserId) return;
-    fetchUnreadCount(currentUserId);
+    fetchUnreadNotifCount(currentUserId);
 
     const channel = supabase
-      .channel('bottom-nav-messages')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
-        fetchUnreadCount(currentUserId);
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, () => {
-        fetchUnreadCount(currentUserId);
-      })
+      .channel('bottom-nav-notifs')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => fetchUnreadNotifCount(currentUserId))
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => fetchUnreadNotifCount(currentUserId))
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, () => fetchUnreadNotifCount(currentUserId))
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [currentUserId, fetchUnreadCount]);
+  }, [currentUserId, fetchUnreadNotifCount]);
 
   const isActive = (path: string) => {
     if (path === '/profile') return location.pathname.startsWith('/profile');
@@ -87,19 +89,19 @@ const BottomNav = () => {
         <button onClick={() => navigate('/search')} className={`flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all ${isActive('/search') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
           <Search className="h-5 w-5" /><span className="text-[10px] font-semibold">Explore</span>
         </button>
-        <button onClick={() => navigate('/upload')} className="flex items-center justify-center -mt-4 w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg hover:scale-110 active:scale-95 transition-all">
-          <Upload className="h-5 w-5" />
+        <button onClick={() => navigate('/upload')} className="flex items-center justify-center -mt-3 w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg hover:scale-110 active:scale-95 transition-all">
+          <Upload className="h-4 w-4" />
         </button>
-        <button onClick={() => navigate('/messages')} className={`relative flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all ${isActive('/messages') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
+        <button onClick={() => navigate('/notifications')} className={`relative flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all ${isActive('/notifications') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
           <div className="relative">
-            <MessageCircle className="h-5 w-5" />
-            {unreadCount > 0 && (
+            <Bell className="h-5 w-5" />
+            {unreadNotifCount > 0 && (
               <span className="absolute -top-2 -right-2 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold px-1">
-                {unreadCount > 99 ? '99+' : unreadCount}
+                {unreadNotifCount > 99 ? '99+' : unreadNotifCount}
               </span>
             )}
           </div>
-          <span className="text-[10px] font-semibold">Chat</span>
+          <span className="text-[10px] font-semibold">Notifications</span>
         </button>
         <button onClick={() => navigate(currentUserId ? `/profile/${currentUserId}` : '/profile')} className={`flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all ${isActive('/profile') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
           <User className="h-5 w-5" /><span className="text-[10px] font-semibold">Profile</span>
