@@ -461,8 +461,8 @@ const ParentDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
-      <BottomNav />
     </div>
+    </ResponsiveLayout>
   );
 };
 
