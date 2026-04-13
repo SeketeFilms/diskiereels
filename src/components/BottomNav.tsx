@@ -87,8 +87,8 @@ const BottomNav = () => {
         <button onClick={() => navigate('/search')} className={`flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all ${isActive('/search') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
           <Search className="h-5 w-5" /><span className="text-[10px] font-semibold">Explore</span>
         </button>
-        <button onClick={() => navigate('/upload')} className="flex items-center justify-center -mt-8 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg hover:scale-110 active:scale-95 transition-all">
-          <Upload className="h-6 w-6" />
+        <button onClick={() => navigate('/upload')} className="flex items-center justify-center -mt-4 w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg hover:scale-110 active:scale-95 transition-all">
+          <Upload className="h-5 w-5" />
         </button>
         <button onClick={() => navigate('/messages')} className={`relative flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all ${isActive('/messages') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
           <div className="relative">

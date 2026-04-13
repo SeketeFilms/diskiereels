@@ -1,4 +1,4 @@
-import { Film, Search, Upload, Bell, User, Settings } from 'lucide-react';
+import { Film, Search, Upload, Bell, User, MessageCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,24 +29,51 @@ const useUnreadNotifications = () => {
 
     fetchUnread();
 
-    // Subscribe to new notifications
     const channel = supabase
       .channel('sidebar-notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'notifications'
-        },
-        () => fetchUnread()
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => fetchUnread())
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
+
+  return unreadCount;
+};
+
+// Hook to get unread message count
+const useUnreadMessages = (userId: string | null) => {
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchUnread = async () => {
+      const { data: convos } = await supabase
+        .from('conversations')
+        .select('id')
+        .or(`participant_one.eq.${userId},participant_two.eq.${userId}`);
+      if (!convos || convos.length === 0) { setUnreadCount(0); return; }
+
+      const { count } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .in('conversation_id', convos.map(c => c.id))
+        .eq('is_read', false)
+        .neq('sender_id', userId);
+
+      setUnreadCount(count || 0);
+    };
+
+    fetchUnread();
+
+    const channel = supabase
+      .channel('sidebar-messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => fetchUnread())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, () => fetchUnread())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [userId]);
 
   return unreadCount;
 };
@@ -54,7 +81,7 @@ const useUnreadNotifications = () => {
 const DesktopSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const unreadCount = useUnreadNotifications();
+  const notifCount = useUnreadNotifications();
   
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isCreative, setIsCreative] = useState<boolean>(() => {
@@ -147,14 +174,16 @@ const DesktopSidebar = () => {
     return location.pathname === path;
   };
 
-  // Main nav items - Reels, Explore, Upload (creative only), Notifications, Profile, Settings
+  const msgCount = useUnreadMessages(currentUserId);
+
+  // Main nav items
   const navItems = [
     { path: '/feed', icon: Film, label: 'Reels', badge: 0 },
     { path: '/search', icon: Search, label: 'Explore', badge: 0 },
     { path: '/upload', icon: Upload, label: 'Upload', badge: 0 },
-    { path: '/notifications', icon: Bell, label: 'Notifications', badge: unreadCount },
+    { path: '/notifications', icon: Bell, label: 'Notifications', badge: notifCount },
+    { path: '/messages', icon: MessageCircle, label: 'Chat', badge: msgCount },
     { path: currentUserId ? `/profile/${currentUserId}` : '/profile', icon: User, label: 'Profile', badge: 0 },
-    { path: '/settings', icon: Settings, label: 'Settings', badge: 0 },
   ];
 
   return (

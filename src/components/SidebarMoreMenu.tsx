@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, BarChart3, Trophy, Users, Sun, Moon, LogOut, Plus, User, ChevronRight, Star } from 'lucide-react';
+import { Menu, BarChart3, Trophy, Users, Sun, Moon, LogOut, Plus, User, ChevronRight, Star, Settings } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -300,6 +300,15 @@ const SidebarMoreMenu = ({ isCreative }: SidebarMoreMenuProps) => {
 
             {/* Divider */}
             <div className="h-px bg-border my-2" />
+
+            {/* Settings */}
+            <button 
+              onClick={() => handleNavigate('/settings')}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-muted transition-colors"
+            >
+              <Settings className="h-4 w-4" />
+              <span>Settings</span>
+            </button>
 
             {/* Theme Toggle */}
             <button 
