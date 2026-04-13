@@ -14,11 +14,12 @@ const CATEGORIES = [
   { id: 'all', label: 'All', emoji: '⚽' },
   { id: 'goals', label: 'Goals', emoji: '🥅' },
   { id: 'skills', label: 'Skills', emoji: '🔥' },
-  { id: 'highlights', label: 'Highlights', emoji: '🏆' },
+  { id: 'highlights', label: 'Match Highlights', emoji: '🏆' },
   { id: 'tackles', label: 'Tackles', emoji: '💪' },
   { id: 'freekicks', label: 'Free Kicks', emoji: '🎯' },
-  { id: 'celebrations', label: 'Celebrations', emoji: '🎉' },
   { id: 'training', label: 'Training', emoji: '🏃' },
+  { id: 'fanreactions', label: 'Fan Reactions', emoji: '📣' },
+  { id: 'celebrations', label: 'Celebrations', emoji: '🎉' },
 ];
 
 interface Video {

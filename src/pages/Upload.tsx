@@ -220,6 +220,9 @@ const Upload = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Ensure profile exists (fixes foreign key constraint error)
+      await supabase.rpc('ensure_current_user_profile');
+
       // Upload video to storage
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       
