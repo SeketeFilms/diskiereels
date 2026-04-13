@@ -14,7 +14,7 @@ import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import Milestones from "./pages/Milestones";
-import Messages from "./pages/Messages";
+// Messages merged into Notifications
 import VideoAnalytics from "./pages/VideoAnalytics";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -46,7 +46,7 @@ const AppContent = () => {
         <Route path="/feed" element={<Feed />} />
         <Route path="/search" element={<Search />} />
         <Route path="/upload" element={<Upload />} />
-        <Route path="/messages" element={<Messages />} />
+        <Route path="/messages" element={<Notifications />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:userId" element={<Profile />} />
         <Route path="/notifications" element={<Notifications />} />

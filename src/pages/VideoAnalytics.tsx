@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { ArrowLeft, Eye, Heart, Clock, Users, TrendingUp, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import ResponsiveLayout from '@/components/ResponsiveLayout';
 
 interface Video {
   id: string;
@@ -138,22 +139,27 @@ const VideoAnalytics = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Loading analytics...</p>
-      </div>
+      <ResponsiveLayout>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <p className="text-muted-foreground">Loading analytics...</p>
+        </div>
+      </ResponsiveLayout>
     );
   }
 
   if (!video || !analytics) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">No data available</p>
-      </div>
+      <ResponsiveLayout>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <p className="text-muted-foreground">No data available</p>
+        </div>
+      </ResponsiveLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <ResponsiveLayout>
+    <div className="min-h-screen bg-background pb-20 md:pb-4">
       <div className="max-w-4xl mx-auto p-4">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
@@ -347,6 +353,7 @@ const VideoAnalytics = () => {
         </Card>
       </div>
     </div>
+    </ResponsiveLayout>
   );
 };
 

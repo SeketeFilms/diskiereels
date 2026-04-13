@@ -10,7 +10,7 @@ import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Clock, Eye, Heart, Shield, Lock, Video, Calendar, HardDrive, Activity, Mail } from 'lucide-react';
 import { toast } from 'sonner';
-import BottomNav from '@/components/BottomNav';
+import ResponsiveLayout from '@/components/ResponsiveLayout';
 import StorageAnalytics from '@/components/StorageAnalytics';
 import WeeklyScreenTimeChart from '@/components/WeeklyScreenTimeChart';
 import ContentCategoryChart from '@/components/ContentCategoryChart';
@@ -191,15 +191,18 @@ const ParentDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
+      <ResponsiveLayout>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        </div>
+      </ResponsiveLayout>
     );
   }
 
   // PIN verification screen
   if (!isAuthenticated) {
     return (
+      <ResponsiveLayout>
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-sm">
           <CardHeader className="text-center">
@@ -231,11 +234,13 @@ const ParentDashboard = () => {
           </CardContent>
         </Card>
       </div>
+      </ResponsiveLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <ResponsiveLayout>
+    <div className="min-h-screen bg-background pb-24 md:pb-4">
       <div className="max-w-4xl mx-auto p-4">
         {/* Header */}
         <div className="mb-6 flex items-center gap-3">
@@ -456,8 +461,8 @@ const ParentDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
-      <BottomNav />
     </div>
+    </ResponsiveLayout>
   );
 };
 
