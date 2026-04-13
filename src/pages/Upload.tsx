@@ -27,11 +27,11 @@ const Upload = () => {
 
   const addHashtag = () => {
     const tag = hashtagInput.trim().replace(/^#/, '').toLowerCase();
-    if (tag && !hashtags.includes(tag) && hashtags.length < 10) {
+    if (tag && !hashtags.includes(tag) && hashtags.length < 20) {
       setHashtags([...hashtags, tag]);
       setHashtagInput('');
-    } else if (hashtags.length >= 10) {
-      toast.error('Maximum 10 hashtags allowed');
+    } else if (hashtags.length >= 20) {
+      toast.error('Maximum 20 hashtags allowed');
     }
   };
 
