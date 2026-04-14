@@ -425,18 +425,21 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       playAttemptRef.current++;
       
       try {
-        if (videoEl.getAttribute('src') !== video.video_url && video.video_url) {
+        // Always set src for mobile - don't rely on JSX src attribute
+        if (!videoEl.src || videoEl.src === '' || videoEl.src === window.location.href || videoEl.getAttribute('src') !== video.video_url) {
           videoEl.src = video.video_url;
           videoEl.load();
         }
         
+        // Wait for enough data to play, with a timeout
         if (videoEl.readyState < 2) {
+          const waitTime = isTouchPlaybackDevice ? 3000 : (effectiveVideoQuality === 'high' ? 900 : 1400);
           await new Promise<void>((resolve) => {
             const timeoutId = window.setTimeout(() => {
               videoEl.removeEventListener('canplay', onReady);
               videoEl.removeEventListener('loadeddata', onReady);
               resolve();
-            }, effectiveVideoQuality === 'high' ? 900 : 1400);
+            }, waitTime);
             
             const onReady = () => {
               window.clearTimeout(timeoutId);
@@ -456,8 +459,11 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
           videoEl.currentTime = 0;
         }
         
-        videoEl.muted = shouldStartMuted;
-        setIsMuted(shouldStartMuted);
+        // On mobile PWA, always start muted to guarantee autoplay
+        const isStandalonePwa = window.matchMedia?.('(display-mode: standalone)').matches;
+        const startMuted = isTouchPlaybackDevice ? true : shouldStartMuted;
+        videoEl.muted = startMuted;
+        setIsMuted(startMuted);
         
         const playPromise = videoEl.play();
         if (playPromise !== undefined) {
@@ -475,7 +481,20 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
           analyticsTrackedRef.current = false;
         }
       } catch (playError) {
-        console.log('Autoplay failed, waiting for user interaction', playError);
+        console.log('Autoplay failed, showing play button', playError);
+        // On mobile, try once more muted
+        if (!isCancelled && videoEl.muted === false) {
+          try {
+            videoEl.muted = true;
+            setIsMuted(true);
+            await videoEl.play();
+            if (!isCancelled) {
+              setIsPlaying(true);
+              setIsBuffering(false);
+              return;
+            }
+          } catch {}
+        }
         setIsPlaying(false);
         setIsBuffering(false);
       }
