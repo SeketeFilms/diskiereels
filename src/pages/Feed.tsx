@@ -33,6 +33,7 @@ interface Video {
   likes_count: number;
   views_count: number;
   tags?: string[] | null;
+  thumbnail_url?: string | null;
   subtitles?: SubtitleSegment[] | null;
   profiles: {
     username: string;
