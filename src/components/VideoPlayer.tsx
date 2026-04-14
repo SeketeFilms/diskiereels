@@ -968,7 +968,30 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       videoEl.pause();
       setIsPlaying(false);
     } else {
-      videoEl.play().then(() => setIsPlaying(true)).catch(() => {});
+      // Ensure src is set on mobile before playing
+      if (!videoEl.src || videoEl.src === '' || videoEl.src === window.location.href) {
+        videoEl.src = video.video_url;
+        videoEl.load();
+      }
+      videoEl.muted = isMuted;
+      videoEl.play().then(() => {
+        setIsPlaying(true);
+        setIsBuffering(false);
+        if (!hasTrackedViewRef.current) {
+          incrementViewCount();
+          hasTrackedViewRef.current = true;
+          watchStartTimeRef.current = Date.now();
+          analyticsTrackedRef.current = false;
+        }
+      }).catch(() => {
+        // If unmuted play fails, try muted (browser policy)
+        videoEl.muted = true;
+        setIsMuted(true);
+        videoEl.play().then(() => {
+          setIsPlaying(true);
+          setIsBuffering(false);
+        }).catch(() => {});
+      });
     }
   };
 
