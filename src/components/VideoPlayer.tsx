@@ -94,6 +94,8 @@ const viewerVideoStateCache = new Map<string, CachedViewerVideoState>();
 const PLAYBACK_SETTINGS_TTL = 5 * 60 * 1000;
 const VIDEO_ENGAGEMENT_TTL = 60 * 1000;
 const VIEWER_VIDEO_STATE_TTL = 60 * 1000;
+let globalAudioPreference: 'muted' | 'unmuted' = 'unmuted';
+let playbackUnlockedByUser = false;
 
 const getPlaybackNetworkProfile = () => {
   if (typeof navigator === 'undefined') {
@@ -139,10 +141,11 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [likeAnimations, setLikeAnimations] = useState<Array<{ id: number; x: number; y: number }>>([]);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(globalAudioPreference === 'muted');
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
+  const [requiresManualPlay, setRequiresManualPlay] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [bufferedPercent, setBufferedPercent] = useState(0);
@@ -180,10 +183,11 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
   const downloadControllerRef = useRef<WatermarkController | null>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);
   const stallCountRef = useRef<number>(0);
-  const audioPreferenceRef = useRef<'auto' | 'muted' | 'unmuted'>('auto');
+  const audioPreferenceRef = useRef<'muted' | 'unmuted'>(globalAudioPreference);
   const deferredDataFetchTimerRef = useRef<number | null>(null);
   const stallRecoveryTimerRef = useRef<number | null>(null);
   const lastRecoveryAtRef = useRef<number>(0);
+  const userPausedRef = useRef(false);
 
   const isOwnVideo = currentUserId === video.creator_id;
   const networkProfile = getPlaybackNetworkProfile();
@@ -195,15 +199,14 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     (videoQuality === 'auto' && (networkProfile.saveData || (isTouchPlaybackDevice && networkProfile.isSlowConnection)))
       ? 'medium'
       : 'high';
-  const shouldStartMuted =
-    audioPreferenceRef.current === 'muted' ||
-    (audioPreferenceRef.current !== 'unmuted' &&
-      (isMobile || effectiveVideoQuality === 'medium' || networkProfile.saveData || networkProfile.isSlowConnection));
+  const shouldStartMuted = audioPreferenceRef.current === 'muted';
   const activeVideoPreload = isActive
     ? effectiveVideoQuality === 'high' && !networkProfile.saveData && !isTouchPlaybackDevice
       ? 'auto'
       : 'metadata'
-    : 'none';
+    : isTouchPlaybackDevice && !networkProfile.saveData
+      ? 'metadata'
+      : 'none';
 
   // Initial data fetch - only fetch when active, batch all queries in parallel
   useEffect(() => {
@@ -311,6 +314,121 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     }));
   };
 
+  const syncMuteState = useCallback((nextMuted: boolean) => {
+    globalAudioPreference = nextMuted ? 'muted' : 'unmuted';
+    audioPreferenceRef.current = globalAudioPreference;
+    setIsMuted(nextMuted);
+
+    const videoEl = videoRef.current;
+    if (videoEl) {
+      videoEl.muted = nextMuted;
+      videoEl.defaultMuted = nextMuted;
+      if (!nextMuted) {
+        videoEl.volume = 1;
+      }
+    }
+  }, []);
+
+  const ensureVideoSource = useCallback((videoEl: HTMLVideoElement) => {
+    const currentSrc = videoEl.getAttribute('src');
+    const sourceNeedsRefresh = !currentSrc || currentSrc !== video.video_url || videoEl.src === window.location.href;
+
+    if (sourceNeedsRefresh) {
+      videoEl.src = video.video_url;
+    }
+
+    if (sourceNeedsRefresh || videoEl.readyState === 0) {
+      videoEl.load();
+    }
+  }, [video.video_url]);
+
+  const waitForVideoReady = useCallback(
+    (videoEl: HTMLVideoElement, userInitiated: boolean) => {
+      if (videoEl.readyState >= 2) {
+        return Promise.resolve();
+      }
+
+      const waitTime = userInitiated ? 2200 : isTouchPlaybackDevice ? 1800 : effectiveVideoQuality === 'high' ? 900 : 1400;
+
+      return new Promise<void>((resolve) => {
+        const onReady = () => {
+          window.clearTimeout(timeoutId);
+          videoEl.removeEventListener('canplay', onReady);
+          videoEl.removeEventListener('loadeddata', onReady);
+          videoEl.removeEventListener('canplaythrough', onReady);
+          videoEl.removeEventListener('error', onReady);
+          resolve();
+        };
+
+        const timeoutId = window.setTimeout(onReady, waitTime);
+
+        videoEl.addEventListener('canplay', onReady);
+        videoEl.addEventListener('loadeddata', onReady);
+        videoEl.addEventListener('canplaythrough', onReady);
+        videoEl.addEventListener('error', onReady);
+      });
+    },
+    [effectiveVideoQuality, isTouchPlaybackDevice]
+  );
+
+  const playVideo = useCallback(
+    async (userInitiated: boolean = false) => {
+      const videoEl = videoRef.current;
+      if (!videoEl) return false;
+
+      try {
+        playAttemptRef.current++;
+        userPausedRef.current = false;
+        setRequiresManualPlay(false);
+        setIsBuffering(true);
+
+        ensureVideoSource(videoEl);
+        await waitForVideoReady(videoEl, userInitiated);
+
+        if (videoEl.duration && videoEl.currentTime >= videoEl.duration - 0.5) {
+          videoEl.currentTime = 0;
+        }
+
+        if (userInitiated) {
+          playbackUnlockedByUser = true;
+        }
+
+        const startMuted = audioPreferenceRef.current === 'muted';
+        videoEl.defaultMuted = startMuted;
+        videoEl.muted = startMuted;
+        if (!startMuted) {
+          videoEl.volume = 1;
+        }
+
+        await videoEl.play();
+
+        setIsMuted(startMuted);
+        setIsPlaying(true);
+        setIsBuffering(false);
+        setRequiresManualPlay(false);
+
+        if (!hasTrackedViewRef.current) {
+          incrementViewCount();
+          hasTrackedViewRef.current = true;
+          watchStartTimeRef.current = Date.now();
+          analyticsTrackedRef.current = false;
+        }
+
+        return true;
+      } catch (error) {
+        const wantsSoundOn = audioPreferenceRef.current !== 'muted';
+        if (wantsSoundOn && !userInitiated && !playbackUnlockedByUser) {
+          setRequiresManualPlay(true);
+        }
+
+        setIsPlaying(false);
+        setIsBuffering(false);
+        return false;
+      }
+    },
+    [ensureVideoSource, waitForVideoReady]
+  );
+
   const fetchPlaybackSettings = async () => {
     if (!currentUserId) return;
 
@@ -386,11 +504,11 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     videoEl.preload = activeVideoPreload;
 
     if (!isActive) {
+      userPausedRef.current = false;
       videoEl.pause();
-      videoEl.muted = true;
-      setIsMuted(true);
       setIsPlaying(false);
       setIsBuffering(false);
+      setRequiresManualPlay(false);
       if (stallRecoveryTimerRef.current) {
         window.clearTimeout(stallRecoveryTimerRef.current);
         stallRecoveryTimerRef.current = null;
@@ -399,23 +517,18 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         trackVideoAnalytics(false);
       }
 
-      if (isTouchPlaybackDevice) {
-        videoEl.removeAttribute('src');
-        videoEl.load();
-      }
-
       return;
     }
 
     if (!autoplayEnabled) {
-      if (videoEl.getAttribute('src') !== video.video_url) {
-        videoEl.src = video.video_url;
-      }
+      ensureVideoSource(videoEl);
       videoEl.pause();
       videoEl.muted = shouldStartMuted;
+      videoEl.defaultMuted = shouldStartMuted;
       setIsMuted(shouldStartMuted);
       setIsPlaying(false);
       setIsBuffering(false);
+      setRequiresManualPlay(false);
       return;
     }
 
@@ -423,89 +536,19 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     
     const attemptPlay = async () => {
       if (isCancelled) return;
-      playAttemptRef.current++;
-      
-      try {
-        // Always set src for mobile - don't rely on JSX src attribute
-        if (!videoEl.src || videoEl.src === '' || videoEl.src === window.location.href || videoEl.getAttribute('src') !== video.video_url) {
-          videoEl.src = video.video_url;
-          videoEl.load();
-        }
-        
-        // Wait for enough data to play, with a timeout
-        if (videoEl.readyState < 2) {
-          const waitTime = isTouchPlaybackDevice ? 3000 : (effectiveVideoQuality === 'high' ? 900 : 1400);
-          await new Promise<void>((resolve) => {
-            const timeoutId = window.setTimeout(() => {
-              videoEl.removeEventListener('canplay', onReady);
-              videoEl.removeEventListener('loadeddata', onReady);
-              resolve();
-            }, waitTime);
-            
-            const onReady = () => {
-              window.clearTimeout(timeoutId);
-              videoEl.removeEventListener('canplay', onReady);
-              videoEl.removeEventListener('loadeddata', onReady);
-              resolve();
-            };
-            
-            videoEl.addEventListener('canplay', onReady);
-            videoEl.addEventListener('loadeddata', onReady);
-          });
-        }
-        
-        if (isCancelled) return;
-        
-        if (videoEl.duration && videoEl.currentTime >= videoEl.duration - 0.5) {
-          videoEl.currentTime = 0;
-        }
-        
-        // On mobile PWA, always start muted to guarantee autoplay
-        const startMuted = isTouchPlaybackDevice ? true : shouldStartMuted;
-        videoEl.muted = startMuted;
-        setIsMuted(startMuted);
-        
-        const playPromise = videoEl.play();
-        if (playPromise !== undefined) {
-          await playPromise;
-        }
-        
-        if (isCancelled) return;
-        setIsPlaying(true);
-        setIsBuffering(false);
-        
-        if (!hasTrackedViewRef.current) {
-          incrementViewCount();
-          hasTrackedViewRef.current = true;
-          watchStartTimeRef.current = Date.now();
-          analyticsTrackedRef.current = false;
-        }
-      } catch (playError) {
-        console.log('Autoplay failed, showing play button', playError);
-        // On mobile, try once more muted
-        if (!isCancelled && videoEl.muted === false) {
-          try {
-            videoEl.muted = true;
-            setIsMuted(true);
-            await videoEl.play();
-            if (!isCancelled) {
-              setIsPlaying(true);
-              setIsBuffering(false);
-              return;
-            }
-          } catch {}
-        }
-        setIsPlaying(false);
+      const played = await playVideo(false);
+      if (isCancelled) return;
+      if (!played) {
         setIsBuffering(false);
       }
     };
 
-    attemptPlay();
+    void attemptPlay();
     
     return () => {
       isCancelled = true;
     };
-  }, [isActive, video.video_url, autoplayEnabled, shouldStartMuted, effectiveVideoQuality, playbackSpeed, isLooping, activeVideoPreload, isTouchPlaybackDevice]);
+  }, [isActive, autoplayEnabled, shouldStartMuted, playbackSpeed, isLooping, activeVideoPreload, ensureVideoSource, playVideo]);
 
   // Handle video events for better mobile playback
   useEffect(() => {
@@ -531,6 +574,25 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         setIsBuffering(false);
       }
     };
+    const handlePause = () => {
+      setIsPlaying(false);
+
+      if (!isActive || videoEl.ended || userPausedRef.current || requiresManualPlay) {
+        return;
+      }
+
+      if (stallRecoveryTimerRef.current) {
+        window.clearTimeout(stallRecoveryTimerRef.current);
+      }
+
+      stallRecoveryTimerRef.current = window.setTimeout(() => {
+        if (!isActive || userPausedRef.current || requiresManualPlay || !videoEl.paused || videoEl.ended) {
+          return;
+        }
+
+        void playVideo(false);
+      }, 250);
+    };
     const reloadVideoFromCurrentPosition = () => {
       const now = Date.now();
       if (now - lastRecoveryAtRef.current < 2500) return;
@@ -542,10 +604,11 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         if (resumeAt > 0 && Number.isFinite(videoEl.duration)) {
           videoEl.currentTime = Math.min(resumeAt, Math.max(0, videoEl.duration - 0.1));
         }
-        videoEl.play().catch(() => {});
+        void playVideo(false);
       };
 
       videoEl.addEventListener('loadedmetadata', restorePlayback, { once: true });
+      ensureVideoSource(videoEl);
       videoEl.load();
     };
     
@@ -565,14 +628,14 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
 
         if (count <= 2) {
           if (videoEl.readyState >= 2) {
-            videoEl.play().catch(() => {});
+            void playVideo(false);
           }
           return;
         }
 
         if (count <= 4 && Number.isFinite(videoEl.duration) && videoEl.duration > 0) {
           videoEl.currentTime = Math.min(videoEl.currentTime + 0.05, Math.max(videoEl.duration - 0.1, 0));
-          videoEl.play().catch(() => {});
+          void playVideo(false);
           return;
         }
 
@@ -631,6 +694,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     videoEl.addEventListener('waiting', handleWaiting);
     videoEl.addEventListener('playing', handlePlaying);
     videoEl.addEventListener('canplay', handleCanPlay);
+    videoEl.addEventListener('pause', handlePause);
     videoEl.addEventListener('stalled', handleStalled);
     videoEl.addEventListener('error', handleError);
     videoEl.addEventListener('timeupdate', handleTimeUpdate);
@@ -646,6 +710,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       videoEl.removeEventListener('waiting', handleWaiting);
       videoEl.removeEventListener('playing', handlePlaying);
       videoEl.removeEventListener('canplay', handleCanPlay);
+      videoEl.removeEventListener('pause', handlePause);
       videoEl.removeEventListener('stalled', handleStalled);
       videoEl.removeEventListener('error', handleError);
       videoEl.removeEventListener('timeupdate', handleTimeUpdate);
@@ -653,7 +718,22 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       videoEl.removeEventListener('durationchange', handleDurationChange);
       videoEl.removeEventListener('progress', handleProgress);
     };
-  }, [isActive, video.video_url]);
+  }, [ensureVideoSource, isActive, playVideo, requiresManualPlay, video.video_url]);
+
+  useEffect(() => {
+    if (!isActive || requiresManualPlay) return;
+
+    const intervalId = window.setInterval(() => {
+      const videoEl = videoRef.current;
+      if (!videoEl || document.hidden || userPausedRef.current || videoEl.ended) return;
+
+      if (videoEl.paused && videoEl.readyState >= 2) {
+        void playVideo(false);
+      }
+    }, 1200);
+
+    return () => window.clearInterval(intervalId);
+  }, [isActive, playVideo, requiresManualPlay]);
 
   // Reset tracking when video changes
   useEffect(() => {
@@ -984,43 +1064,30 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     if (!videoEl) return;
 
     if (isPlaying) {
+      userPausedRef.current = true;
       videoEl.pause();
       setIsPlaying(false);
+      setIsBuffering(false);
     } else {
-      // Ensure src is set on mobile before playing
-      if (!videoEl.src || videoEl.src === '' || videoEl.src === window.location.href) {
-        videoEl.src = video.video_url;
-        videoEl.load();
-      }
-      videoEl.muted = isMuted;
-      videoEl.play().then(() => {
-        setIsPlaying(true);
-        setIsBuffering(false);
-        if (!hasTrackedViewRef.current) {
-          incrementViewCount();
-          hasTrackedViewRef.current = true;
-          watchStartTimeRef.current = Date.now();
-          analyticsTrackedRef.current = false;
-        }
-      }).catch(() => {
-        // If unmuted play fails, try muted (browser policy)
-        videoEl.muted = true;
-        setIsMuted(true);
-        videoEl.play().then(() => {
-          setIsPlaying(true);
-          setIsBuffering(false);
-        }).catch(() => {});
-      });
+      playbackUnlockedByUser = true;
+      void playVideo(true);
     }
   };
 
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (videoRef.current) {
+    const videoEl = videoRef.current;
+    if (videoEl) {
       const nextMuted = !isMuted;
-      videoRef.current.muted = nextMuted;
-      audioPreferenceRef.current = nextMuted ? 'muted' : 'unmuted';
-      setIsMuted(nextMuted);
+      syncMuteState(nextMuted);
+
+      if (!nextMuted) {
+        playbackUnlockedByUser = true;
+      }
+
+      if (!nextMuted && isActive && videoEl.paused) {
+        void playVideo(true);
+      }
     }
   };
 
@@ -1375,7 +1442,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       >
           <video
             ref={videoRef}
-            src={isTouchPlaybackDevice ? undefined : video.video_url}
+            src={video.video_url}
             poster={video.thumbnail_url || undefined}
             className="w-full h-full object-contain"
             loop={isLooping}
@@ -1385,7 +1452,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
             x5-playsinline="true"
             x5-video-player-type="h5"
             preload={activeVideoPreload}
-            autoPlay={false}
+            autoPlay={isActive && autoplayEnabled}
             disablePictureInPicture
             disableRemotePlayback
             style={{ 
