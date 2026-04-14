@@ -460,7 +460,6 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         }
         
         // On mobile PWA, always start muted to guarantee autoplay
-        const isStandalonePwa = window.matchMedia?.('(display-mode: standalone)').matches;
         const startMuted = isTouchPlaybackDevice ? true : shouldStartMuted;
         videoEl.muted = startMuted;
         setIsMuted(startMuted);
@@ -1400,8 +1399,15 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
             <div className="animate-spin rounded-full h-10 w-10 border-3 border-white border-t-transparent" />
           </div>
         )}
-        
-        {/* Play/Pause indicator - only show when user manually paused via tap */}
+
+        {/* Play button - shown when video is not playing and active */}
+        {!isPlaying && isActive && !isBuffering && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="bg-black/40 backdrop-blur-sm rounded-full p-5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="0"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Subtitle Display - Draggable */}
