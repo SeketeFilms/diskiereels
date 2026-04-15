@@ -85,6 +85,7 @@ const Feed = () => {
   const isPulling = useRef(false);
   const isSwipingVertically = useRef(false);
   const preloadedVideosRef = useRef<Set<string>>(new Set());
+  const preloadCleanupTimersRef = useRef<Map<string, number>>(new Map());
   const videosRef = useRef<Video[]>([]);
 
   // Screen time tracking
@@ -278,7 +279,6 @@ const Feed = () => {
     }
   };
 
-  // Preload next video conservatively to avoid PWA/mobile freezes
   const preloadVideo = useCallback((videoUrl: string) => {
     if (preloadedVideosRef.current.has(videoUrl)) return;
 
@@ -289,10 +289,9 @@ const Feed = () => {
       };
     }).connection;
 
-    const isStandalonePwa = typeof window !== 'undefined' && window.matchMedia?.('(display-mode: standalone)').matches;
     const isConstrainedNetwork = Boolean(connection?.saveData) || ['slow-2g', '2g', '3g'].includes(connection?.effectiveType || '');
 
-    if (isStandalonePwa || isConstrainedNetwork) {
+    if (isConstrainedNetwork) {
       return;
     }
 
@@ -304,14 +303,48 @@ const Feed = () => {
     link.crossOrigin = 'anonymous';
     document.head.appendChild(link);
 
-    setTimeout(() => link.remove(), 5000);
+    const cleanupTimer = window.setTimeout(() => {
+      link.remove();
+      preloadCleanupTimersRef.current.delete(videoUrl);
+    }, 8000);
+    preloadCleanupTimersRef.current.set(videoUrl, cleanupTimer);
 
-    if (preloadedVideosRef.current.size > 1) {
-      const firstKey = preloadedVideosRef.current.values().next().value;
-      if (firstKey) {
-        preloadedVideosRef.current.delete(firstKey);
+    while (preloadedVideosRef.current.size > 2) {
+      const oldestVideoUrl = preloadedVideosRef.current.values().next().value;
+      if (!oldestVideoUrl) break;
+
+      preloadedVideosRef.current.delete(oldestVideoUrl);
+      const timerId = preloadCleanupTimersRef.current.get(oldestVideoUrl);
+      if (timerId) {
+        window.clearTimeout(timerId);
+        preloadCleanupTimersRef.current.delete(oldestVideoUrl);
       }
+
+      const staleLink = document.head.querySelector(`link[rel="prefetch"][href="${oldestVideoUrl}"]`);
+      staleLink?.remove();
     }
+  }, []);
+
+  const preloadUpcomingVideos = useCallback((startIndex: number) => {
+    const vids = videosRef.current;
+    [1, 2].forEach((offset) => {
+      const nextVideo = vids[startIndex + offset];
+      if (nextVideo?.video_url) {
+        preloadVideo(nextVideo.video_url);
+      }
+    });
+  }, [preloadVideo]);
+
+  useEffect(() => {
+    if (!videos.length) return;
+    preloadUpcomingVideos(activeIndexRef.current);
+  }, [videos, preloadUpcomingVideos]);
+
+  useEffect(() => {
+    return () => {
+      preloadCleanupTimersRef.current.forEach((timerId) => window.clearTimeout(timerId));
+      preloadCleanupTimersRef.current.clear();
+    };
   }, []);
 
   // Handle scroll snap to detect active video and load more - uses refs to avoid dependency churn
@@ -328,17 +361,14 @@ const Feed = () => {
       activeIndexRef.current = newIndex;
       setActiveIndex(newIndex);
       
-      // Preload only the next video to reduce memory/network pressure
-      if (vids[newIndex + 1]) {
-        preloadVideo(vids[newIndex + 1].video_url);
-      }
+      preloadUpcomingVideos(newIndex);
     }
     
     // Load more when near the end (3 videos before last) - use refs to avoid stale closures
     if (newIndex >= vids.length - 3 && hasMoreRef.current && !isLoadingMoreRef.current) {
       loadMoreVideos();
     }
-  }, [triggerScrollHaptic, preloadVideo, loadMoreVideos]);
+  }, [triggerScrollHaptic, preloadUpcomingVideos, loadMoreVideos]);
 
   // Swipe gesture handlers with acceleration
   const handleTouchStart = (e: React.TouchEvent) => {
