@@ -201,12 +201,10 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       : 'high';
   const shouldStartMuted = audioPreferenceRef.current === 'muted';
   const activeVideoPreload = isActive
-    ? effectiveVideoQuality === 'high' && !networkProfile.saveData && !isTouchPlaybackDevice
-      ? 'auto'
-      : 'metadata'
-    : isTouchPlaybackDevice && !networkProfile.saveData
+    ? networkProfile.saveData
       ? 'metadata'
-      : 'none';
+      : 'auto'
+    : 'none';
 
   // Initial data fetch - only fetch when active, batch all queries in parallel
   useEffect(() => {
@@ -344,17 +342,18 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
 
   const waitForVideoReady = useCallback(
     (videoEl: HTMLVideoElement, userInitiated: boolean) => {
-      if (videoEl.readyState >= 2) {
+      if (videoEl.readyState >= (isTouchPlaybackDevice ? 1 : 2)) {
         return Promise.resolve();
       }
 
-      const waitTime = userInitiated ? 2200 : isTouchPlaybackDevice ? 1800 : effectiveVideoQuality === 'high' ? 900 : 1400;
+      const waitTime = userInitiated ? 1400 : isTouchPlaybackDevice ? 650 : effectiveVideoQuality === 'high' ? 700 : 950;
 
       return new Promise<void>((resolve) => {
         const onReady = () => {
           window.clearTimeout(timeoutId);
           videoEl.removeEventListener('canplay', onReady);
           videoEl.removeEventListener('loadeddata', onReady);
+          videoEl.removeEventListener('loadedmetadata', onReady);
           videoEl.removeEventListener('canplaythrough', onReady);
           videoEl.removeEventListener('error', onReady);
           resolve();
@@ -364,6 +363,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
 
         videoEl.addEventListener('canplay', onReady);
         videoEl.addEventListener('loadeddata', onReady);
+        videoEl.addEventListener('loadedmetadata', onReady);
         videoEl.addEventListener('canplaythrough', onReady);
         videoEl.addEventListener('error', onReady);
       });
@@ -393,7 +393,11 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
           playbackUnlockedByUser = true;
         }
 
-        const startMuted = audioPreferenceRef.current === 'muted';
+        const startMuted = userInitiated
+          ? audioPreferenceRef.current === 'muted'
+          : isTouchPlaybackDevice && !playbackUnlockedByUser
+            ? true
+            : audioPreferenceRef.current === 'muted';
         videoEl.defaultMuted = startMuted;
         videoEl.muted = startMuted;
         if (!startMuted) {
@@ -416,17 +420,37 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
 
         return true;
       } catch (error) {
-        const wantsSoundOn = audioPreferenceRef.current !== 'muted';
-        if (wantsSoundOn && !userInitiated && !playbackUnlockedByUser) {
-          setRequiresManualPlay(true);
+        if (!userInitiated && !videoEl.muted) {
+          try {
+            videoEl.defaultMuted = true;
+            videoEl.muted = true;
+            await videoEl.play();
+
+            setIsMuted(true);
+            setIsPlaying(true);
+            setIsBuffering(false);
+            setRequiresManualPlay(false);
+
+            if (!hasTrackedViewRef.current) {
+              incrementViewCount();
+              hasTrackedViewRef.current = true;
+              watchStartTimeRef.current = Date.now();
+              analyticsTrackedRef.current = false;
+            }
+
+            return true;
+          } catch {
+            // fall through to manual play fallback below
+          }
         }
 
+        setRequiresManualPlay(!userInitiated);
         setIsPlaying(false);
         setIsBuffering(false);
         return false;
       }
     },
-    [ensureVideoSource, waitForVideoReady]
+    [ensureVideoSource, waitForVideoReady, isTouchPlaybackDevice]
   );
 
   const fetchPlaybackSettings = async () => {
