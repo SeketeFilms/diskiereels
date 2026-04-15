@@ -1495,7 +1495,14 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
 
         {/* Play button - shown when video is not playing and active */}
         {!isPlaying && isActive && !isBuffering && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div
+            className="absolute inset-0 flex items-center justify-center z-20 cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              playbackUnlockedByUser = true;
+              void playVideo(true);
+            }}
+          >
             <div className="bg-black/40 backdrop-blur-sm rounded-full p-5">
               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="0"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             </div>

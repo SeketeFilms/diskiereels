@@ -282,6 +282,7 @@ const Feed = () => {
   const preloadVideo = useCallback((videoUrl: string) => {
     if (preloadedVideosRef.current.has(videoUrl)) return;
 
+    // Adaptive: skip preloading on save-data or very slow connections
     const connection = (navigator as Navigator & {
       connection?: {
         saveData?: boolean;
@@ -289,9 +290,12 @@ const Feed = () => {
       };
     }).connection;
 
-    const isConstrainedNetwork = Boolean(connection?.saveData) || ['slow-2g', '2g', '3g'].includes(connection?.effectiveType || '');
+    const effectiveType = connection?.effectiveType || '4g';
+    const isSaveData = Boolean(connection?.saveData);
+    const isSlow = ['slow-2g', '2g'].includes(effectiveType);
 
-    if (isConstrainedNetwork) {
+    // Skip entirely on save-data or 2g
+    if (isSaveData || isSlow) {
       return;
     }
 
@@ -327,12 +331,15 @@ const Feed = () => {
 
   const preloadUpcomingVideos = useCallback((startIndex: number) => {
     const vids = videosRef.current;
-    [1, 2].forEach((offset) => {
+    // Adaptive: on 3g only preload next 1, on 4g+ preload next 2
+    const conn = (navigator as Navigator & { connection?: { effectiveType?: string } }).connection;
+    const maxPrefetch = conn?.effectiveType === '3g' ? 1 : 2;
+    for (let offset = 1; offset <= maxPrefetch; offset++) {
       const nextVideo = vids[startIndex + offset];
       if (nextVideo?.video_url) {
         preloadVideo(nextVideo.video_url);
       }
-    });
+    }
   }, [preloadVideo]);
 
   useEffect(() => {
