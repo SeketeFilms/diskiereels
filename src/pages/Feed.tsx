@@ -282,6 +282,7 @@ const Feed = () => {
   const preloadVideo = useCallback((videoUrl: string) => {
     if (preloadedVideosRef.current.has(videoUrl)) return;
 
+    // Adaptive: skip preloading on save-data or very slow connections
     const connection = (navigator as Navigator & {
       connection?: {
         saveData?: boolean;
