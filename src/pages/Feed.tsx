@@ -54,6 +54,40 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 
 const PAGE_SIZE = 10;
 
+const getAdaptivePrefetchWindow = () => {
+  if (typeof navigator === 'undefined') {
+    return 1;
+  }
+
+  const connection = (navigator as Navigator & {
+    connection?: {
+      saveData?: boolean;
+      effectiveType?: string;
+    };
+    deviceMemory?: number;
+    maxTouchPoints?: number;
+  }).connection;
+
+  const effectiveType = connection?.effectiveType || '4g';
+  const saveData = Boolean(connection?.saveData);
+  const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
+  const isTouchDevice = typeof window !== 'undefined' && (((navigator as Navigator).maxTouchPoints || 0) > 0 || window.innerWidth <= 1024);
+
+  if (saveData || effectiveType === 'slow-2g' || effectiveType === '2g') {
+    return 0;
+  }
+
+  if (effectiveType === '3g') {
+    return 1;
+  }
+
+  if (isTouchDevice && deviceMemory <= 4) {
+    return 1;
+  }
+
+  return 2;
+};
+
 const Feed = () => {
   const navigate = useNavigate();
   const { triggerScrollHaptic } = useHapticFeedback();
@@ -292,7 +326,7 @@ const Feed = () => {
 
     const effectiveType = connection?.effectiveType || '4g';
     const isSaveData = Boolean(connection?.saveData);
-    const isSlow = ['slow-2g', '2g'].includes(effectiveType);
+    const isSlow = ['slow-2g', '2g', '3g'].includes(effectiveType);
 
     // Skip entirely on save-data or 2g
     if (isSaveData || isSlow) {
@@ -331,9 +365,7 @@ const Feed = () => {
 
   const preloadUpcomingVideos = useCallback((startIndex: number) => {
     const vids = videosRef.current;
-    // Adaptive: on 3g only preload next 1, on 4g+ preload next 2
-    const conn = (navigator as Navigator & { connection?: { effectiveType?: string } }).connection;
-    const maxPrefetch = conn?.effectiveType === '3g' ? 1 : 2;
+    const maxPrefetch = getAdaptivePrefetchWindow();
     for (let offset = 1; offset <= maxPrefetch; offset++) {
       const nextVideo = vids[startIndex + offset];
       if (nextVideo?.video_url) {
