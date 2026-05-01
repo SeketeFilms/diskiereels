@@ -1640,6 +1640,27 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       <div className="absolute top-12 left-3 z-20">
         <span className="text-white/40 text-xl font-bold tracking-wide">DiskieReels</span>
       </div>
+
+      {isActive && (
+        <div className="absolute top-12 left-1/2 z-20 -translate-x-1/2 pointer-events-none">
+          <div
+            className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium backdrop-blur-md ${
+              networkIndicator.tone === 'good'
+                ? 'border-primary/30 bg-background/55 text-primary-foreground'
+                : networkIndicator.tone === 'warning'
+                  ? 'border-accent/40 bg-background/70 text-accent'
+                  : 'border-border/60 bg-background/70 text-foreground'
+            }`}
+            aria-live="polite"
+          >
+            <networkIndicator.icon className="h-3.5 w-3.5" />
+            <span>{networkIndicator.label}</span>
+            {(networkProfile.saveData || networkProfile.isSlowConnection) && (
+              <span className="hidden sm:inline text-muted-foreground">• {networkIndicator.detail}</span>
+            )}
+          </div>
+        </div>
+      )}
       
       {/* Top Controls - aligned with DiskieReels branding */}
       <div className="absolute top-12 right-3 z-20 flex items-center gap-2">
