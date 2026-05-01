@@ -185,11 +185,11 @@ const Upload = () => {
       return;
     }
 
-    // Validate aspect ratio (9:16)
+    // Validate orientation (must be portrait)
     toast.info('Validating video...');
     const isValidRatio = await validateVideoAspectRatio(videoFile);
     if (!isValidRatio) {
-      toast.error('Video must be in 9:16 aspect ratio (vertical format)');
+      toast.error('Only portrait videos are allowed. Please upload a vertical clip (not landscape).');
       return;
     }
 
