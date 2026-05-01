@@ -88,11 +88,9 @@ const Upload = () => {
       
       video.onloadedmetadata = () => {
         const aspectRatio = video.videoWidth / video.videoHeight;
-        const target = 9 / 16;
-        const tolerance = 0.05; // 5% tolerance
-        
         URL.revokeObjectURL(video.src);
-        resolve(Math.abs(aspectRatio - target) <= tolerance);
+        // Accept any portrait video (taller than wide). Reject landscape/square.
+        resolve(aspectRatio < 1);
       };
       
       video.onerror = () => {
