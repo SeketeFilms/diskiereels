@@ -129,7 +129,9 @@ const Upload = () => {
     return matches ? matches.map(tag => tag.replace('#', '').toLowerCase()) : [];
   };
 
-  // Trigger AI transcription in the background
+  // Trigger AI transcription in the background. Failures are silent — the reel
+  // still uploads and plays without subtitles. Captions can be toggled in
+  // Settings or per-reel via the player menu.
   const triggerTranscription = async (videoId: string, videoUrl: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -150,12 +152,14 @@ const Upload = () => {
       if (response.ok) {
         const result = await response.json();
         console.log('Transcription complete:', result);
-        toast.success('Subtitles generated successfully!');
+        toast.success('Subtitles ready for your reel!');
       } else {
-        console.error('Transcription failed:', await response.text());
+        // Graceful fallback — don't block or alarm the user
+        const errText = await response.text().catch(() => '');
+        console.warn('Transcription unavailable, reel uploaded without subtitles:', errText);
       }
     } catch (error) {
-      console.error('Transcription error:', error);
+      console.warn('Transcription skipped:', error);
     }
   };
 
