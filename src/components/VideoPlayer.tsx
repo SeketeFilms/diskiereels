@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, Download, Flag, Trash2, Volume2, VolumeX, Bookmark, BookmarkCheck, Settings, Repeat, Ban, BadgeCheck, Subtitles, Star } from 'lucide-react';
+import { Heart, MessageCircle, Download, Flag, Trash2, Volume2, VolumeX, Bookmark, BookmarkCheck, Settings, Repeat, Ban, BadgeCheck, Subtitles, Star, Wifi, AlertTriangle, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import LikeAnimation from '@/components/LikeAnimation';
 import { useNavigate } from 'react-router-dom';
@@ -119,6 +119,33 @@ const getPlaybackNetworkProfile = () => {
   };
 };
 
+const getNetworkIndicatorConfig = (profile: ReturnType<typeof getPlaybackNetworkProfile>) => {
+  if (profile.saveData) {
+    return {
+      label: 'Data saver on',
+      detail: 'Videos may start in lighter mode',
+      icon: AlertTriangle,
+      tone: 'warning' as const,
+    };
+  }
+
+  if (profile.isSlowConnection) {
+    return {
+      label: 'Slow connection',
+      detail: 'Loading may take a little longer',
+      icon: Wifi,
+      tone: 'slow' as const,
+    };
+  }
+
+  return {
+    label: 'Fast connection',
+    detail: 'Reels should start quickly',
+    icon: Zap,
+    tone: 'good' as const,
+  };
+};
+
 const normalizePlaybackQuality = (value?: string | null): PlaybackQuality => {
   if (value === 'auto' || value === 'high' || value === 'medium') {
     return value;
@@ -195,6 +222,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
 
   const isOwnVideo = currentUserId === video.creator_id;
   const networkProfile = getPlaybackNetworkProfile();
+  const networkIndicator = getNetworkIndicatorConfig(networkProfile);
   const isTouchPlaybackDevice =
     isMobile ||
     (typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0 && window.innerWidth <= 1024);
@@ -596,6 +624,10 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     
     return () => {
       isCancelled = true;
+      if (globallyActiveVideoElement === videoEl) {
+        globallyActiveVideoElement = null;
+        globallyActiveVideoId = null;
+      }
     };
   }, [isActive, autoplayEnabled, shouldStartMuted, playbackSpeed, isLooping, activeVideoPreload, ensureVideoSource, playVideo]);
 
@@ -609,18 +641,44 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         isBufferingRef.current = true;
         setIsBuffering(true);
       }
+
+      if (waitingRecoveryTimerRef.current) {
+        window.clearTimeout(waitingRecoveryTimerRef.current);
+      }
+
+      waitingRecoveryTimerRef.current = window.setTimeout(() => {
+        if (!isActive || userPausedRef.current || requiresManualPlay || document.hidden) {
+          return;
+        }
+
+        if (videoEl.readyState <= 1) {
+          ensureVideoSource(videoEl);
+          videoEl.load();
+        }
+
+        void playVideo(false);
+      }, networkProfile.isSlowConnection ? 1600 : 900);
     };
     const handlePlaying = () => {
+      setIsPlaying(true);
       if (isBufferingRef.current) {
         isBufferingRef.current = false;
         setIsBuffering(false);
       }
       stallCountRef.current = 0;
+      if (waitingRecoveryTimerRef.current) {
+        window.clearTimeout(waitingRecoveryTimerRef.current);
+        waitingRecoveryTimerRef.current = null;
+      }
     };
     const handleCanPlay = () => {
       if (isBufferingRef.current) {
         isBufferingRef.current = false;
         setIsBuffering(false);
+      }
+
+      if (isActive && !userPausedRef.current && videoEl.paused && !requiresManualPlay) {
+        void playVideo(false);
       }
     };
     const handlePause = () => {
@@ -632,6 +690,10 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
 
       if (stallRecoveryTimerRef.current) {
         window.clearTimeout(stallRecoveryTimerRef.current);
+      }
+      if (waitingRecoveryTimerRef.current) {
+        window.clearTimeout(waitingRecoveryTimerRef.current);
+        waitingRecoveryTimerRef.current = null;
       }
 
       stallRecoveryTimerRef.current = window.setTimeout(() => {
@@ -756,6 +818,10 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         window.clearTimeout(stallRecoveryTimerRef.current);
         stallRecoveryTimerRef.current = null;
       }
+      if (waitingRecoveryTimerRef.current) {
+        window.clearTimeout(waitingRecoveryTimerRef.current);
+        waitingRecoveryTimerRef.current = null;
+      }
       videoEl.removeEventListener('waiting', handleWaiting);
       videoEl.removeEventListener('playing', handlePlaying);
       videoEl.removeEventListener('canplay', handleCanPlay);
@@ -767,7 +833,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       videoEl.removeEventListener('durationchange', handleDurationChange);
       videoEl.removeEventListener('progress', handleProgress);
     };
-  }, [ensureVideoSource, isActive, playVideo, requiresManualPlay, video.video_url]);
+  }, [ensureVideoSource, isActive, networkProfile.isSlowConnection, playVideo, requiresManualPlay, video.video_url]);
 
   useEffect(() => {
     if (!isActive || requiresManualPlay) return;
