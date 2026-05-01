@@ -381,6 +381,8 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     globallyActiveVideoId = video.id;
   }, [video.id]);
 
+  const isGlobalPlaybackOwner = useCallback(() => globallyActiveVideoId === video.id, [video.id]);
+
   const waitForVideoReady = useCallback(
     (videoEl: HTMLVideoElement, userInitiated: boolean) => {
       if (videoEl.readyState >= (isTouchPlaybackDevice ? 1 : 2)) {
@@ -583,6 +585,10 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     if (!isActive) {
       userPausedRef.current = false;
       videoEl.pause();
+      if (globallyActiveVideoElement === videoEl) {
+        globallyActiveVideoElement = null;
+        globallyActiveVideoId = null;
+      }
       setIsPlaying(false);
       setIsBuffering(false);
       setRequiresManualPlay(false);
@@ -677,14 +683,14 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         setIsBuffering(false);
       }
 
-      if (isActive && !userPausedRef.current && videoEl.paused && !requiresManualPlay) {
+      if (isActive && isGlobalPlaybackOwner() && !userPausedRef.current && videoEl.paused && !requiresManualPlay) {
         void playVideo(false);
       }
     };
     const handlePause = () => {
       setIsPlaying(false);
 
-      if (!isActive || videoEl.ended || userPausedRef.current || requiresManualPlay) {
+      if (!isActive || !isGlobalPlaybackOwner() || videoEl.ended || userPausedRef.current || requiresManualPlay) {
         return;
       }
 
@@ -697,7 +703,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       }
 
       stallRecoveryTimerRef.current = window.setTimeout(() => {
-        if (!isActive || userPausedRef.current || requiresManualPlay || !videoEl.paused || videoEl.ended) {
+        if (!isActive || !isGlobalPlaybackOwner() || userPausedRef.current || requiresManualPlay || !videoEl.paused || videoEl.ended) {
           return;
         }
 
@@ -724,7 +730,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     };
     
     const handleStalled = () => {
-      if (!isActive) return;
+      if (!isActive || !isGlobalPlaybackOwner()) return;
       stallCountRef.current++;
       
       const count = stallCountRef.current;
@@ -755,7 +761,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     };
     
     const handleError = () => {
-      if (!isActive) return;
+      if (!isActive || !isGlobalPlaybackOwner()) return;
       if (stallCountRef.current > 4) return;
       stallCountRef.current++;
       reloadVideoFromCurrentPosition();
@@ -833,14 +839,14 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       videoEl.removeEventListener('durationchange', handleDurationChange);
       videoEl.removeEventListener('progress', handleProgress);
     };
-  }, [ensureVideoSource, isActive, networkProfile.isSlowConnection, playVideo, requiresManualPlay, video.video_url]);
+  }, [ensureVideoSource, isActive, isGlobalPlaybackOwner, networkProfile.isSlowConnection, playVideo, requiresManualPlay, video.video_url]);
 
   useEffect(() => {
     if (!isActive || requiresManualPlay) return;
 
     const intervalId = window.setInterval(() => {
       const videoEl = videoRef.current;
-      if (!videoEl || document.hidden || userPausedRef.current || videoEl.ended) return;
+      if (!videoEl || !isGlobalPlaybackOwner() || document.hidden || userPausedRef.current || videoEl.ended) return;
 
       if (videoEl.paused && videoEl.readyState >= 2) {
         void playVideo(false);
@@ -848,7 +854,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     }, 1200);
 
     return () => window.clearInterval(intervalId);
-  }, [isActive, playVideo, requiresManualPlay]);
+  }, [isActive, isGlobalPlaybackOwner, playVideo, requiresManualPlay]);
 
   // Reset tracking when video changes
   useEffect(() => {
