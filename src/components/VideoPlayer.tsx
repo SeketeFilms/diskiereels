@@ -373,12 +373,13 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
   }, [video.video_url]);
 
   const claimGlobalPlayback = useCallback((videoEl: HTMLVideoElement) => {
-    if (globallyActiveVideoElement && globallyActiveVideoElement !== videoEl) {
-      globallyActiveVideoElement.pause();
-    }
-
+    const previousActiveVideo = globallyActiveVideoElement && globallyActiveVideoElement !== videoEl
+      ? globallyActiveVideoElement
+      : null;
     globallyActiveVideoElement = videoEl;
     globallyActiveVideoId = video.id;
+
+    previousActiveVideo?.pause();
   }, [video.id]);
 
   const isGlobalPlaybackOwner = useCallback(() => globallyActiveVideoId === video.id, [video.id]);
@@ -653,7 +654,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       }
 
       waitingRecoveryTimerRef.current = window.setTimeout(() => {
-        if (!isActive || userPausedRef.current || requiresManualPlay || document.hidden) {
+        if (!isActive || !isGlobalPlaybackOwner() || userPausedRef.current || requiresManualPlay || document.hidden) {
           return;
         }
 
