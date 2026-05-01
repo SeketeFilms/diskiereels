@@ -96,6 +96,8 @@ const VIDEO_ENGAGEMENT_TTL = 60 * 1000;
 const VIEWER_VIDEO_STATE_TTL = 60 * 1000;
 let globalAudioPreference: 'muted' | 'unmuted' = 'unmuted';
 let playbackUnlockedByUser = false;
+let globallyActiveVideoElement: HTMLVideoElement | null = null;
+let globallyActiveVideoId: string | null = null;
 
 const getPlaybackNetworkProfile = () => {
   if (typeof navigator === 'undefined') {
@@ -186,6 +188,8 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
   const audioPreferenceRef = useRef<'muted' | 'unmuted'>(globalAudioPreference);
   const deferredDataFetchTimerRef = useRef<number | null>(null);
   const stallRecoveryTimerRef = useRef<number | null>(null);
+  const playRequestRef = useRef<Promise<boolean> | null>(null);
+  const waitingRecoveryTimerRef = useRef<number | null>(null);
   const lastRecoveryAtRef = useRef<number>(0);
   const userPausedRef = useRef(false);
 
@@ -340,6 +344,15 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     }
   }, [video.video_url]);
 
+  const claimGlobalPlayback = useCallback((videoEl: HTMLVideoElement) => {
+    if (globallyActiveVideoElement && globallyActiveVideoElement !== videoEl) {
+      globallyActiveVideoElement.pause();
+    }
+
+    globallyActiveVideoElement = videoEl;
+    globallyActiveVideoId = video.id;
+  }, [video.id]);
+
   const waitForVideoReady = useCallback(
     (videoEl: HTMLVideoElement, userInitiated: boolean) => {
       if (videoEl.readyState >= (isTouchPlaybackDevice ? 1 : 2)) {
@@ -373,15 +386,21 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
 
   const playVideo = useCallback(
     async (userInitiated: boolean = false) => {
+      if (playRequestRef.current) {
+        return playRequestRef.current;
+      }
+
       const videoEl = videoRef.current;
       if (!videoEl) return false;
 
-      try {
+      const playRequest = (async () => {
+        try {
         playAttemptRef.current++;
         userPausedRef.current = false;
         setRequiresManualPlay(false);
         setIsBuffering(true);
 
+        claimGlobalPlayback(videoEl);
         ensureVideoSource(videoEl);
         await waitForVideoReady(videoEl, userInitiated);
 
@@ -448,9 +467,15 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         setIsPlaying(false);
         setIsBuffering(false);
         return false;
-      }
+        } finally {
+          playRequestRef.current = null;
+        }
+      })();
+
+      playRequestRef.current = playRequest;
+      return playRequest;
     },
-    [ensureVideoSource, waitForVideoReady, isTouchPlaybackDevice]
+    [claimGlobalPlayback, ensureVideoSource, waitForVideoReady, isTouchPlaybackDevice]
   );
 
   const fetchPlaybackSettings = async () => {
