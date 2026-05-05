@@ -1274,6 +1274,9 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         videoQuality: quality,
         subtitlesEnabled: cached?.subtitlesEnabled ?? subtitlesEnabled,
         subtitlesSize: cached?.subtitlesSize ?? subtitlesSize,
+        subtitlesPosition: cached?.subtitlesPosition ?? subtitlesPosition,
+        subtitlesBackground: cached?.subtitlesBackground ?? subtitlesBackground,
+        subtitlesKaraoke: cached?.subtitlesKaraoke ?? subtitlesKaraoke,
         fetchedAt: Date.now(),
       });
 
