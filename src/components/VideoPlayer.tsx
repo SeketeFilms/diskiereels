@@ -1654,25 +1654,65 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       
       {/* Subtitle Display - Draggable */}
       {subtitlesEnabled && currentSubtitle && (
-        <div 
+        <div
           ref={subtitleRef}
-          className={`absolute z-30 flex justify-center px-4 cursor-grab active:cursor-grabbing select-none ${isDraggingSubtitle ? 'pointer-events-auto' : 'pointer-events-auto'}`}
-          style={{ 
-            bottom: `${subtitlePosition.y}px`,
-            left: '50%',
-            transform: `translateX(calc(-50% + ${subtitlePosition.x}px))`,
-            touchAction: 'none'
+          className="absolute z-30 flex justify-center px-4 cursor-grab active:cursor-grabbing select-none pointer-events-auto"
+          style={{
+            ...(subtitlesPosition === 'top'
+              ? { top: `calc(80px + ${subtitlePosition.y}px)` }
+              : subtitlesPosition === 'middle'
+              ? { top: '50%', transform: `translate(calc(-50% + ${subtitlePosition.x}px), -50%)` }
+              : { bottom: `calc(env(safe-area-inset-bottom, 0px) + ${Math.max(120, subtitlePosition.y)}px)` }),
+            ...(subtitlesPosition !== 'middle' ? { left: '50%', transform: `translateX(calc(-50% + ${subtitlePosition.x}px))` } : {}),
+            touchAction: 'none',
           }}
           onMouseDown={handleSubtitleDragStart}
           onTouchStart={handleSubtitleDragStart}
         >
-          <div className="bg-black/70 rounded-lg px-4 py-2 max-w-[90%]">
-            <p className={`text-white text-center font-medium leading-relaxed ${
-              subtitlesSize === 'small' ? 'text-xs' : 
-              subtitlesSize === 'large' ? 'text-lg' : 
-              'text-sm'
-            }`}>
-              {currentSubtitle}
+          <div
+            className={`rounded-2xl px-5 py-3 max-w-[92%] ${
+              subtitlesBackground === 'solid'
+                ? 'bg-black/85'
+                : subtitlesBackground === 'translucent'
+                ? 'bg-black/45 backdrop-blur-md'
+                : 'bg-transparent'
+            }`}
+          >
+            <p
+              className={`text-white text-center font-extrabold leading-snug tracking-wide ${
+                subtitlesSize === 'small'
+                  ? 'text-base'
+                  : subtitlesSize === 'large'
+                  ? 'text-2xl'
+                  : subtitlesSize === 'xl'
+                  ? 'text-3xl'
+                  : 'text-xl'
+              }`}
+              style={
+                subtitlesBackground === 'none'
+                  ? { textShadow: '0 0 6px rgba(0,0,0,0.95), 0 2px 4px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,1)' }
+                  : { textShadow: '0 1px 3px rgba(0,0,0,0.6)' }
+              }
+            >
+              {subtitlesKaraoke && currentSubtitleSeg?.words && currentSubtitleSeg.words.length > 0 ? (
+                currentSubtitleSeg.words.map((w, i) => {
+                  const active = currentTimeRef.current >= w.start && currentTimeRef.current <= w.end + 0.05;
+                  const past = currentTimeRef.current > w.end;
+                  return (
+                    <span
+                      key={i}
+                      className={`inline-block transition-colors duration-100 ${
+                        active ? 'text-yellow-300 scale-110' : past ? 'text-white' : 'text-white/70'
+                      }`}
+                      style={{ marginRight: '0.3em' }}
+                    >
+                      {w.text}
+                    </span>
+                  );
+                })
+              ) : (
+                currentSubtitle
+              )}
             </p>
           </div>
         </div>
