@@ -1497,17 +1497,30 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
   const handleDeleteVideo = async () => {
     try {
       const deleteToast = toast.loading('Deleting video...');
-      
+
+      // Stop playback first so the player tears down cleanly even mid-play
+      const videoEl = videoRef.current;
+      if (videoEl) {
+        try {
+          userPausedRef.current = true;
+          videoEl.pause();
+          videoEl.removeAttribute('src');
+          videoEl.load();
+        } catch {
+          // ignore — we're deleting anyway
+        }
+      }
+
       const { error } = await supabase
         .from('videos')
         .delete()
         .eq('id', video.id);
-      
+
       if (error) throw error;
-      
+
       toast.success('Video deleted successfully!', { id: deleteToast });
       setShowDeleteDialog(false);
-      
+
       // Call the onDelete callback to update parent state
       if (onDelete) {
         onDelete();
@@ -1591,8 +1604,9 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
           </div>
         )}
 
-        {/* Play button - shown when video is not playing and active */}
-        {!isPlaying && isActive && !isBuffering && (
+        {/* Play button - only when autoplay was actually blocked by the browser.
+            Otherwise reels auto-play silently without requiring a tap. */}
+        {!isPlaying && isActive && !isBuffering && requiresManualPlay && (
           <div
             className="absolute inset-0 flex items-center justify-center z-20 cursor-pointer"
             onClick={(e) => {
