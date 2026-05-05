@@ -78,7 +78,10 @@ interface CachedPlaybackSettings {
   autoplay: boolean;
   videoQuality: PlaybackQuality;
   subtitlesEnabled: boolean;
-  subtitlesSize: 'small' | 'medium' | 'large';
+  subtitlesSize: 'small' | 'medium' | 'large' | 'xl';
+  subtitlesPosition: 'top' | 'middle' | 'bottom';
+  subtitlesBackground: 'solid' | 'translucent' | 'none';
+  subtitlesKaraoke: boolean;
   fetchedAt: number;
 }
 
