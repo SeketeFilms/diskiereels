@@ -31,11 +31,18 @@ import {
 } from '@/components/ui/alert-dialog';
 import SendStarsDialog from '@/components/SendStarsDialog';
 
+interface SubtitleSegmentWord {
+  text: string;
+  start: number;
+  end: number;
+}
+
 interface SubtitleSegment {
   id: number;
   text: string;
   start: number;
   end: number;
+  words?: SubtitleSegmentWord[];
 }
 
 interface VideoPlayerProps {
@@ -50,6 +57,7 @@ interface VideoPlayerProps {
     tags?: string[] | null;
     thumbnail_url?: string | null;
     subtitles?: SubtitleSegment[] | null;
+    transcription_status?: string | null;
     profiles: {
       username: string;
       avatar_url: string;
