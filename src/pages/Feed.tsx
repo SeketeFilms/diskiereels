@@ -35,6 +35,7 @@ interface Video {
   tags?: string[] | null;
   thumbnail_url?: string | null;
   subtitles?: SubtitleSegment[] | null;
+  transcription_status?: string | null;
   profiles: {
     username: string;
     avatar_url: string;

@@ -48,6 +48,9 @@ const Settings = () => {
   const [videoQuality, setVideoQuality] = useState("auto");
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
   const [subtitlesSize, setSubtitlesSize] = useState("medium");
+  const [subtitlesPosition, setSubtitlesPosition] = useState("bottom");
+  const [subtitlesBackground, setSubtitlesBackground] = useState("solid");
+  const [subtitlesKaraoke, setSubtitlesKaraoke] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [totalViews, setTotalViews] = useState(0);
@@ -149,6 +152,9 @@ const Settings = () => {
         setVideoQuality(playbackSettings.video_quality);
         setSubtitlesEnabled(playbackSettings.subtitles_enabled);
         setSubtitlesSize(playbackSettings.subtitles_size);
+        setSubtitlesPosition((playbackSettings as any).subtitles_position || 'bottom');
+        setSubtitlesBackground((playbackSettings as any).subtitles_background || 'solid');
+        setSubtitlesKaraoke((playbackSettings as any).subtitles_karaoke !== false);
       }
 
       const { data: notifPrefs } = await supabase.from('notification_preferences').select('*').eq('user_id', user.id).single();
@@ -294,7 +300,7 @@ const Settings = () => {
   const savePlaybackSettings = async () => {
     if (!userId) return;
     try {
-      await supabase.from('playback_settings').upsert({ user_id: userId, autoplay, video_quality: videoQuality, subtitles_enabled: subtitlesEnabled, subtitles_size: subtitlesSize });
+      await supabase.from('playback_settings').upsert({ user_id: userId, autoplay, video_quality: videoQuality, subtitles_enabled: subtitlesEnabled, subtitles_size: subtitlesSize, subtitles_position: subtitlesPosition, subtitles_background: subtitlesBackground, subtitles_karaoke: subtitlesKaraoke } as any);
       toast.success('Playback settings saved');
     } catch (error) {
       toast.error('Failed to save');
@@ -602,15 +608,42 @@ const Settings = () => {
                 <AccordionItem value="subtitles">
                   <AccordionTrigger className="text-xs">Subtitles</AccordionTrigger>
                   <AccordionContent className="space-y-3">
-                    <div className="flex justify-between"><Label className="text-xs">Enabled</Label><Switch checked={subtitlesEnabled} onCheckedChange={setSubtitlesEnabled} /></div>
-                    <Select value={subtitlesSize} onValueChange={setSubtitlesSize}>
-                      <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="small">Small</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="large">Large</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex justify-between items-center"><Label className="text-xs">Enabled</Label><Switch checked={subtitlesEnabled} onCheckedChange={setSubtitlesEnabled} /></div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] text-muted-foreground">Size</Label>
+                      <Select value={subtitlesSize} onValueChange={setSubtitlesSize}>
+                        <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="small">Small</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="large">Large</SelectItem>
+                          <SelectItem value="xl">Extra Large</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] text-muted-foreground">Position</Label>
+                      <Select value={subtitlesPosition} onValueChange={setSubtitlesPosition}>
+                        <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="top">Top</SelectItem>
+                          <SelectItem value="middle">Middle</SelectItem>
+                          <SelectItem value="bottom">Bottom</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] text-muted-foreground">Background</Label>
+                      <Select value={subtitlesBackground} onValueChange={setSubtitlesBackground}>
+                        <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="solid">Solid</SelectItem>
+                          <SelectItem value="translucent">Translucent</SelectItem>
+                          <SelectItem value="none">None (outline)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex justify-between items-center"><Label className="text-xs">Karaoke highlight</Label><Switch checked={subtitlesKaraoke} onCheckedChange={setSubtitlesKaraoke} /></div>
                     <Button onClick={savePlaybackSettings} size="sm" className="h-7 text-xs">Save</Button>
                   </AccordionContent>
                 </AccordionItem>

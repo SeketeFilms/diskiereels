@@ -31,11 +31,18 @@ import {
 } from '@/components/ui/alert-dialog';
 import SendStarsDialog from '@/components/SendStarsDialog';
 
+interface SubtitleSegmentWord {
+  text: string;
+  start: number;
+  end: number;
+}
+
 interface SubtitleSegment {
   id: number;
   text: string;
   start: number;
   end: number;
+  words?: SubtitleSegmentWord[];
 }
 
 interface VideoPlayerProps {
@@ -50,6 +57,7 @@ interface VideoPlayerProps {
     tags?: string[] | null;
     thumbnail_url?: string | null;
     subtitles?: SubtitleSegment[] | null;
+    transcription_status?: string | null;
     profiles: {
       username: string;
       avatar_url: string;
@@ -70,7 +78,10 @@ interface CachedPlaybackSettings {
   autoplay: boolean;
   videoQuality: PlaybackQuality;
   subtitlesEnabled: boolean;
-  subtitlesSize: 'small' | 'medium' | 'large';
+  subtitlesSize: 'small' | 'medium' | 'large' | 'xl';
+  subtitlesPosition: 'top' | 'middle' | 'bottom';
+  subtitlesBackground: 'solid' | 'translucent' | 'none';
+  subtitlesKaraoke: boolean;
   fetchedAt: number;
 }
 
@@ -192,8 +203,13 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
   const [isDownloading, setIsDownloading] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(true);
-  const [subtitlesSize, setSubtitlesSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [subtitlesSize, setSubtitlesSize] = useState<'small' | 'medium' | 'large' | 'xl'>('medium');
+  const [subtitlesPosition, setSubtitlesPosition] = useState<'top' | 'middle' | 'bottom'>('bottom');
+  const [subtitlesBackground, setSubtitlesBackground] = useState<'solid' | 'translucent' | 'none'>('solid');
+  const [subtitlesKaraoke, setSubtitlesKaraoke] = useState(true);
   const [currentSubtitle, setCurrentSubtitle] = useState<string>('');
+  const [currentSubtitleSeg, setCurrentSubtitleSeg] = useState<SubtitleSegment | null>(null);
+  const [retryingTranscription, setRetryingTranscription] = useState(false);
   const [subtitlePosition, setSubtitlePosition] = useState({ x: 0, y: 180 });
   const [isDraggingSubtitle, setIsDraggingSubtitle] = useState(false);
   const [showStarsDialog, setShowStarsDialog] = useState(false);
@@ -518,20 +534,27 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       setVideoQuality(cached.videoQuality);
       setSubtitlesEnabled(cached.subtitlesEnabled);
       setSubtitlesSize(cached.subtitlesSize);
+      setSubtitlesPosition(cached.subtitlesPosition);
+      setSubtitlesBackground(cached.subtitlesBackground);
+      setSubtitlesKaraoke(cached.subtitlesKaraoke);
       return;
     }
 
     const { data } = await supabase
       .from('playback_settings')
-      .select('autoplay, video_quality, subtitles_enabled, subtitles_size')
+      .select('*')
       .eq('user_id', currentUserId)
       .maybeSingle();
 
+    const d = data as any;
     const resolvedSettings: CachedPlaybackSettings = {
-      autoplay: data?.autoplay ?? true,
-      videoQuality: normalizePlaybackQuality(data?.video_quality),
-      subtitlesEnabled: data?.subtitles_enabled ?? true,
-      subtitlesSize: (data?.subtitles_size as 'small' | 'medium' | 'large') || 'medium',
+      autoplay: d?.autoplay ?? true,
+      videoQuality: normalizePlaybackQuality(d?.video_quality),
+      subtitlesEnabled: d?.subtitles_enabled ?? true,
+      subtitlesSize: (d?.subtitles_size as any) || 'medium',
+      subtitlesPosition: (d?.subtitles_position as any) || 'bottom',
+      subtitlesBackground: (d?.subtitles_background as any) || 'solid',
+      subtitlesKaraoke: d?.subtitles_karaoke !== false,
       fetchedAt: Date.now(),
     };
 
@@ -540,6 +563,9 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     setVideoQuality(resolvedSettings.videoQuality);
     setSubtitlesEnabled(resolvedSettings.subtitlesEnabled);
     setSubtitlesSize(resolvedSettings.subtitlesSize);
+    setSubtitlesPosition(resolvedSettings.subtitlesPosition);
+    setSubtitlesBackground(resolvedSettings.subtitlesBackground);
+    setSubtitlesKaraoke(resolvedSettings.subtitlesKaraoke);
   };
 
   const fetchCommentsCount = async () => {
@@ -792,6 +818,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
           );
           const newText = activeSubtitle?.text || '';
           setCurrentSubtitle(prev => prev === newText ? prev : newText);
+          setCurrentSubtitleSeg(prev => (prev?.id === activeSubtitle?.id ? prev : (activeSubtitle || null)));
         }
       });
     };
@@ -1248,6 +1275,9 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         videoQuality: quality,
         subtitlesEnabled: cached?.subtitlesEnabled ?? subtitlesEnabled,
         subtitlesSize: cached?.subtitlesSize ?? subtitlesSize,
+        subtitlesPosition: cached?.subtitlesPosition ?? subtitlesPosition,
+        subtitlesBackground: cached?.subtitlesBackground ?? subtitlesBackground,
+        subtitlesKaraoke: cached?.subtitlesKaraoke ?? subtitlesKaraoke,
         fetchedAt: Date.now(),
       });
 
@@ -1624,25 +1654,65 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       
       {/* Subtitle Display - Draggable */}
       {subtitlesEnabled && currentSubtitle && (
-        <div 
+        <div
           ref={subtitleRef}
-          className={`absolute z-30 flex justify-center px-4 cursor-grab active:cursor-grabbing select-none ${isDraggingSubtitle ? 'pointer-events-auto' : 'pointer-events-auto'}`}
-          style={{ 
-            bottom: `${subtitlePosition.y}px`,
-            left: '50%',
-            transform: `translateX(calc(-50% + ${subtitlePosition.x}px))`,
-            touchAction: 'none'
+          className="absolute z-30 flex justify-center px-4 cursor-grab active:cursor-grabbing select-none pointer-events-auto"
+          style={{
+            ...(subtitlesPosition === 'top'
+              ? { top: `calc(80px + ${subtitlePosition.y}px)` }
+              : subtitlesPosition === 'middle'
+              ? { top: '50%', transform: `translate(calc(-50% + ${subtitlePosition.x}px), -50%)` }
+              : { bottom: `calc(env(safe-area-inset-bottom, 0px) + ${Math.max(120, subtitlePosition.y)}px)` }),
+            ...(subtitlesPosition !== 'middle' ? { left: '50%', transform: `translateX(calc(-50% + ${subtitlePosition.x}px))` } : {}),
+            touchAction: 'none',
           }}
           onMouseDown={handleSubtitleDragStart}
           onTouchStart={handleSubtitleDragStart}
         >
-          <div className="bg-black/70 rounded-lg px-4 py-2 max-w-[90%]">
-            <p className={`text-white text-center font-medium leading-relaxed ${
-              subtitlesSize === 'small' ? 'text-xs' : 
-              subtitlesSize === 'large' ? 'text-lg' : 
-              'text-sm'
-            }`}>
-              {currentSubtitle}
+          <div
+            className={`rounded-2xl px-5 py-3 max-w-[92%] ${
+              subtitlesBackground === 'solid'
+                ? 'bg-black/85'
+                : subtitlesBackground === 'translucent'
+                ? 'bg-black/45 backdrop-blur-md'
+                : 'bg-transparent'
+            }`}
+          >
+            <p
+              className={`text-white text-center font-extrabold leading-snug tracking-wide ${
+                subtitlesSize === 'small'
+                  ? 'text-base'
+                  : subtitlesSize === 'large'
+                  ? 'text-2xl'
+                  : subtitlesSize === 'xl'
+                  ? 'text-3xl'
+                  : 'text-xl'
+              }`}
+              style={
+                subtitlesBackground === 'none'
+                  ? { textShadow: '0 0 6px rgba(0,0,0,0.95), 0 2px 4px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,1)' }
+                  : { textShadow: '0 1px 3px rgba(0,0,0,0.6)' }
+              }
+            >
+              {subtitlesKaraoke && currentSubtitleSeg?.words && currentSubtitleSeg.words.length > 0 ? (
+                currentSubtitleSeg.words.map((w, i) => {
+                  const active = currentTimeRef.current >= w.start && currentTimeRef.current <= w.end + 0.05;
+                  const past = currentTimeRef.current > w.end;
+                  return (
+                    <span
+                      key={i}
+                      className={`inline-block transition-colors duration-100 ${
+                        active ? 'text-yellow-300 scale-110' : past ? 'text-white' : 'text-white/70'
+                      }`}
+                      style={{ marginRight: '0.3em' }}
+                    >
+                      {w.text}
+                    </span>
+                  );
+                })
+              ) : (
+                currentSubtitle
+              )}
             </p>
           </div>
         </div>
@@ -1655,6 +1725,27 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       <div className="absolute top-12 left-3 z-20">
         <span className="text-white/40 text-xl font-bold tracking-wide">DiskieReels</span>
       </div>
+
+      {/* Captions status badge */}
+      {isActive && video.transcription_status && video.transcription_status !== 'completed' && (
+        <div className="absolute top-[72px] left-3 z-20 pointer-events-none">
+          <div className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur-md ${
+            video.transcription_status === 'failed'
+              ? 'bg-destructive/80 text-destructive-foreground'
+              : 'bg-background/70 text-foreground'
+          }`}>
+            <Subtitles className="h-3 w-3" />
+            {video.transcription_status === 'failed' ? 'Captions: failed' : 'Captions: processing…'}
+          </div>
+        </div>
+      )}
+      {isActive && video.transcription_status === 'completed' && video.subtitles && video.subtitles.length > 0 && subtitlesEnabled && (
+        <div className="absolute top-[72px] left-3 z-20 pointer-events-none">
+          <div className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-primary/70 text-primary-foreground backdrop-blur-md">
+            <Subtitles className="h-3 w-3" /> CC
+          </div>
+        </div>
+      )}
 
       {isActive && (
         <div className="absolute top-12 left-1/2 z-20 -translate-x-1/2 pointer-events-none">
@@ -1744,6 +1835,35 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
                 >
                   <Subtitles className={`h-4 w-4 ${subtitlesEnabled ? 'text-primary' : ''}`} />
                   {subtitlesEnabled ? 'Hide Subtitles' : 'Show Subtitles'}
+                </DropdownMenuItem>
+              </>
+            )}
+            {isOwnVideo && (video.transcription_status === 'failed' || (!video.subtitles?.length && video.transcription_status !== 'processing' && video.transcription_status !== 'pending')) && (
+              <>
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground border-t mt-1 pt-2">Captions</div>
+                <DropdownMenuItem
+                  disabled={retryingTranscription}
+                  onClick={async () => {
+                    setRetryingTranscription(true);
+                    try {
+                      const { data: { session } } = await supabase.auth.getSession();
+                      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-video`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+                        body: JSON.stringify({ videoId: video.id, videoUrl: video.video_url }),
+                      });
+                      if (!res.ok) throw new Error('Failed');
+                      toast.success('Captions are being regenerated');
+                    } catch {
+                      toast.error('Could not retry captions');
+                    } finally {
+                      setRetryingTranscription(false);
+                    }
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <Subtitles className="h-4 w-4" />
+                  {retryingTranscription ? 'Retrying…' : 'Retry Captions'}
                 </DropdownMenuItem>
               </>
             )}

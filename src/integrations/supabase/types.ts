@@ -519,7 +519,10 @@ export type Database = {
           autoplay: boolean | null
           created_at: string | null
           id: string
+          subtitles_background: string | null
           subtitles_enabled: boolean | null
+          subtitles_karaoke: boolean | null
+          subtitles_position: string | null
           subtitles_size: string | null
           updated_at: string | null
           user_id: string
@@ -529,7 +532,10 @@ export type Database = {
           autoplay?: boolean | null
           created_at?: string | null
           id?: string
+          subtitles_background?: string | null
           subtitles_enabled?: boolean | null
+          subtitles_karaoke?: boolean | null
+          subtitles_position?: string | null
           subtitles_size?: string | null
           updated_at?: string | null
           user_id: string
@@ -539,7 +545,10 @@ export type Database = {
           autoplay?: boolean | null
           created_at?: string | null
           id?: string
+          subtitles_background?: string | null
           subtitles_enabled?: boolean | null
+          subtitles_karaoke?: boolean | null
+          subtitles_position?: string | null
           subtitles_size?: string | null
           updated_at?: string | null
           user_id?: string
