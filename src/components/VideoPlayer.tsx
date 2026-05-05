@@ -1591,8 +1591,9 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
           </div>
         )}
 
-        {/* Play button - shown when video is not playing and active */}
-        {!isPlaying && isActive && !isBuffering && (
+        {/* Play button - only when autoplay was actually blocked by the browser.
+            Otherwise reels auto-play silently without requiring a tap. */}
+        {!isPlaying && isActive && !isBuffering && requiresManualPlay && (
           <div
             className="absolute inset-0 flex items-center justify-center z-20 cursor-pointer"
             onClick={(e) => {
