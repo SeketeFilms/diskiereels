@@ -818,6 +818,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
           );
           const newText = activeSubtitle?.text || '';
           setCurrentSubtitle(prev => prev === newText ? prev : newText);
+          setCurrentSubtitleSeg(prev => (prev?.id === activeSubtitle?.id ? prev : (activeSubtitle || null)));
         }
       });
     };
