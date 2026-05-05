@@ -229,6 +229,7 @@ interface SubtitleSegment {
   text: string;
   start: number;
   end: number;
+  words?: { text: string; start: number; end: number }[];
 }
 
 function groupWordsIntoSubtitles(words: TranscriptionWord[]): SubtitleSegment[] {
@@ -237,38 +238,30 @@ function groupWordsIntoSubtitles(words: TranscriptionWord[]): SubtitleSegment[] 
   const subtitles: SubtitleSegment[] = [];
   let currentSegment: TranscriptionWord[] = [];
   let segmentId = 1;
-  const maxWordsPerSegment = 8;
-  const maxDurationPerSegment = 4; // seconds
+  const maxWordsPerSegment = 6; // smaller chunks = easier kid reading
+  const maxDurationPerSegment = 3.2;
+
+  const flush = (endOverride?: number) => {
+    if (currentSegment.length === 0) return;
+    subtitles.push({
+      id: segmentId++,
+      text: currentSegment.map(w => w.text).join(' '),
+      start: currentSegment[0].start,
+      end: endOverride ?? currentSegment[currentSegment.length - 1].end,
+      words: currentSegment.map(w => ({ text: w.text, start: w.start, end: w.end })),
+    });
+    currentSegment = [];
+  };
 
   for (const word of words) {
     currentSegment.push(word);
-
     const segmentDuration = word.end - (currentSegment[0]?.start || 0);
-    const shouldSplit = 
+    const shouldSplit =
       currentSegment.length >= maxWordsPerSegment ||
       segmentDuration >= maxDurationPerSegment ||
-      word.text.match(/[.!?]$/);
-
-    if (shouldSplit && currentSegment.length > 0) {
-      subtitles.push({
-        id: segmentId++,
-        text: currentSegment.map(w => w.text).join(' '),
-        start: currentSegment[0].start,
-        end: word.end
-      });
-      currentSegment = [];
-    }
+      /[.!?]$/.test(word.text);
+    if (shouldSplit) flush(word.end);
   }
-
-  // Add remaining words
-  if (currentSegment.length > 0) {
-    subtitles.push({
-      id: segmentId,
-      text: currentSegment.map(w => w.text).join(' '),
-      start: currentSegment[0].start,
-      end: currentSegment[currentSegment.length - 1].end
-    });
-  }
-
+  flush();
   return subtitles;
 }
