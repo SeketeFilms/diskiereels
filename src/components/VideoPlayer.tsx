@@ -1726,6 +1726,27 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         <span className="text-white/40 text-xl font-bold tracking-wide">DiskieReels</span>
       </div>
 
+      {/* Captions status badge */}
+      {isActive && video.transcription_status && video.transcription_status !== 'completed' && (
+        <div className="absolute top-[72px] left-3 z-20 pointer-events-none">
+          <div className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur-md ${
+            video.transcription_status === 'failed'
+              ? 'bg-destructive/80 text-destructive-foreground'
+              : 'bg-background/70 text-foreground'
+          }`}>
+            <Subtitles className="h-3 w-3" />
+            {video.transcription_status === 'failed' ? 'Captions: failed' : 'Captions: processing…'}
+          </div>
+        </div>
+      )}
+      {isActive && video.transcription_status === 'completed' && video.subtitles && video.subtitles.length > 0 && subtitlesEnabled && (
+        <div className="absolute top-[72px] left-3 z-20 pointer-events-none">
+          <div className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-primary/70 text-primary-foreground backdrop-blur-md">
+            <Subtitles className="h-3 w-3" /> CC
+          </div>
+        </div>
+      )}
+
       {isActive && (
         <div className="absolute top-12 left-1/2 z-20 -translate-x-1/2 pointer-events-none">
           <div
