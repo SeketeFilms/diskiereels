@@ -1497,17 +1497,30 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
   const handleDeleteVideo = async () => {
     try {
       const deleteToast = toast.loading('Deleting video...');
-      
+
+      // Stop playback first so the player tears down cleanly even mid-play
+      const videoEl = videoRef.current;
+      if (videoEl) {
+        try {
+          userPausedRef.current = true;
+          videoEl.pause();
+          videoEl.removeAttribute('src');
+          videoEl.load();
+        } catch {
+          // ignore — we're deleting anyway
+        }
+      }
+
       const { error } = await supabase
         .from('videos')
         .delete()
         .eq('id', video.id);
-      
+
       if (error) throw error;
-      
+
       toast.success('Video deleted successfully!', { id: deleteToast });
       setShowDeleteDialog(false);
-      
+
       // Call the onDelete callback to update parent state
       if (onDelete) {
         onDelete();
