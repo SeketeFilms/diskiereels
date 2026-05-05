@@ -48,6 +48,9 @@ const Settings = () => {
   const [videoQuality, setVideoQuality] = useState("auto");
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
   const [subtitlesSize, setSubtitlesSize] = useState("medium");
+  const [subtitlesPosition, setSubtitlesPosition] = useState("bottom");
+  const [subtitlesBackground, setSubtitlesBackground] = useState("solid");
+  const [subtitlesKaraoke, setSubtitlesKaraoke] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [totalViews, setTotalViews] = useState(0);
