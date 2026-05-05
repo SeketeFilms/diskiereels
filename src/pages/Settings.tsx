@@ -300,7 +300,7 @@ const Settings = () => {
   const savePlaybackSettings = async () => {
     if (!userId) return;
     try {
-      await supabase.from('playback_settings').upsert({ user_id: userId, autoplay, video_quality: videoQuality, subtitles_enabled: subtitlesEnabled, subtitles_size: subtitlesSize });
+      await supabase.from('playback_settings').upsert({ user_id: userId, autoplay, video_quality: videoQuality, subtitles_enabled: subtitlesEnabled, subtitles_size: subtitlesSize, subtitles_position: subtitlesPosition, subtitles_background: subtitlesBackground, subtitles_karaoke: subtitlesKaraoke } as any);
       toast.success('Playback settings saved');
     } catch (error) {
       toast.error('Failed to save');
