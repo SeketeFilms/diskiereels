@@ -152,6 +152,9 @@ const Settings = () => {
         setVideoQuality(playbackSettings.video_quality);
         setSubtitlesEnabled(playbackSettings.subtitles_enabled);
         setSubtitlesSize(playbackSettings.subtitles_size);
+        setSubtitlesPosition((playbackSettings as any).subtitles_position || 'bottom');
+        setSubtitlesBackground((playbackSettings as any).subtitles_background || 'solid');
+        setSubtitlesKaraoke((playbackSettings as any).subtitles_karaoke !== false);
       }
 
       const { data: notifPrefs } = await supabase.from('notification_preferences').select('*').eq('user_id', user.id).single();
