@@ -1817,6 +1817,35 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
                 </DropdownMenuItem>
               </>
             )}
+            {isOwnVideo && (video.transcription_status === 'failed' || (!video.subtitles?.length && video.transcription_status !== 'processing' && video.transcription_status !== 'pending')) && (
+              <>
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground border-t mt-1 pt-2">Captions</div>
+                <DropdownMenuItem
+                  disabled={retryingTranscription}
+                  onClick={async () => {
+                    setRetryingTranscription(true);
+                    try {
+                      const { data: { session } } = await supabase.auth.getSession();
+                      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-video`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+                        body: JSON.stringify({ videoId: video.id, videoUrl: video.video_url }),
+                      });
+                      if (!res.ok) throw new Error('Failed');
+                      toast.success('Captions are being regenerated');
+                    } catch {
+                      toast.error('Could not retry captions');
+                    } finally {
+                      setRetryingTranscription(false);
+                    }
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <Subtitles className="h-4 w-4" />
+                  {retryingTranscription ? 'Retrying…' : 'Retry Captions'}
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
 
