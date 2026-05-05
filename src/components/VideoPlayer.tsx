@@ -534,20 +534,27 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       setVideoQuality(cached.videoQuality);
       setSubtitlesEnabled(cached.subtitlesEnabled);
       setSubtitlesSize(cached.subtitlesSize);
+      setSubtitlesPosition(cached.subtitlesPosition);
+      setSubtitlesBackground(cached.subtitlesBackground);
+      setSubtitlesKaraoke(cached.subtitlesKaraoke);
       return;
     }
 
     const { data } = await supabase
       .from('playback_settings')
-      .select('autoplay, video_quality, subtitles_enabled, subtitles_size')
+      .select('*')
       .eq('user_id', currentUserId)
       .maybeSingle();
 
+    const d = data as any;
     const resolvedSettings: CachedPlaybackSettings = {
-      autoplay: data?.autoplay ?? true,
-      videoQuality: normalizePlaybackQuality(data?.video_quality),
-      subtitlesEnabled: data?.subtitles_enabled ?? true,
-      subtitlesSize: (data?.subtitles_size as 'small' | 'medium' | 'large') || 'medium',
+      autoplay: d?.autoplay ?? true,
+      videoQuality: normalizePlaybackQuality(d?.video_quality),
+      subtitlesEnabled: d?.subtitles_enabled ?? true,
+      subtitlesSize: (d?.subtitles_size as any) || 'medium',
+      subtitlesPosition: (d?.subtitles_position as any) || 'bottom',
+      subtitlesBackground: (d?.subtitles_background as any) || 'solid',
+      subtitlesKaraoke: d?.subtitles_karaoke !== false,
       fetchedAt: Date.now(),
     };
 
@@ -556,6 +563,9 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     setVideoQuality(resolvedSettings.videoQuality);
     setSubtitlesEnabled(resolvedSettings.subtitlesEnabled);
     setSubtitlesSize(resolvedSettings.subtitlesSize);
+    setSubtitlesPosition(resolvedSettings.subtitlesPosition);
+    setSubtitlesBackground(resolvedSettings.subtitlesBackground);
+    setSubtitlesKaraoke(resolvedSettings.subtitlesKaraoke);
   };
 
   const fetchCommentsCount = async () => {
