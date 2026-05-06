@@ -356,10 +356,17 @@ const Upload = () => {
       }
       
       toast.error(errorMessage);
+      setUploadFailed(true);
     } finally {
       setLoading(false);
       setUploadProgress(0);
     }
+  };
+
+  const handleRetry = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setUploadFailed(false);
+    handleUpload(e as unknown as React.FormEvent);
   };
 
   return (
