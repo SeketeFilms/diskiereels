@@ -621,13 +621,22 @@ const Upload = () => {
                 </div>
               )}
 
+              {uploadFailed && !loading && (
+                <div className="flex items-center justify-between gap-3 p-3 rounded-xl border border-destructive/40 bg-destructive/10 text-sm">
+                  <span className="text-destructive font-medium">Upload failed. Your file is still selected — try again.</span>
+                  <Button type="button" size="sm" variant="outline" onClick={handleRetry}>
+                    <RotateCcw className="h-4 w-4 mr-1" /> Retry
+                  </Button>
+                </div>
+              )}
+
               <Button
                 type="submit"
                 className="w-full rounded-full"
                 disabled={loading}
                 size="lg"
               >
-                {loading ? 'Uploading...' : 'Upload Soccer Content'}
+                {loading ? 'Uploading...' : uploadFailed ? 'Try Upload Again' : 'Upload Soccer Content'}
               </Button>
             </form>
           </CardContent>
