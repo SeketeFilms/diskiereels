@@ -225,6 +225,7 @@ const Upload = () => {
 
     setLoading(true);
     setUploadProgress(0);
+    setUploadFailed(false);
 
     let progressInterval: ReturnType<typeof setInterval> | null = null;
 
