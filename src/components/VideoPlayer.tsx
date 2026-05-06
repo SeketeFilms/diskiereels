@@ -1650,8 +1650,9 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         
         {/* Buffering indicator */}
         {isBuffering && isActive && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="animate-spin rounded-full h-10 w-10 border-3 border-white border-t-transparent" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none gap-2 z-10">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white" />
+            <span className="text-white/90 text-xs font-medium drop-shadow">Loading…</span>
           </div>
         )}
 
