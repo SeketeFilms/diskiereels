@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Upload as UploadIcon, ArrowLeft, X, Hash, Stamp } from 'lucide-react';
+import { Upload as UploadIcon, ArrowLeft, X, Hash, Stamp, RotateCcw, Lock } from 'lucide-react';
 import ResponsiveLayout from '@/components/ResponsiveLayout';
 import { toast } from 'sonner';
 
@@ -24,6 +24,25 @@ const Upload = () => {
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [applyWatermark, setApplyWatermark] = useState(false);
+  const [uploadFailed, setUploadFailed] = useState(false);
+  const [roleChecking, setRoleChecking] = useState(true);
+  const [isCreative, setIsCreative] = useState(false);
+
+  // Enforce: only creatives can access the upload screen.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { navigate('/auth'); return; }
+      const { data: roles } = await supabase
+        .from('user_roles').select('role').eq('user_id', user.id);
+      const creative = roles?.some(r => r.role === 'creative') || false;
+      if (!active) return;
+      setIsCreative(creative);
+      setRoleChecking(false);
+    })();
+    return () => { active = false; };
+  }, [navigate]);
 
   const addHashtag = () => {
     const tag = hashtagInput.trim().replace(/^#/, '').toLowerCase();
@@ -206,6 +225,7 @@ const Upload = () => {
 
     setLoading(true);
     setUploadProgress(0);
+    setUploadFailed(false);
 
     let progressInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -336,11 +356,52 @@ const Upload = () => {
       }
       
       toast.error(errorMessage);
+      setUploadFailed(true);
     } finally {
       setLoading(false);
       setUploadProgress(0);
     }
   };
+
+  const handleRetry = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setUploadFailed(false);
+    handleUpload(e as unknown as React.FormEvent);
+  };
+
+  if (roleChecking) {
+    return (
+      <ResponsiveLayout>
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary/30 border-t-primary" />
+        </div>
+      </ResponsiveLayout>
+    );
+  }
+
+  if (!isCreative) {
+    return (
+      <ResponsiveLayout>
+        <div className="min-h-screen flex items-center justify-center bg-background p-6">
+          <Card className="max-w-md w-full shadow-elevated">
+            <CardContent className="pt-8 pb-6 text-center space-y-4">
+              <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                <Lock className="h-7 w-7 text-primary" />
+              </div>
+              <h2 className="text-xl font-bold">Uploading is for Creatives</h2>
+              <p className="text-sm text-muted-foreground">
+                Your account is set up as a Viewer. Switch to a Creative account in Settings to upload Toonz.
+              </p>
+              <div className="flex gap-2 justify-center pt-2">
+                <Button variant="outline" onClick={() => navigate('/feed')}>Back to Feed</Button>
+                <Button onClick={() => navigate('/settings')}>Go to Settings</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </ResponsiveLayout>
+    );
+  }
 
   return (
     <ResponsiveLayout>
@@ -560,13 +621,22 @@ const Upload = () => {
                 </div>
               )}
 
+              {uploadFailed && !loading && (
+                <div className="flex items-center justify-between gap-3 p-3 rounded-xl border border-destructive/40 bg-destructive/10 text-sm">
+                  <span className="text-destructive font-medium">Upload failed. Your file is still selected — try again.</span>
+                  <Button type="button" size="sm" variant="outline" onClick={handleRetry}>
+                    <RotateCcw className="h-4 w-4 mr-1" /> Retry
+                  </Button>
+                </div>
+              )}
+
               <Button
                 type="submit"
                 className="w-full rounded-full"
                 disabled={loading}
                 size="lg"
               >
-                {loading ? 'Uploading...' : 'Upload Soccer Content'}
+                {loading ? 'Uploading...' : uploadFailed ? 'Try Upload Again' : 'Upload Soccer Content'}
               </Button>
             </form>
           </CardContent>

@@ -301,16 +301,38 @@ const Feed = () => {
   };
 
   const handleDeleteVideo = async (videoId: string) => {
-    if (confirm('Are you sure you want to delete this video?')) {
-      try {
-        await supabase.from('videos').delete().eq('id', videoId);
-        toast.success('Video deleted');
-        const filtered = videosRef.current.filter(v => v.id !== videoId);
-        videosRef.current = filtered;
-        setVideos(filtered);
-      } catch (error) {
-        toast.error('Failed to delete video');
+    if (!confirm('Delete this Toon? This cannot be undone.')) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      let ok = false;
+      if (session) {
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-video`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ videoId }),
+            }
+          );
+          ok = res.ok;
+        } catch {
+          ok = false;
+        }
       }
+      if (!ok) {
+        const { error } = await supabase.from('videos').delete().eq('id', videoId);
+        if (error) throw error;
+      }
+      toast.success('Video deleted');
+      const filtered = videosRef.current.filter(v => v.id !== videoId);
+      videosRef.current = filtered;
+      setVideos(filtered);
+    } catch (error) {
+      toast.error('Failed to delete video');
     }
   };
 

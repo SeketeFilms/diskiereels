@@ -1541,12 +1541,33 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         }
       }
 
-      const { error } = await supabase
-        .from('videos')
-        .delete()
-        .eq('id', video.id);
-
-      if (error) throw error;
+      // Use edge function to delete row + storage objects atomically.
+      // Falls back to direct delete if the function is unavailable.
+      const { data: { session } } = await supabase.auth.getSession();
+      let deleted = false;
+      if (session) {
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-video`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ videoId: video.id }),
+            }
+          );
+          if (res.ok) deleted = true;
+          else console.warn('delete-video function failed, falling back', await res.text().catch(() => ''));
+        } catch (e) {
+          console.warn('delete-video function error, falling back', e);
+        }
+      }
+      if (!deleted) {
+        const { error } = await supabase.from('videos').delete().eq('id', video.id);
+        if (error) throw error;
+      }
 
       toast.success('Video deleted successfully!', { id: deleteToast });
       setShowDeleteDialog(false);
@@ -1629,8 +1650,9 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         
         {/* Buffering indicator */}
         {isBuffering && isActive && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="animate-spin rounded-full h-10 w-10 border-3 border-white border-t-transparent" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none gap-2 z-10">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white" />
+            <span className="text-white/90 text-xs font-medium drop-shadow">Loading…</span>
           </div>
         )}
 
