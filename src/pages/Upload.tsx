@@ -369,6 +369,40 @@ const Upload = () => {
     handleUpload(e as unknown as React.FormEvent);
   };
 
+  if (roleChecking) {
+    return (
+      <ResponsiveLayout>
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary/30 border-t-primary" />
+        </div>
+      </ResponsiveLayout>
+    );
+  }
+
+  if (!isCreative) {
+    return (
+      <ResponsiveLayout>
+        <div className="min-h-screen flex items-center justify-center bg-background p-6">
+          <Card className="max-w-md w-full shadow-elevated">
+            <CardContent className="pt-8 pb-6 text-center space-y-4">
+              <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                <Lock className="h-7 w-7 text-primary" />
+              </div>
+              <h2 className="text-xl font-bold">Uploading is for Creatives</h2>
+              <p className="text-sm text-muted-foreground">
+                Your account is set up as a Viewer. Switch to a Creative account in Settings to upload Toonz.
+              </p>
+              <div className="flex gap-2 justify-center pt-2">
+                <Button variant="outline" onClick={() => navigate('/feed')}>Back to Feed</Button>
+                <Button onClick={() => navigate('/settings')}>Go to Settings</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </ResponsiveLayout>
+    );
+  }
+
   return (
     <ResponsiveLayout>
     <div className="min-h-screen bg-background pb-20 md:pb-4">
