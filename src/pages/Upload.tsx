@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Upload as UploadIcon, ArrowLeft, X, Hash, Stamp } from 'lucide-react';
+import { Upload as UploadIcon, ArrowLeft, X, Hash, Stamp, RotateCcw, Lock } from 'lucide-react';
 import ResponsiveLayout from '@/components/ResponsiveLayout';
 import { toast } from 'sonner';
 
@@ -24,6 +24,25 @@ const Upload = () => {
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [applyWatermark, setApplyWatermark] = useState(false);
+  const [uploadFailed, setUploadFailed] = useState(false);
+  const [roleChecking, setRoleChecking] = useState(true);
+  const [isCreative, setIsCreative] = useState(false);
+
+  // Enforce: only creatives can access the upload screen.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { navigate('/auth'); return; }
+      const { data: roles } = await supabase
+        .from('user_roles').select('role').eq('user_id', user.id);
+      const creative = roles?.some(r => r.role === 'creative') || false;
+      if (!active) return;
+      setIsCreative(creative);
+      setRoleChecking(false);
+    })();
+    return () => { active = false; };
+  }, [navigate]);
 
   const addHashtag = () => {
     const tag = hashtagInput.trim().replace(/^#/, '').toLowerCase();
