@@ -61,6 +61,7 @@ const AppContent = () => {
         <Route path="/stars-dashboard" element={<StarsDashboard />} />
         <Route path="/diskie-studio" element={<DiskieStudio />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/pwa-qa" element={<PWAQA />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <DiskieAI />
