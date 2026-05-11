@@ -23,6 +23,7 @@ import Install from "./pages/Install";
 import StarsDashboard from "./pages/StarsDashboard";
 import DiskieStudio from "./pages/DiskieStudio";
 import Leaderboard from "./pages/Leaderboard";
+import PWAQA from "./pages/PWAQA";
 import DiskieAI from "./components/DiskieAI";
 
 const queryClient = new QueryClient({
