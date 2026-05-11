@@ -15,7 +15,7 @@ import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { useAppRating } from '@/hooks/useAppRating';
 import { useChangelog } from '@/hooks/useChangelog';
-import { useScreenTime } from '@/hooks/useScreenTime';
+
 
 interface SubtitleSegment {
   id: number;
