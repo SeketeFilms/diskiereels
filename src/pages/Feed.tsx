@@ -123,8 +123,7 @@ const Feed = () => {
   const preloadCleanupTimersRef = useRef<Map<string, number>>(new Map());
   const videosRef = useRef<Video[]>([]);
 
-  // Screen time tracking
-  const { isLocked, lockReason, timeUsed, timeLimit, unlock } = useScreenTime(currentUserId);
+  // Parental screen-time lock removed
 
   const PULL_THRESHOLD = 80;
   const SWIPE_THRESHOLD = 50;
