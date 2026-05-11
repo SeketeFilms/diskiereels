@@ -7,7 +7,7 @@ import CommentsSheet from '@/components/CommentsSheet';
 import ResponsiveLayout from '@/components/ResponsiveLayout';
 import RatingPrompt from '@/components/RatingPrompt';
 import ChangelogModal from '@/components/ChangelogModal';
-import ScreenTimeLock from '@/components/ScreenTimeLock';
+
 import { toast } from 'sonner';
 import { RefreshCw, Loader2 } from 'lucide-react';
 
@@ -15,7 +15,7 @@ import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { useAppRating } from '@/hooks/useAppRating';
 import { useChangelog } from '@/hooks/useChangelog';
-import { useScreenTime } from '@/hooks/useScreenTime';
+
 
 interface SubtitleSegment {
   id: number;
@@ -123,8 +123,7 @@ const Feed = () => {
   const preloadCleanupTimersRef = useRef<Map<string, number>>(new Map());
   const videosRef = useRef<Video[]>([]);
 
-  // Screen time tracking
-  const { isLocked, lockReason, timeUsed, timeLimit, unlock } = useScreenTime(currentUserId);
+  // Parental screen-time lock removed
 
   const PULL_THRESHOLD = 80;
   const SWIPE_THRESHOLD = 50;
@@ -700,16 +699,6 @@ const Feed = () => {
           changelog={changelog}
         />
         
-        {/* Screen Time Lock */}
-        {isLocked && currentUserId && (
-          <ScreenTimeLock
-            userId={currentUserId}
-            lockReason={lockReason}
-            timeUsed={timeUsed}
-            timeLimit={timeLimit}
-            onUnlock={unlock}
-          />
-        )}
       </div>
     </ResponsiveLayout>
   );
