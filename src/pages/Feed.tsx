@@ -699,16 +699,6 @@ const Feed = () => {
           changelog={changelog}
         />
         
-        {/* Screen Time Lock */}
-        {isLocked && currentUserId && (
-          <ScreenTimeLock
-            userId={currentUserId}
-            lockReason={lockReason}
-            timeUsed={timeUsed}
-            timeLimit={timeLimit}
-            onUnlock={unlock}
-          />
-        )}
       </div>
     </ResponsiveLayout>
   );
