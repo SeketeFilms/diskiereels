@@ -238,7 +238,6 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
 
   const isOwnVideo = currentUserId === video.creator_id;
   const networkProfile = getPlaybackNetworkProfile();
-  const networkIndicator = getNetworkIndicatorConfig(networkProfile);
   const isTouchPlaybackDevice =
     isMobile ||
     (typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0 && window.innerWidth <= 1024);
