@@ -238,7 +238,6 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
 
   const isOwnVideo = currentUserId === video.creator_id;
   const networkProfile = getPlaybackNetworkProfile();
-  const networkIndicator = getNetworkIndicatorConfig(networkProfile);
   const isTouchPlaybackDevice =
     isMobile ||
     (typeof window !== 'undefined' && typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0 && window.innerWidth <= 1024);
@@ -1656,22 +1655,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
           </div>
         )}
 
-        {/* Play button - only when autoplay was actually blocked by the browser.
-            Otherwise reels auto-play silently without requiring a tap. */}
-        {!isPlaying && isActive && !isBuffering && requiresManualPlay && (
-          <div
-            className="absolute inset-0 flex items-center justify-center z-20 cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              playbackUnlockedByUser = true;
-              void playVideo(true);
-            }}
-          >
-            <div className="bg-black/40 backdrop-blur-sm rounded-full p-5">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="0"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            </div>
-          </div>
-        )}
+        {/* Reels auto-play silently — no manual play button is shown. */}
       </div>
       
       {/* Subtitle Display - Draggable */}
@@ -1748,44 +1732,11 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         <span className="text-white/40 text-xl font-bold tracking-wide">DiskieReels</span>
       </div>
 
-      {/* Captions status badge */}
-      {isActive && video.transcription_status && video.transcription_status !== 'completed' && (
-        <div className="absolute top-[72px] left-3 z-20 pointer-events-none">
-          <div className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur-md ${
-            video.transcription_status === 'failed'
-              ? 'bg-destructive/80 text-destructive-foreground'
-              : 'bg-background/70 text-foreground'
-          }`}>
-            <Subtitles className="h-3 w-3" />
-            {video.transcription_status === 'failed' ? 'Captions: failed' : 'Captions: processing…'}
-          </div>
-        </div>
-      )}
+      {/* Captions ready badge */}
       {isActive && video.transcription_status === 'completed' && video.subtitles && video.subtitles.length > 0 && subtitlesEnabled && (
         <div className="absolute top-[72px] left-3 z-20 pointer-events-none">
           <div className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-primary/70 text-primary-foreground backdrop-blur-md">
             <Subtitles className="h-3 w-3" /> CC
-          </div>
-        </div>
-      )}
-
-      {isActive && (
-        <div className="absolute top-12 left-1/2 z-20 -translate-x-1/2 pointer-events-none">
-          <div
-            className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium backdrop-blur-md ${
-              networkIndicator.tone === 'good'
-                ? 'border-primary/30 bg-background/55 text-primary-foreground'
-                : networkIndicator.tone === 'warning'
-                  ? 'border-accent/40 bg-background/70 text-accent'
-                  : 'border-border/60 bg-background/70 text-foreground'
-            }`}
-            aria-live="polite"
-          >
-            <networkIndicator.icon className="h-3.5 w-3.5" />
-            <span>{networkIndicator.label}</span>
-            {(networkProfile.saveData || networkProfile.isSlowConnection) && (
-              <span className="hidden sm:inline text-muted-foreground">• {networkIndicator.detail}</span>
-            )}
           </div>
         </div>
       )}
