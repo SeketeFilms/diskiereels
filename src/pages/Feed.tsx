@@ -7,7 +7,7 @@ import CommentsSheet from '@/components/CommentsSheet';
 import ResponsiveLayout from '@/components/ResponsiveLayout';
 import RatingPrompt from '@/components/RatingPrompt';
 import ChangelogModal from '@/components/ChangelogModal';
-import ScreenTimeLock from '@/components/ScreenTimeLock';
+
 import { toast } from 'sonner';
 import { RefreshCw, Loader2 } from 'lucide-react';
 
