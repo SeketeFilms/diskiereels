@@ -154,9 +154,37 @@ npm run build && npx cap sync android && bash scripts/build-android.sh
 # Install APK to a connected device
 adb install android/app/build/outputs/apk/release/app-release.apk
 
-# Reset Gradle cache if builds get weird
-cd android && ./gradlew clean && cd ..
+# Reset Gradle cache if builds get weird (built into the script)
+bash scripts/build-android.sh --clean
 ```
+
+---
+
+## 7b. CI/CD — GitHub Actions
+
+`.github/workflows/android-release.yml` runs the same script in CI. It builds
+and validates a signed APK + AAB on every `v*` tag (or manual dispatch) and
+uploads them as workflow artifacts.
+
+Required GitHub repo secrets (Settings → Secrets and variables → Actions):
+
+| Secret | Value |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | Output of `base64 -i release.jks` (entire keystore, base64-encoded) |
+| `ANDROID_KEYSTORE_PASSWORD` | Keystore password |
+| `ANDROID_KEY_ALIAS` | Key alias (e.g. `diskiereels`) |
+| `ANDROID_KEY_PASSWORD` | Key password |
+
+Encode your keystore once:
+
+```bash
+base64 -i ~/keystores/diskiereels-release.jks | pbcopy   # macOS
+base64 -w0 ~/keystores/diskiereels-release.jks           # Linux
+```
+
+Paste the result into the `ANDROID_KEYSTORE_BASE64` secret. The workflow
+decodes it to a temp path, runs the build, validates signatures, uploads
+`app-release-apk` and `app-release-aab` artifacts, then deletes the keystore.
 
 ---
 
