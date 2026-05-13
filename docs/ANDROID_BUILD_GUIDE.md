@@ -61,14 +61,20 @@ keytool -genkey -v \
 
 ## 4. Configure Signing via Environment Variables (secure)
 
-Never commit signing secrets. Create a local file `.env.local` in the project
-root (already git-ignored) with:
+Never commit signing secrets. Copy the template:
 
 ```bash
-ANDROID_KEYSTORE_PATH="/Users/you/keystores/diskiereels-release.jks"
-ANDROID_KEYSTORE_PASSWORD="••••••••"
+cp .env.example .env.local
+# then edit .env.local with your real values
+```
+
+`.env.example` (committed, no secrets):
+
+```bash
+ANDROID_KEYSTORE_PATH="/absolute/path/to/diskiereels-release.jks"
+ANDROID_KEYSTORE_PASSWORD="your-keystore-password"
 ANDROID_KEY_ALIAS="diskiereels"
-ANDROID_KEY_PASSWORD="••••••••"
+ANDROID_KEY_PASSWORD="your-key-password"
 ```
 
 Load it into your shell before building:
@@ -77,25 +83,29 @@ Load it into your shell before building:
 set -a && source .env.local && set +a
 ```
 
-The build script (`scripts/build-android.sh`) refuses to run unless all four
-variables are present, so signing values are never hard-coded into the repo.
+The build script refuses to run unless all four variables are present, so
+signing values are never hard-coded into the repo.
 
 ---
 
 ## 5. One-Command Build (APK + AAB)
 
 ```bash
-bash scripts/build-android.sh        # builds both signed APK and AAB
-bash scripts/build-android.sh apk    # APK only
-bash scripts/build-android.sh aab    # AAB only (Play Store)
+bash scripts/build-android.sh                # signed APK + AAB
+bash scripts/build-android.sh apk            # APK only
+bash scripts/build-android.sh aab            # AAB only (Play Store)
+bash scripts/build-android.sh --clean        # clean Gradle cache, then build both
+bash scripts/build-android.sh aab --clean    # clean + AAB only
 ```
 
 What it does:
 1. Validates signing env vars
-2. `npm run build` (Vite production bundle → `dist/`)
-3. `npx cap add android` (first time) + `npx cap sync android`
-4. `./gradlew assembleRelease` and/or `bundleRelease` with injected signing
-5. Verifies the `.apk` / `.aab` files exist and prints their absolute paths + sizes
+2. Prints the **keystore certificate fingerprint** (alias, owner, SHA1, SHA256, validity)
+3. `npm run build` (Vite production bundle → `dist/`)
+4. `npx cap add android` (first time) + `npx cap sync android`
+5. Optional `./gradlew clean` when `--clean` is passed
+6. `./gradlew assembleRelease` and/or `bundleRelease` with injected signing
+7. **Verifies** each `.apk` / `.aab` exists, runs `jarsigner -verify`, prints the signing certificate, file path, and size
 
 Outputs:
 - `android/app/build/outputs/apk/release/app-release.apk`
