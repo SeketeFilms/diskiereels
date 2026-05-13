@@ -566,7 +566,7 @@ const Settings = () => {
                 <AccordionItem value="categories">
                   <AccordionTrigger className="text-xs">Categories</AccordionTrigger>
                   <AccordionContent className="space-y-3">
-                    {['comedy', 'adventure', 'learning', 'music'].map(cat => (
+                    {['highlights', 'goals', 'skills', 'tactics', 'training', 'interviews'].map(cat => (
                       <div key={cat} className="flex justify-between"><Label className="capitalize text-xs">{cat}</Label>
                         <Switch checked={contentCategories.includes(cat)} onCheckedChange={(c) => c ? setContentCategories([...contentCategories, cat]) : setContentCategories(contentCategories.filter(x => x !== cat))} />
                       </div>
