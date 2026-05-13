@@ -1,197 +1,182 @@
-# ToonlyReels Android APK Build Guide
+# DiskieReels — Android Build Guide (VS Code + Capacitor + Android Studio)
 
-This guide walks you through building the ToonlyReels Android APK for distribution.
+This guide walks you through producing a **signed APK** (sideload / testing) and a
+**signed AAB** (Google Play Store submission) from a fresh checkout.
 
-## Prerequisites
+---
 
-Before you begin, ensure you have the following installed:
+## 1. Prerequisites
 
-- **Node.js** (v18 or higher) - [Download](https://nodejs.org/)
-- **Android Studio** (latest version) - [Download](https://developer.android.com/studio)
-- **Git** - [Download](https://git-scm.com/)
-- **Java JDK 17** - Usually included with Android Studio
+Install once on your machine:
 
-## Step 1: Clone the Repository
+- [Node.js 18+](https://nodejs.org/)
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [Android Studio](https://developer.android.com/studio) (includes Android SDK + JDK 17)
+- [Git](https://git-scm.com/)
+
+Recommended VS Code extensions:
+- **ESLint**, **Prettier**, **Tailwind CSS IntelliSense**
+- **Ionic** (gives Capacitor command palette helpers)
+
+Set these once in your shell profile (`~/.zshrc` or `~/.bashrc`):
 
 ```bash
-git clone <your-github-repo-url>
-cd <project-folder>
+export ANDROID_HOME="$HOME/Library/Android/sdk"   # macOS
+# export ANDROID_HOME="$HOME/Android/Sdk"          # Linux
+# setx ANDROID_HOME "%LOCALAPPDATA%\Android\Sdk"   # Windows (PowerShell)
+export PATH="$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator"
 ```
 
-## Step 2: Install Dependencies
+---
+
+## 2. Project Setup in VS Code
 
 ```bash
+git clone <your-repo-url>
+cd diskiereels
+code .              # opens VS Code in this folder
 npm install
 ```
 
-## Step 3: Add Android Platform
+Confirm `capacitor.config.ts` does **NOT** have an active `server` block
+(the Lovable sandbox URL must stay commented out for production).
 
-If this is your first time building:
+---
+
+## 3. Create / Locate Your Release Keystore
+
+If you don't already have one:
 
 ```bash
-npx cap add android
+keytool -genkey -v \
+  -keystore ~/keystores/diskiereels-release.jks \
+  -alias diskiereels \
+  -keyalg RSA -keysize 2048 -validity 10000
 ```
 
-## Step 4: Prepare for Production Build
+> ⚠️ **Back up this file and remember the passwords.** Losing the keystore means
+> you can never publish updates to the same Play Store listing.
 
-**CRITICAL:** Before building for production/Play Store, you must modify `capacitor.config.ts`:
+---
 
-### Remove the Server Block
+## 4. Configure Signing via Environment Variables (secure)
 
-Open `capacitor.config.ts` and **remove or comment out** the entire `server` block:
+Never commit signing secrets. Create a local file `.env.local` in the project
+root (already git-ignored) with:
 
-```typescript
-// REMOVE THIS BLOCK FOR PRODUCTION:
-// server: {
-//   url: 'https://e97ab73c-05cf-482e-9177-c2c702a4a0b7.lovableproject.com?forceHideBadge=true',
-//   cleartext: true
-// },
+```bash
+ANDROID_KEYSTORE_PATH="/Users/you/keystores/diskiereels-release.jks"
+ANDROID_KEYSTORE_PASSWORD="••••••••"
+ANDROID_KEY_ALIAS="diskiereels"
+ANDROID_KEY_PASSWORD="••••••••"
 ```
 
-Your production config should look like:
+Load it into your shell before building:
 
-```typescript
-import type { CapacitorConfig } from '@capacitor/cli';
-
-const config: CapacitorConfig = {
-  appId: 'app.lovable.e97ab73c05cf482e9177c2c702a4a0b7',
-  appName: 'ToonlyReels',
-  webDir: 'dist',
-  android: {
-    allowMixedContent: true,
-    captureInput: true,
-    webContentsDebuggingEnabled: false
-  },
-  plugins: {
-    SplashScreen: {
-      launchShowDuration: 4000,
-      launchAutoHide: true,
-      backgroundColor: '#FFFFFF',
-      androidSplashResourceName: 'splash',
-      androidScaleType: 'CENTER_CROP',
-      showSpinner: false,
-      splashFullScreen: true,
-      splashImmersive: true
-    }
-  }
-};
-
-export default config;
+```bash
+set -a && source .env.local && set +a
 ```
 
-## Step 5: Build the Web App
+The build script (`scripts/build-android.sh`) refuses to run unless all four
+variables are present, so signing values are never hard-coded into the repo.
+
+---
+
+## 5. One-Command Build (APK + AAB)
+
+```bash
+bash scripts/build-android.sh        # builds both signed APK and AAB
+bash scripts/build-android.sh apk    # APK only
+bash scripts/build-android.sh aab    # AAB only (Play Store)
+```
+
+What it does:
+1. Validates signing env vars
+2. `npm run build` (Vite production bundle → `dist/`)
+3. `npx cap add android` (first time) + `npx cap sync android`
+4. `./gradlew assembleRelease` and/or `bundleRelease` with injected signing
+5. Verifies the `.apk` / `.aab` files exist and prints their absolute paths + sizes
+
+Outputs:
+- `android/app/build/outputs/apk/release/app-release.apk`
+- `android/app/build/outputs/bundle/release/app-release.aab`
+
+---
+
+## 6. Manual Build via Android Studio (alternative)
+
+If you prefer the IDE:
 
 ```bash
 npm run build
-```
-
-This creates the `dist` folder with your compiled web assets.
-
-## Step 6: Sync to Android
-
-```bash
 npx cap sync android
+npx cap open android         # launches Android Studio
 ```
-
-This copies your web build to the Android project and updates dependencies.
-
-## Step 7: Open in Android Studio
-
-```bash
-npx cap open android
-```
-
-This opens the Android project in Android Studio.
-
-## Step 8: Build the APK
-
-### Option A: Debug APK (for testing)
 
 In Android Studio:
-1. Go to **Build** → **Build Bundle(s) / APK(s)** → **Build APK(s)**
-2. Wait for the build to complete
-3. Click **locate** in the notification to find the APK
 
-APK location: `android/app/build/outputs/apk/debug/app-debug.apk`
+### Signed APK
+1. **Build → Generate Signed Bundle / APK…**
+2. Select **APK** → **Next**
+3. Choose your keystore file, enter passwords + alias → **Next**
+4. Build variant: **release** → check **V1** and **V2** signatures → **Finish**
+5. Output: `android/app/build/outputs/apk/release/app-release.apk`
 
-### Option B: Signed Release APK (for Play Store)
+### Signed AAB (Play Store)
+1. **Build → Generate Signed Bundle / APK…**
+2. Select **Android App Bundle** → **Next**
+3. Same keystore + alias → **Next**
+4. Build variant: **release** → **Finish**
+5. Output: `android/app/build/outputs/bundle/release/app-release.aab` ← upload this to Play Console
 
-1. Go to **Build** → **Generate Signed Bundle / APK**
-2. Select **APK** and click **Next**
-3. Create a new keystore or use existing one:
-   - **Key store path**: Choose location to save
-   - **Password**: Create a strong password
-   - **Key alias**: e.g., `toonlyreels-key`
-   - **Key password**: Create a strong password
-   - **Validity**: 25 years (recommended)
-   - Fill in certificate information
-4. Click **Next**
-5. Select **release** build variant
-6. Check both **V1** and **V2** signature versions
-7. Click **Finish**
+---
 
-Release APK location: `android/app/build/outputs/apk/release/app-release.apk`
-
-## Step 9: Test the APK
-
-### On Emulator:
-1. Drag and drop the APK onto the running emulator
-
-### On Physical Device:
-1. Enable **Developer Options** on your device
-2. Enable **USB Debugging**
-3. Connect via USB
-4. Transfer the APK and install, OR run:
-   ```bash
-   adb install path/to/app-debug.apk
-   ```
-
-## Quick Reference Commands
+## 7. Quick Reference
 
 ```bash
-# Full build process
+# Full clean build
 npm install
-npm run build
-npx cap sync android
-npx cap open android
+bash scripts/build-android.sh
 
-# After code changes, just run:
-npm run build
-npx cap sync android
+# After code changes
+npm run build && npx cap sync android && bash scripts/build-android.sh
+
+# Install APK to a connected device
+adb install android/app/build/outputs/apk/release/app-release.apk
+
+# Reset Gradle cache if builds get weird
+cd android && ./gradlew clean && cd ..
 ```
 
-## Troubleshooting
+---
 
-### Build fails with Gradle errors
-```bash
-cd android
-./gradlew clean
-cd ..
-npx cap sync android
-```
+## 8. Play Store Submission Checklist
 
-### App shows blank screen
-- Ensure you ran `npm run build` before syncing
-- Check that `dist` folder exists and contains files
+- [ ] Signed `app-release.aab` produced and validated
+- [ ] App icon 512×512 PNG ready
+- [ ] Feature graphic 1024×500 ready
+- [ ] Screenshots (phone + tablet)
+- [ ] Privacy Policy URL (already at `/privacy-policy`)
+- [ ] Designed for Families questionnaire complete
+- [ ] Content rating questionnaire complete
+- [ ] Target SDK 34+ (already configured)
 
-### App connects to wrong server
-- Make sure `server` block is removed from `capacitor.config.ts` for production
+---
 
-### Keystore issues
-- Never lose your keystore file - you cannot update apps without it
-- Store keystore password securely
+## 9. Troubleshooting
 
-## Important Notes
+**`Missing required env vars for release signing`** — run `set -a && source .env.local && set +a` first.
 
-⚠️ **Keep your keystore safe!** You need the same keystore to update your app on the Play Store.
+**`Keystore was tampered with, or password was incorrect`** — `ANDROID_KEYSTORE_PASSWORD` is wrong.
 
-⚠️ **For development/testing**, keep the `server` block to enable hot-reload from Lovable.
+**App shows blank screen on device** — make sure the `server` block in `capacitor.config.ts` is commented out, then rebuild.
 
-⚠️ **For production builds**, always remove the `server` block so the app uses local bundled assets.
+**Gradle errors** — `cd android && ./gradlew clean && cd .. && npx cap sync android`.
+
+---
 
 ## App Details
 
 - **App ID**: `app.lovable.e97ab73c05cf482e9177c2c702a4a0b7`
-- **App Name**: ToonlyReels
-- **Min SDK**: 22 (Android 5.1)
-- **Target SDK**: 34 (Android 14)
+- **App Name**: DiskieReels
+- **Min SDK**: 22 (Android 5.1) · **Target SDK**: 34 (Android 14)
