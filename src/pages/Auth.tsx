@@ -125,9 +125,13 @@ const Auth = () => {
         }
       }
     } catch (error: any) {
-      if (error.message?.includes('User already registered')) toast.error('This email is already registered. Please sign in.');
-      else if (error.message?.includes('Invalid login credentials')) toast.error('Invalid email or password.');
-      else toast.error(error.message || 'Authentication failed');
+      const msg = error?.message || '';
+      if (msg.includes('User already registered')) toast.error('This email is already registered. Please sign in.');
+      else if (msg.includes('Invalid login credentials')) toast.error('Invalid email or password.');
+      else if (msg.toLowerCase().includes('rate limit')) toast.error('Too many attempts. Please wait a minute and try again.');
+      else if (msg.includes('duplicate') || error?.code === '23505') toast.error('That username is already taken. Try another.');
+      else if (msg.toLowerCase().includes('network') || msg.toLowerCase().includes('fetch')) toast.error('Network error — check your connection and retry.');
+      else toast.error(msg || 'Authentication failed. Please try again.');
     } finally { setLoading(false); }
   };
 
