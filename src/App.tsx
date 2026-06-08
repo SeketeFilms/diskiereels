@@ -45,6 +45,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Auth />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/complete-profile" element={<CompleteProfile />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/search" element={<Search />} />
         <Route path="/upload" element={<Upload />} />
