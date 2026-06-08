@@ -82,13 +82,31 @@ const Auth = () => {
         const { data, error } = await supabase.auth.signUp({
           email, password,
           options: {
-            emailRedirectTo: `${window.location.origin}/feed`,
+            emailRedirectTo: `${window.location.origin}/complete-profile`,
             data: { username, user_type: 'creative' },
           },
         });
         if (error) throw error;
         if (data.user) {
-          toast.success('Account created! Welcome to DiskieReels! ⚽');
+          // Verify the signup trigger created profile + user_roles rows.
+          // Poll for up to ~3s in case the trigger lags.
+          let profileOk = false;
+          let roleOk = false;
+          for (let i = 0; i < 6; i++) {
+            const [{ data: p }, { data: r }] = await Promise.all([
+              supabase.from('profiles').select('id').eq('id', data.user.id).maybeSingle(),
+              supabase.from('user_roles').select('role').eq('user_id', data.user.id).maybeSingle(),
+            ]);
+            profileOk = !!p;
+            roleOk = !!r;
+            if (profileOk && roleOk) break;
+            await new Promise((res) => setTimeout(res, 500));
+          }
+          if (!profileOk || !roleOk) {
+            toast.error('Account created but profile setup is still syncing. You can finish it on the next screen.');
+          } else {
+            toast.success('Account created! Welcome to DiskieReels! ⚽');
+          }
           setLoggedInUser({ id: data.user.id, email: data.user.email || email, username, avatarUrl: null, selectedAvatar: null });
           setShowSaveLoginDialog(true);
         }
