@@ -187,7 +187,7 @@ const Auth = () => {
         </CardContent>
       </Card>
       {loggedInUser && (
-        <SaveLoginDialog open={showSaveLoginDialog} onOpenChange={setShowSaveLoginDialog} userId={loggedInUser.id} email={loggedInUser.email} username={loggedInUser.username} avatarUrl={loggedInUser.avatarUrl} selectedAvatar={loggedInUser.selectedAvatar} onComplete={() => { toast.success('Welcome! ⚽'); navigate('/feed'); }} />
+        <SaveLoginDialog open={showSaveLoginDialog} onOpenChange={setShowSaveLoginDialog} userId={loggedInUser.id} email={loggedInUser.email} username={loggedInUser.username} avatarUrl={loggedInUser.avatarUrl} selectedAvatar={loggedInUser.selectedAvatar} onComplete={() => { toast.success('Welcome! ⚽'); navigate(isSignUp ? '/complete-profile' : '/feed'); }} />
       )}
     </div>
   );
