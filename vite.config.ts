@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => ({
         name: 'DiskieReels - Soccer Reels & Highlights',
         short_name: 'DiskieReels',
         description: 'Watch and share the best soccer reels and highlights',
-        theme_color: '#1a1a2e',
+        theme_color: '#1FA84A',
         background_color: '#FFFFFF',
         display: 'standalone',
         orientation: 'portrait',
@@ -32,13 +32,19 @@ export default defineConfig(({ mode }) => ({
             src: '/diskiereels-icon.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
           },
           {
             src: '/diskiereels-icon.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: '/diskiereels-icon.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       },
