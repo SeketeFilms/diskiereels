@@ -23,29 +23,18 @@ export default defineConfig(({ mode }) => ({
         name: 'DiskieReels - Soccer Reels & Highlights',
         short_name: 'DiskieReels',
         description: 'Watch and share the best soccer reels and highlights',
-        theme_color: '#1FA84A',
+        theme_color: '#E63946',
         background_color: '#FFFFFF',
         display: 'standalone',
         orientation: 'portrait',
         icons: [
-          {
-            src: '/diskiereels-icon.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: '/diskiereels-icon.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: '/diskiereels-icon.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable'
-          }
+          { src: '/icon-48.png',  sizes: '48x48',   type: 'image/png', purpose: 'any' },
+          { src: '/icon-72.png',  sizes: '72x72',   type: 'image/png', purpose: 'any' },
+          { src: '/icon-96.png',  sizes: '96x96',   type: 'image/png', purpose: 'any' },
+          { src: '/icon-144.png', sizes: '144x144', type: 'image/png', purpose: 'any' },
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
       },
       workbox: {
