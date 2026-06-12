@@ -356,20 +356,25 @@ const Upload = () => {
         .select('id')
         .single();
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        pushLog(`❌ DB insert failed: ${insertError.message}`);
+        throw insertError;
+      }
+      pushLog(`✅ DB row inserted: videos.id=${insertedVideo?.id}`);
 
       setUploadProgress(100);
       toast.success('Video uploaded successfully!');
-      
+
       // Trigger transcription in background (don't wait for it)
       if (insertedVideo?.id) {
         triggerTranscription(insertedVideo.id, videoUrl);
       }
-      
+
       setTimeout(() => navigate('/feed'), 500);
     } catch (error: any) {
       if (progressInterval) clearInterval(progressInterval);
       console.error('Upload error:', error);
+      pushLog(`❌ Upload exception: ${error?.message ?? error}`);
       
       let errorMessage = 'Upload failed';
       if (error.message?.includes('Failed to fetch')) {
