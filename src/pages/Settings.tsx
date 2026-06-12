@@ -897,7 +897,7 @@ const Settings = () => {
 
                     <div>
                       <p className="font-semibold text-foreground">8. Contact</p>
-                      <p>Email: info@semogroup.com | Website: www.semogroup.com | App icon/logo: TR</p>
+                      <p>Email: info@semogroup.com | Website: www.semogroup.com | App icon/logo: D with a soccer ball (green #22A04A)</p>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -1051,7 +1051,7 @@ const Settings = () => {
                 <AccordionItem value="icon">
                   <AccordionTrigger className="text-xs">App Icon / Avatar Info</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-xs text-muted-foreground">The official DiskieReels app icon is: TR with a red-orange gradient background.</p>
+                    <p className="text-xs text-muted-foreground">The official DiskieReels app icon is: D with a soccer ball, in the DiskieReels green brand color (#22A04A) on a white background.</p>
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

@@ -27,6 +27,13 @@ const Upload = () => {
   const [uploadFailed, setUploadFailed] = useState(false);
   const [roleChecking, setRoleChecking] = useState(true);
   const [isCreative, setIsCreative] = useState(false);
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
+  const [showDebug, setShowDebug] = useState(false);
+  const pushLog = (msg: string) => {
+    const line = `[${new Date().toISOString().slice(11, 19)}] ${msg}`;
+    console.log('[Upload]', line);
+    setDebugLogs((prev) => [...prev, line].slice(-200));
+  };
 
   // Enforce: only creatives can access the upload screen.
   useEffect(() => {
@@ -226,6 +233,10 @@ const Upload = () => {
     setLoading(true);
     setUploadProgress(0);
     setUploadFailed(false);
+    setDebugLogs([]);
+    setShowDebug(true);
+    pushLog(`Starting upload: ${videoFile.name} (${(videoFile.size / 1024 / 1024).toFixed(2)} MB, type=${videoFile.type})`);
+    pushLog(`Supabase URL: ${(import.meta as any).env?.VITE_SUPABASE_URL ?? 'unknown'}`);
 
     let progressInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -241,13 +252,16 @@ const Upload = () => {
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
+      pushLog(`Auth OK, user.id=${user.id}`);
 
       // Ensure profile exists (fixes foreign key constraint error)
       await supabase.rpc('ensure_current_user_profile');
+      pushLog('Profile ensured');
 
       // Upload video to storage
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      
+      pushLog(`Storage path: videos/${fileName}`);
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('videos')
         .upload(fileName, videoFile, {
@@ -260,12 +274,23 @@ const Upload = () => {
 
       if (uploadError) {
         console.error('Upload error details:', uploadError);
+        pushLog(`❌ Storage upload failed: ${uploadError.message}`);
         throw uploadError;
       }
+      pushLog(`✅ Storage upload OK (path=${uploadData?.path ?? fileName})`);
 
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
         .getPublicUrl(fileName);
+      pushLog(`Public URL: ${publicUrl}`);
+
+      // Quick reachability check so APK builds can confirm CDN delivery
+      try {
+        const head = await fetch(publicUrl, { method: 'HEAD' });
+        pushLog(`HEAD ${publicUrl.split('/').pop()} → ${head.status}`);
+      } catch (e: any) {
+        pushLog(`HEAD check failed: ${e?.message ?? e}`);
+      }
 
       // Note: Since videos bucket is now private, we'll store the path
       // and generate signed URLs on-demand for viewing
@@ -331,20 +356,25 @@ const Upload = () => {
         .select('id')
         .single();
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        pushLog(`❌ DB insert failed: ${insertError.message}`);
+        throw insertError;
+      }
+      pushLog(`✅ DB row inserted: videos.id=${insertedVideo?.id}`);
 
       setUploadProgress(100);
       toast.success('Video uploaded successfully!');
-      
+
       // Trigger transcription in background (don't wait for it)
       if (insertedVideo?.id) {
         triggerTranscription(insertedVideo.id, videoUrl);
       }
-      
+
       setTimeout(() => navigate('/feed'), 500);
     } catch (error: any) {
       if (progressInterval) clearInterval(progressInterval);
       console.error('Upload error:', error);
+      pushLog(`❌ Upload exception: ${error?.message ?? error}`);
       
       let errorMessage = 'Upload failed';
       if (error.message?.includes('Failed to fetch')) {
@@ -627,6 +657,38 @@ const Upload = () => {
                   <Button type="button" size="sm" variant="outline" onClick={handleRetry}>
                     <RotateCcw className="h-4 w-4 mr-1" /> Retry
                   </Button>
+                </div>
+              )}
+
+              {debugLogs.length > 0 && (
+                <div className="rounded-xl border border-border bg-muted/40 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setShowDebug((v) => !v)}
+                    className="w-full flex items-center justify-between px-3 py-2 font-mono text-foreground"
+                  >
+                    <span>🛠 Upload debug log ({debugLogs.length})</span>
+                    <span className="opacity-60">{showDebug ? 'hide' : 'show'}</span>
+                  </button>
+                  {showDebug && (
+                    <div className="px-3 pb-3">
+                      <pre className="max-h-48 overflow-auto whitespace-pre-wrap break-all font-mono text-[10px] leading-relaxed text-muted-foreground">
+{debugLogs.join('\n')}
+                      </pre>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="mt-2 h-7 text-xs"
+                        onClick={() => {
+                          navigator.clipboard?.writeText(debugLogs.join('\n'));
+                          toast.success('Debug log copied');
+                        }}
+                      >
+                        Copy log
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
 
