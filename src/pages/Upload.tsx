@@ -233,6 +233,10 @@ const Upload = () => {
     setLoading(true);
     setUploadProgress(0);
     setUploadFailed(false);
+    setDebugLogs([]);
+    setShowDebug(true);
+    pushLog(`Starting upload: ${videoFile.name} (${(videoFile.size / 1024 / 1024).toFixed(2)} MB, type=${videoFile.type})`);
+    pushLog(`Supabase URL: ${(import.meta as any).env?.VITE_SUPABASE_URL ?? 'unknown'}`);
 
     let progressInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -248,13 +252,16 @@ const Upload = () => {
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
+      pushLog(`Auth OK, user.id=${user.id}`);
 
       // Ensure profile exists (fixes foreign key constraint error)
       await supabase.rpc('ensure_current_user_profile');
+      pushLog('Profile ensured');
 
       // Upload video to storage
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      
+      pushLog(`Storage path: videos/${fileName}`);
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('videos')
         .upload(fileName, videoFile, {
