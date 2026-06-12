@@ -897,7 +897,7 @@ const Settings = () => {
 
                     <div>
                       <p className="font-semibold text-foreground">8. Contact</p>
-                      <p>Email: info@semogroup.com | Website: www.semogroup.com | App icon/logo: TR</p>
+                      <p>Email: info@semogroup.com | Website: www.semogroup.com | App icon/logo: D with a soccer ball (green #22A04A)</p>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
