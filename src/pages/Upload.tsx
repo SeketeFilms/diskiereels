@@ -274,12 +274,23 @@ const Upload = () => {
 
       if (uploadError) {
         console.error('Upload error details:', uploadError);
+        pushLog(`❌ Storage upload failed: ${uploadError.message}`);
         throw uploadError;
       }
+      pushLog(`✅ Storage upload OK (path=${uploadData?.path ?? fileName})`);
 
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
         .getPublicUrl(fileName);
+      pushLog(`Public URL: ${publicUrl}`);
+
+      // Quick reachability check so APK builds can confirm CDN delivery
+      try {
+        const head = await fetch(publicUrl, { method: 'HEAD' });
+        pushLog(`HEAD ${publicUrl.split('/').pop()} → ${head.status}`);
+      } catch (e: any) {
+        pushLog(`HEAD check failed: ${e?.message ?? e}`);
+      }
 
       // Note: Since videos bucket is now private, we'll store the path
       // and generate signed URLs on-demand for viewing
