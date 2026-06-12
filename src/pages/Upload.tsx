@@ -660,6 +660,38 @@ const Upload = () => {
                 </div>
               )}
 
+              {debugLogs.length > 0 && (
+                <div className="rounded-xl border border-border bg-muted/40 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setShowDebug((v) => !v)}
+                    className="w-full flex items-center justify-between px-3 py-2 font-mono text-foreground"
+                  >
+                    <span>🛠 Upload debug log ({debugLogs.length})</span>
+                    <span className="opacity-60">{showDebug ? 'hide' : 'show'}</span>
+                  </button>
+                  {showDebug && (
+                    <div className="px-3 pb-3">
+                      <pre className="max-h-48 overflow-auto whitespace-pre-wrap break-all font-mono text-[10px] leading-relaxed text-muted-foreground">
+{debugLogs.join('\n')}
+                      </pre>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="mt-2 h-7 text-xs"
+                        onClick={() => {
+                          navigator.clipboard?.writeText(debugLogs.join('\n'));
+                          toast.success('Debug log copied');
+                        }}
+                      >
+                        Copy log
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <Button
                 type="submit"
                 className="w-full rounded-full"
