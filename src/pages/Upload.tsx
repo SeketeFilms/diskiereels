@@ -27,6 +27,13 @@ const Upload = () => {
   const [uploadFailed, setUploadFailed] = useState(false);
   const [roleChecking, setRoleChecking] = useState(true);
   const [isCreative, setIsCreative] = useState(false);
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
+  const [showDebug, setShowDebug] = useState(false);
+  const pushLog = (msg: string) => {
+    const line = `[${new Date().toISOString().slice(11, 19)}] ${msg}`;
+    console.log('[Upload]', line);
+    setDebugLogs((prev) => [...prev, line].slice(-200));
+  };
 
   // Enforce: only creatives can access the upload screen.
   useEffect(() => {
