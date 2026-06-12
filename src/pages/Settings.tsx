@@ -1051,7 +1051,7 @@ const Settings = () => {
                 <AccordionItem value="icon">
                   <AccordionTrigger className="text-xs">App Icon / Avatar Info</AccordionTrigger>
                   <AccordionContent>
-                    <p className="text-xs text-muted-foreground">The official DiskieReels app icon is: TR with a red-orange gradient background.</p>
+                    <p className="text-xs text-muted-foreground">The official DiskieReels app icon is: D with a soccer ball, in the DiskieReels green brand color (#22A04A) on a white background.</p>
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
