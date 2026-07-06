@@ -341,7 +341,9 @@ const Upload = () => {
 
       // Combine manually added hashtags with any extracted from title
       const extractedTags = extractHashtags(title);
-      const allTags = [...new Set([...hashtags, ...extractedTags])].slice(0, 10);
+      const categoryTag = category ? [category.toLowerCase().replace(/[^a-z0-9]+/g, '')] : [];
+      const allTags = [...new Set([...categoryTag, ...hashtags, ...extractedTags])].slice(0, 10);
+
       
       const { data: insertedVideo, error: insertError } = await supabase
         .from('videos')
