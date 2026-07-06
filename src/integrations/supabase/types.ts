@@ -1429,7 +1429,24 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      creator_monetization_leaderboard: {
+        Row: {
+          avatar_url: string | null
+          total_stars_earned: number | null
+          user_id: string | null
+          username: string | null
+        }
+        Relationships: []
+      }
+      star_leaderboard: {
+        Row: {
+          avatar_url: string | null
+          total_earned: number | null
+          user_id: string | null
+          username: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       ensure_current_user_profile: { Args: never; Returns: Json }
