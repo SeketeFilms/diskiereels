@@ -532,6 +532,31 @@ const Upload = () => {
                 <p className="text-xs text-muted-foreground text-right">{description.length}/500</p>
               </div>
 
+              {/* Choose Reel Category — visible on mobile & desktop */}
+              <div className="space-y-2">
+                <Label className="text-base font-bold">Choose Reel Category</Label>
+                <p className="text-xs text-primary">Help fans discover your content</p>
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 lg:grid-cols-4">
+                  {['Goals','Skills & Tricks','Match Highlights','Tutorials','Goalkeeper','Training','Challenges','Fan Zone','Funny Moments','Player Stories'].map((cat) => {
+                    const active = category === cat;
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setCategory(active ? '' : cat)}
+                        className={`px-4 py-3 rounded-full border text-sm font-semibold transition-colors ${
+                          active
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-transparent border-border text-foreground hover:border-primary/60'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Watermark Option */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/30">
