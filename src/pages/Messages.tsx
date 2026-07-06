@@ -219,12 +219,11 @@ const Messages = () => {
     return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
-  // Chat view
   if (selectedConversation) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         {/* Chat header */}
-        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-lg border-b border-border p-3 flex items-center gap-3">
+        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-lg border-b border-border p-3 flex items-center gap-3" style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}>
           <Button variant="ghost" size="icon" onClick={() => { setSelectedConversation(null); fetchConversations(currentUserId); }}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -239,8 +238,8 @@ const Messages = () => {
           </div>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {/* Messages - scrollable, leaves room for composer + bottom nav */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-[calc(9rem+env(safe-area-inset-bottom))] md:pb-32">
           {messages.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
               <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-30" />
@@ -270,21 +269,35 @@ const Messages = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
-        <div className="sticky bottom-0 bg-card/95 backdrop-blur-lg border-t border-border p-3">
-          <div className="flex items-center gap-2">
+        {/* Pinned composer — sits above the bottom nav on mobile */}
+        <div
+          className="fixed left-0 right-0 z-40 bg-card/95 backdrop-blur-lg border-t border-border px-3 py-2.5 bottom-[5.5rem] md:bottom-0"
+          style={{ paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))' }}
+        >
+          <div className="flex items-center gap-2 max-w-2xl mx-auto">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="rounded-full shrink-0 h-10 w-10"
+              aria-label="Add attachment"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
               placeholder="Type a message..."
-              className="flex-1"
+              className="flex-1 rounded-full bg-muted/60"
             />
-            <Button size="icon" onClick={sendMessage} disabled={!newMessage.trim() || sending} className="rounded-full shrink-0">
+            <Button size="icon" onClick={sendMessage} disabled={!newMessage.trim() || sending} className="rounded-full shrink-0 h-10 w-10">
               <Send className="h-4 w-4" />
             </Button>
           </div>
         </div>
+
+        <BottomNav />
       </div>
     );
   }
