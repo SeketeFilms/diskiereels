@@ -1433,6 +1433,24 @@ export type Database = {
     }
     Functions: {
       ensure_current_user_profile: { Args: never; Returns: Json }
+      get_creator_monetization_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          total_stars_earned: number
+          user_id: string
+          username: string
+        }[]
+      }
+      get_star_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          total_earned: number
+          user_id: string
+          username: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
