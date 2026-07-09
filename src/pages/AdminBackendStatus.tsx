@@ -19,6 +19,8 @@ interface BackendStatus {
   database: string;
   checked_at: string;
   tables: TableStatus[];
+  rls_disabled_public_tables: string[];
+  security_definer_executable_by_authenticated: { function: string; schema: string; args: string }[];
 }
 
 const REQUIRED_POLICIES: Record<string, number> = {
@@ -153,6 +155,53 @@ const AdminBackendStatus = () => {
         <p className="text-xs text-muted-foreground pt-2">
           Checked at {status?.checked_at ? new Date(status.checked_at).toLocaleString() : '—'}
         </p>
+      </Card>
+
+      <Card className="p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold">Scanner: RLS Disabled in Public</h2>
+          {status?.rls_disabled_public_tables?.length ? (
+            <Badge variant="destructive">{status.rls_disabled_public_tables.length} tables</Badge>
+          ) : (
+            <Badge className="bg-green-600">Clean</Badge>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Public tables without RLS enabled (source of <code>SUPA_rls_disabled_in_public</code>).
+        </p>
+        {status?.rls_disabled_public_tables?.length ? (
+          <div className="flex flex-wrap gap-2">
+            {status.rls_disabled_public_tables.map(t => (
+              <Badge key={t} variant="outline" className="font-mono text-xs">public.{t}</Badge>
+            ))}
+          </div>
+        ) : (
+          <div className="text-sm text-muted-foreground">No unprotected tables.</div>
+        )}
+      </Card>
+
+      <Card className="p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold">Scanner: Security Definer Functions Executable by Authenticated</h2>
+          {status?.security_definer_executable_by_authenticated?.length ? (
+            <Badge variant="destructive">{status.security_definer_executable_by_authenticated.length} fns</Badge>
+          ) : (
+            <Badge className="bg-green-600">Clean</Badge>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          SECURITY DEFINER functions callable by any signed-in user (source of <code>SUPA_authenticated_security_definer_function_executable</code>).
+        </p>
+        <div className="space-y-1 max-h-72 overflow-auto">
+          {(status?.security_definer_executable_by_authenticated || []).map(f => (
+            <div key={`${f.function}(${f.args})`} className="text-xs font-mono border border-border rounded p-2">
+              {f.schema}.{f.function}({f.args})
+            </div>
+          ))}
+          {!status?.security_definer_executable_by_authenticated?.length && (
+            <div className="text-sm text-muted-foreground">No exposed security-definer functions.</div>
+          )}
+        </div>
       </Card>
     </div>
   );
