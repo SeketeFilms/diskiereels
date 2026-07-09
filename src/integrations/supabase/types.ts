@@ -676,6 +676,7 @@ export type Database = {
           created_at: string | null
           id: string
           is_read: boolean | null
+          recipient_id: string | null
           type: Database["public"]["Enums"]["notification_type"]
           user_id: string
           video_id: string | null
@@ -686,6 +687,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_read?: boolean | null
+          recipient_id?: string | null
           type: Database["public"]["Enums"]["notification_type"]
           user_id: string
           video_id?: string | null
@@ -696,6 +698,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_read?: boolean | null
+          recipient_id?: string | null
           type?: Database["public"]["Enums"]["notification_type"]
           user_id?: string
           video_id?: string | null
@@ -1433,6 +1436,7 @@ export type Database = {
     }
     Functions: {
       ensure_current_user_profile: { Args: never; Returns: Json }
+      get_backend_status: { Args: never; Returns: Json }
       get_creator_monetization_leaderboard: {
         Args: never
         Returns: {

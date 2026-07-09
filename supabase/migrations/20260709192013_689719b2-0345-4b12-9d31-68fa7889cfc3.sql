@@ -1,0 +1,1 @@
+DROP TRIGGER IF EXISTS profiles_sync_trigger ON public.profiles;
