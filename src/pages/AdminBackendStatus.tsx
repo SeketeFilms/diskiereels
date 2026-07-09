@@ -19,6 +19,8 @@ interface BackendStatus {
   database: string;
   checked_at: string;
   tables: TableStatus[];
+  rls_disabled_public_tables: string[];
+  security_definer_executable_by_authenticated: { function: string; schema: string; args: string }[];
 }
 
 const REQUIRED_POLICIES: Record<string, number> = {
