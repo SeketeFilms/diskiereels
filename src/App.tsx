@@ -25,6 +25,7 @@ import DiskieStudio from "./pages/DiskieStudio";
 import Leaderboard from "./pages/Leaderboard";
 import PWAQA from "./pages/PWAQA";
 import CompleteProfile from "./pages/CompleteProfile";
+import AdminBackendStatus from "./pages/AdminBackendStatus";
 import DiskieAI from "./components/DiskieAI";
 
 const queryClient = new QueryClient({
@@ -64,6 +65,7 @@ const AppContent = () => {
         <Route path="/diskie-studio" element={<DiskieStudio />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/pwa-qa" element={<PWAQA />} />
+        <Route path="/admin/backend-status" element={<AdminBackendStatus />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <DiskieAI />
