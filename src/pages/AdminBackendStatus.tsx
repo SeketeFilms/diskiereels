@@ -106,12 +106,20 @@ const AdminBackendStatus = () => {
 
   return (
     <div className="min-h-screen p-4 md:p-8 max-w-4xl mx-auto space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <ShieldCheck className="w-6 h-6 text-primary" /> Backend Status
-        </h1>
-        <Button variant="outline" size="sm" onClick={load}>
-          <RefreshCw className="w-4 h-4 mr-2" /> Refresh
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <ShieldCheck className="w-6 h-6 text-primary" /> Backend Status
+          </h1>
+          {lastRefreshed && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Last refreshed: {lastRefreshed.toLocaleString()}
+            </p>
+          )}
+        </div>
+        <Button variant="outline" size="sm" onClick={() => load(true)} disabled={refreshing}>
+          <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+          {refreshing ? 'Re-checking…' : 'Refresh & Re-check'}
         </Button>
       </div>
 
