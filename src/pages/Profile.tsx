@@ -16,6 +16,7 @@ import ProfileVideoViewer from '@/components/ProfileVideoViewer';
 import ProfileSkeleton from '@/components/ProfileSkeleton';
 import MilestoneConfetti from '@/components/MilestoneConfetti';
 import VerificationRequestDialog from '@/components/VerificationRequestDialog';
+import FollowListDialog from '@/components/FollowListDialog';
 import { checkAndTriggerMilestone, MilestoneType } from '@/hooks/useMilestoneTracker';
 import {
   Dialog,
@@ -102,8 +103,7 @@ const Profile = () => {
   const [milestoneToShow, setMilestoneToShow] = useState<{ type: MilestoneType; value: number } | null>(null);
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
-  const [showFollowersList, setShowFollowersList] = useState(false);
-  const [followers, setFollowers] = useState<{ id: string; username: string; avatar_url: string | null }[]>([]);
+  const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
   const [showSocialLinksEditor, setShowSocialLinksEditor] = useState(false);
 
   // Check for milestones when stats load
@@ -381,28 +381,8 @@ const Profile = () => {
     }
   };
 
-  const fetchFollowers = async (targetUserId: string) => {
-    const { data } = await supabase
-      .from('follows')
-      .select(`
-        follower_id,
-        profiles:follower_id (
-          id,
-          username,
-          avatar_url
-        )
-      `)
-      .eq('following_id', targetUserId);
-
-    if (data) {
-      const followersList = data.map((item: any) => ({
-        id: item.profiles?.id || item.follower_id,
-        username: item.profiles?.username || 'Unknown',
-        avatar_url: item.profiles?.avatar_url || null,
-      }));
-      setFollowers(followersList);
-    }
-  };
+  // Legacy no-op: follower list is loaded by <FollowListDialog />
+  const fetchFollowers = async (_targetUserId: string) => {};
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -928,15 +908,18 @@ const Profile = () => {
                 <div className="h-8 w-px bg-white/20"></div>
                 <button 
                   className="flex flex-col items-center min-w-0 hover:opacity-80 transition-opacity"
-                  onClick={() => {
-                    if (isOwnProfile) {
-                      fetchFollowers(profile.id || currentUserId);
-                      setShowFollowersList(true);
-                    }
-                  }}
+                  onClick={() => setFollowListMode('followers')}
                 >
                   <p className="text-lg md:text-xl font-black text-white drop-shadow-lg">{followersCount}</p>
                   <p className="text-[10px] md:text-xs text-white/90 drop-shadow-md font-semibold">Followers</p>
+                </button>
+                <div className="h-8 w-px bg-white/20"></div>
+                <button
+                  className="flex flex-col items-center min-w-0 hover:opacity-80 transition-opacity"
+                  onClick={() => setFollowListMode('following')}
+                >
+                  <p className="text-lg md:text-xl font-black text-white drop-shadow-lg">{followingCount}</p>
+                  <p className="text-[10px] md:text-xs text-white/90 drop-shadow-md font-semibold">Following</p>
                 </button>
                 <div className="h-8 w-px bg-white/20"></div>
                 <div className="flex flex-col items-center min-w-0">
@@ -947,15 +930,21 @@ const Profile = () => {
             ) : (
               // Viewer users: Show only Followers and Following
               <div className="flex items-center justify-center gap-4 px-2">
-                <div className="flex flex-col items-center min-w-0">
+                <button
+                  className="flex flex-col items-center min-w-0 hover:opacity-80 transition-opacity"
+                  onClick={() => setFollowListMode('followers')}
+                >
                   <p className="text-lg md:text-xl font-black text-white drop-shadow-lg">{followersCount}</p>
                   <p className="text-[10px] md:text-xs text-white/90 drop-shadow-md font-semibold">Followers</p>
-                </div>
+                </button>
                 <div className="h-8 w-px bg-white/20"></div>
-                <div className="flex flex-col items-center min-w-0">
+                <button
+                  className="flex flex-col items-center min-w-0 hover:opacity-80 transition-opacity"
+                  onClick={() => setFollowListMode('following')}
+                >
                   <p className="text-lg md:text-xl font-black text-white drop-shadow-lg">{followingCount}</p>
                   <p className="text-[10px] md:text-xs text-white/90 drop-shadow-md font-semibold">Following</p>
-                </div>
+                </button>
               </div>
             )}
           </div>
@@ -1295,37 +1284,16 @@ const Profile = () => {
         onSuccess={() => setVerificationStatus('pending')}
       />
 
-      {/* Followers List Dialog */}
-      <Dialog open={showFollowersList} onOpenChange={setShowFollowersList}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>Your Followers</DialogTitle>
-            <DialogDescription>
-              People who follow you ({followersCount})
-            </DialogDescription>
-          </DialogHeader>
-          <div className="max-h-[60vh] overflow-y-auto space-y-2">
-            {followers.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">No followers yet</p>
-            ) : (
-              followers.map((follower) => (
-                <div
-                  key={follower.id}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/50"
-                >
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={follower.avatar_url || undefined} />
-                    <AvatarFallback className="bg-primary text-primary-foreground font-bold">
-                      {follower.username[0]?.toUpperCase() || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="font-medium text-sm">{follower.username}</span>
-                </div>
-              ))
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Followers / Following Dialog */}
+      {profile && (
+        <FollowListDialog
+          open={followListMode !== null}
+          onOpenChange={(v) => { if (!v) setFollowListMode(null); }}
+          userId={profile.id || currentUserId}
+          mode={followListMode || 'followers'}
+          totalCount={followListMode === 'following' ? followingCount : followersCount}
+        />
+      )}
 
       {/* Social Links Editor Dialog */}
       <Dialog open={showSocialLinksEditor} onOpenChange={setShowSocialLinksEditor}>

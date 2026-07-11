@@ -33,12 +33,14 @@ const REQUIRED_POLICIES: Record<string, number> = {
 const AdminBackendStatus = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [authorized, setAuthorized] = useState(false);
   const [status, setStatus] = useState<BackendStatus | null>(null);
   const [envUrl, setEnvUrl] = useState('');
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (isManual = false) => {
+    if (isManual) setRefreshing(true); else setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       navigate('/auth');
@@ -53,6 +55,7 @@ const AdminBackendStatus = () => {
     if (!role) {
       setAuthorized(false);
       setLoading(false);
+      setRefreshing(false);
       return;
     }
     setAuthorized(true);
@@ -62,8 +65,15 @@ const AdminBackendStatus = () => {
       toast.error(error.message);
     } else {
       setStatus(data as unknown as BackendStatus);
+      setLastRefreshed(new Date());
+      if (isManual) {
+        const failingCount = ((data as any)?.tables || []).filter((t: any) => !t.rls_enabled || t.policy_count < 1).length;
+        if (failingCount === 0) toast.success('All checks passing');
+        else toast.error(`${failingCount} check${failingCount === 1 ? '' : 's'} failing`);
+      }
     }
     setLoading(false);
+    setRefreshing(false);
   };
 
   useEffect(() => { load(); }, []);
@@ -96,12 +106,20 @@ const AdminBackendStatus = () => {
 
   return (
     <div className="min-h-screen p-4 md:p-8 max-w-4xl mx-auto space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <ShieldCheck className="w-6 h-6 text-primary" /> Backend Status
-        </h1>
-        <Button variant="outline" size="sm" onClick={load}>
-          <RefreshCw className="w-4 h-4 mr-2" /> Refresh
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <ShieldCheck className="w-6 h-6 text-primary" /> Backend Status
+          </h1>
+          {lastRefreshed && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Last refreshed: {lastRefreshed.toLocaleString()}
+            </p>
+          )}
+        </div>
+        <Button variant="outline" size="sm" onClick={() => load(true)} disabled={refreshing}>
+          <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+          {refreshing ? 'Re-checking…' : 'Refresh & Re-check'}
         </Button>
       </div>
 

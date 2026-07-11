@@ -27,6 +27,7 @@ import PWAQA from "./pages/PWAQA";
 import CompleteProfile from "./pages/CompleteProfile";
 import AdminBackendStatus from "./pages/AdminBackendStatus";
 import DiskieAI from "./components/DiskieAI";
+import { useBackendStartupCheck } from "./hooks/useBackendStartupCheck";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,6 +42,7 @@ const queryClient = new QueryClient({
 });
 
 const AppContent = () => {
+  useBackendStartupCheck();
   return (
     <>
       <Routes>
