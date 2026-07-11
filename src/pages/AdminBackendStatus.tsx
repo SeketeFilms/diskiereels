@@ -33,12 +33,14 @@ const REQUIRED_POLICIES: Record<string, number> = {
 const AdminBackendStatus = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [authorized, setAuthorized] = useState(false);
   const [status, setStatus] = useState<BackendStatus | null>(null);
   const [envUrl, setEnvUrl] = useState('');
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async (isManual = false) => {
+    if (isManual) setRefreshing(true); else setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       navigate('/auth');
@@ -53,6 +55,7 @@ const AdminBackendStatus = () => {
     if (!role) {
       setAuthorized(false);
       setLoading(false);
+      setRefreshing(false);
       return;
     }
     setAuthorized(true);
@@ -62,8 +65,15 @@ const AdminBackendStatus = () => {
       toast.error(error.message);
     } else {
       setStatus(data as unknown as BackendStatus);
+      setLastRefreshed(new Date());
+      if (isManual) {
+        const failingCount = ((data as any)?.tables || []).filter((t: any) => !t.rls_enabled || t.policy_count < 1).length;
+        if (failingCount === 0) toast.success('All checks passing');
+        else toast.error(`${failingCount} check${failingCount === 1 ? '' : 's'} failing`);
+      }
     }
     setLoading(false);
+    setRefreshing(false);
   };
 
   useEffect(() => { load(); }, []);
