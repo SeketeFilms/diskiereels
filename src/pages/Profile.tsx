@@ -908,15 +908,18 @@ const Profile = () => {
                 <div className="h-8 w-px bg-white/20"></div>
                 <button 
                   className="flex flex-col items-center min-w-0 hover:opacity-80 transition-opacity"
-                  onClick={() => {
-                    if (isOwnProfile) {
-                      fetchFollowers(profile.id || currentUserId);
-                      setShowFollowersList(true);
-                    }
-                  }}
+                  onClick={() => setFollowListMode('followers')}
                 >
                   <p className="text-lg md:text-xl font-black text-white drop-shadow-lg">{followersCount}</p>
                   <p className="text-[10px] md:text-xs text-white/90 drop-shadow-md font-semibold">Followers</p>
+                </button>
+                <div className="h-8 w-px bg-white/20"></div>
+                <button
+                  className="flex flex-col items-center min-w-0 hover:opacity-80 transition-opacity"
+                  onClick={() => setFollowListMode('following')}
+                >
+                  <p className="text-lg md:text-xl font-black text-white drop-shadow-lg">{followingCount}</p>
+                  <p className="text-[10px] md:text-xs text-white/90 drop-shadow-md font-semibold">Following</p>
                 </button>
                 <div className="h-8 w-px bg-white/20"></div>
                 <div className="flex flex-col items-center min-w-0">
@@ -927,15 +930,21 @@ const Profile = () => {
             ) : (
               // Viewer users: Show only Followers and Following
               <div className="flex items-center justify-center gap-4 px-2">
-                <div className="flex flex-col items-center min-w-0">
+                <button
+                  className="flex flex-col items-center min-w-0 hover:opacity-80 transition-opacity"
+                  onClick={() => setFollowListMode('followers')}
+                >
                   <p className="text-lg md:text-xl font-black text-white drop-shadow-lg">{followersCount}</p>
                   <p className="text-[10px] md:text-xs text-white/90 drop-shadow-md font-semibold">Followers</p>
-                </div>
+                </button>
                 <div className="h-8 w-px bg-white/20"></div>
-                <div className="flex flex-col items-center min-w-0">
+                <button
+                  className="flex flex-col items-center min-w-0 hover:opacity-80 transition-opacity"
+                  onClick={() => setFollowListMode('following')}
+                >
                   <p className="text-lg md:text-xl font-black text-white drop-shadow-lg">{followingCount}</p>
                   <p className="text-[10px] md:text-xs text-white/90 drop-shadow-md font-semibold">Following</p>
-                </div>
+                </button>
               </div>
             )}
           </div>
