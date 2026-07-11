@@ -42,6 +42,7 @@ const queryClient = new QueryClient({
 });
 
 const AppContent = () => {
+  useBackendStartupCheck();
   return (
     <>
       <Routes>
