@@ -1284,37 +1284,16 @@ const Profile = () => {
         onSuccess={() => setVerificationStatus('pending')}
       />
 
-      {/* Followers List Dialog */}
-      <Dialog open={showFollowersList} onOpenChange={setShowFollowersList}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>Your Followers</DialogTitle>
-            <DialogDescription>
-              People who follow you ({followersCount})
-            </DialogDescription>
-          </DialogHeader>
-          <div className="max-h-[60vh] overflow-y-auto space-y-2">
-            {followers.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">No followers yet</p>
-            ) : (
-              followers.map((follower) => (
-                <div
-                  key={follower.id}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/50"
-                >
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={follower.avatar_url || undefined} />
-                    <AvatarFallback className="bg-primary text-primary-foreground font-bold">
-                      {follower.username[0]?.toUpperCase() || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="font-medium text-sm">{follower.username}</span>
-                </div>
-              ))
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Followers / Following Dialog */}
+      {profile && (
+        <FollowListDialog
+          open={followListMode !== null}
+          onOpenChange={(v) => { if (!v) setFollowListMode(null); }}
+          userId={profile.id || currentUserId}
+          mode={followListMode || 'followers'}
+          totalCount={followListMode === 'following' ? followingCount : followersCount}
+        />
+      )}
 
       {/* Social Links Editor Dialog */}
       <Dialog open={showSocialLinksEditor} onOpenChange={setShowSocialLinksEditor}>
