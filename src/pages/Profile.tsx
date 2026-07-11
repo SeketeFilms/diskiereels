@@ -381,28 +381,8 @@ const Profile = () => {
     }
   };
 
-  const fetchFollowers = async (targetUserId: string) => {
-    const { data } = await supabase
-      .from('follows')
-      .select(`
-        follower_id,
-        profiles:follower_id (
-          id,
-          username,
-          avatar_url
-        )
-      `)
-      .eq('following_id', targetUserId);
-
-    if (data) {
-      const followersList = data.map((item: any) => ({
-        id: item.profiles?.id || item.follower_id,
-        username: item.profiles?.username || 'Unknown',
-        avatar_url: item.profiles?.avatar_url || null,
-      }));
-      setFollowers(followersList);
-    }
-  };
+  // Legacy no-op: follower list is loaded by <FollowListDialog />
+  const fetchFollowers = async (_targetUserId: string) => {};
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
