@@ -103,8 +103,7 @@ const Profile = () => {
   const [milestoneToShow, setMilestoneToShow] = useState<{ type: MilestoneType; value: number } | null>(null);
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
-  const [showFollowersList, setShowFollowersList] = useState(false);
-  const [followers, setFollowers] = useState<{ id: string; username: string; avatar_url: string | null }[]>([]);
+  const [followListMode, setFollowListMode] = useState<'followers' | 'following' | null>(null);
   const [showSocialLinksEditor, setShowSocialLinksEditor] = useState(false);
 
   // Check for milestones when stats load
