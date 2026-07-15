@@ -1365,16 +1365,51 @@ export type Database = {
           },
         ]
       }
+      video_shares: {
+        Row: {
+          created_at: string
+          id: string
+          share_target: string | null
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          share_target?: string | null
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          share_target?: string | null
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_shares_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       videos: {
         Row: {
           category: string | null
           category_id: number | null
+          comments_count: number
           created_at: string
           creator_id: string
           description: string | null
           duration: number | null
           id: string
           likes_count: number
+          saves_count: number
+          shares_count: number
           subtitles: Json | null
           tags: string[] | null
           thumbnail_url: string | null
@@ -1387,12 +1422,15 @@ export type Database = {
         Insert: {
           category?: string | null
           category_id?: number | null
+          comments_count?: number
           created_at?: string
           creator_id: string
           description?: string | null
           duration?: number | null
           id?: string
           likes_count?: number
+          saves_count?: number
+          shares_count?: number
           subtitles?: Json | null
           tags?: string[] | null
           thumbnail_url?: string | null
@@ -1405,12 +1443,15 @@ export type Database = {
         Update: {
           category?: string | null
           category_id?: number | null
+          comments_count?: number
           created_at?: string
           creator_id?: string
           description?: string | null
           duration?: number | null
           id?: string
           likes_count?: number
+          saves_count?: number
+          shares_count?: number
           subtitles?: Json | null
           tags?: string[] | null
           thumbnail_url?: string | null
