@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import VideoPlayer from '@/components/VideoPlayer';
+import CommentsSheet from '@/components/CommentsSheet';
 
 interface Video {
   id: string;
@@ -8,6 +9,9 @@ interface Video {
   thumbnail_url: string;
   views_count: number;
   likes_count: number;
+  comments_count?: number;
+  saves_count?: number;
+  shares_count?: number;
   video_url: string;
   description: string;
   creator_id: string;
@@ -43,6 +47,7 @@ const ProfileVideoViewer = ({
   onDelete
 }: ProfileVideoViewerProps) => {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
+  const [commentsVideoId, setCommentsVideoId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hasScrolledRef = useRef(false);
 
@@ -115,7 +120,7 @@ const ProfileVideoViewer = ({
                 currentUserId={currentUserId}
                 isPremium={false}
                 isActive={index === activeIndex}
-                onCommentsClick={() => {}}
+                onCommentsClick={() => setCommentsVideoId(video.id)}
                 onDelete={() => onDelete(video.id)}
               />
             </div>
@@ -130,6 +135,14 @@ const ProfileVideoViewer = ({
       >
         ✕
       </Button>
+      {commentsVideoId && (
+        <CommentsSheet
+          videoId={commentsVideoId}
+          isOpen={!!commentsVideoId}
+          onClose={() => setCommentsVideoId(null)}
+          currentUserId={currentUserId}
+        />
+      )}
     </div>
   );
 };
