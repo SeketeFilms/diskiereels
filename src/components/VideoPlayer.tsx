@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle, Download, Flag, Trash2, Volume2, VolumeX, Bookmark, BookmarkCheck, Settings, Repeat, Ban, BadgeCheck, Subtitles, Star, Wifi, AlertTriangle, Zap } from 'lucide-react';
+import { Heart, MessageCircle, Download, Flag, Trash2, Volume2, VolumeX, Bookmark, BookmarkCheck, Settings, Repeat, Ban, BadgeCheck, Subtitles, Star, Wifi, AlertTriangle, Zap, Eye, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import LikeAnimation from '@/components/LikeAnimation';
 import { useNavigate } from 'react-router-dom';
@@ -54,6 +54,9 @@ interface VideoPlayerProps {
     creator_id: string;
     likes_count: number;
     views_count: number;
+    comments_count?: number;
+    saves_count?: number;
+    shares_count?: number;
     tags?: string[] | null;
     thumbnail_url?: string | null;
     subtitles?: SubtitleSegment[] | null;
@@ -88,6 +91,7 @@ interface CachedPlaybackSettings {
 interface CachedVideoEngagement {
   commentsCount: number;
   savesCount: number;
+  sharesCount: number;
   fetchedAt: number;
 }
 
@@ -175,8 +179,10 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
   const [trendingTags, setTrendingTags] = useState<string[]>([]);
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(video.likes_count);
-  const [commentsCount, setCommentsCount] = useState(0);
-  const [savesCount, setSavesCount] = useState(0);
+  const [viewsCount, setViewsCount] = useState(video.views_count || 0);
+  const [commentsCount, setCommentsCount] = useState(video.comments_count || 0);
+  const [savesCount, setSavesCount] = useState(video.saves_count || 0);
+  const [sharesCount, setSharesCount] = useState(video.shares_count || 0);
   const [isFollowing, setIsFollowing] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
@@ -272,6 +278,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     if (cachedEngagement && Date.now() - cachedEngagement.fetchedAt < VIDEO_ENGAGEMENT_TTL) {
       setCommentsCount(cachedEngagement.commentsCount);
       setSavesCount(cachedEngagement.savesCount);
+      setSharesCount(cachedEngagement.sharesCount);
     }
 
     if (deferredDataFetchTimerRef.current) {
@@ -291,7 +298,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
       }
 
       if (engagementNeedsRefresh) {
-        tasks.push(Promise.allSettled([fetchCommentsCount(), fetchSavesCount()]));
+        tasks.push(Promise.allSettled([fetchEngagementCounts()]));
       }
 
       if (tasks.length > 0) {
@@ -567,37 +574,64 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
     setSubtitlesKaraoke(resolvedSettings.subtitlesKaraoke);
   };
 
-  const fetchCommentsCount = async () => {
-    const { count } = await supabase
-      .from('comments')
-      .select('*', { count: 'exact', head: true })
-      .eq('video_id', video.id);
+  const applyVideoCounters = useCallback((row: Partial<VideoPlayerProps['video']>) => {
+    if (typeof row.likes_count === 'number') setLikesCount(row.likes_count);
+    if (typeof row.views_count === 'number') setViewsCount(row.views_count);
+    if (typeof row.comments_count === 'number') setCommentsCount(row.comments_count);
+    if (typeof row.saves_count === 'number') setSavesCount(row.saves_count);
+    if (typeof row.shares_count === 'number') setSharesCount(row.shares_count);
+  }, []);
 
-    const nextCommentsCount = count || 0;
-    const existingCache = videoEngagementCache.get(video.id);
+  const cacheEngagementCounts = useCallback((nextComments: number, nextSaves: number, nextShares: number) => {
     videoEngagementCache.set(video.id, {
-      commentsCount: nextCommentsCount,
-      savesCount: existingCache?.savesCount ?? savesCount,
+      commentsCount: nextComments,
+      savesCount: nextSaves,
+      sharesCount: nextShares,
       fetchedAt: Date.now(),
     });
-    setCommentsCount(nextCommentsCount);
+  }, [video.id]);
+
+  const fetchEngagementCounts = async () => {
+    const { data } = await supabase
+      .from('videos')
+      .select('likes_count, views_count, comments_count, saves_count, shares_count')
+      .eq('id', video.id)
+      .maybeSingle();
+
+    if (data) {
+      applyVideoCounters(data);
+      cacheEngagementCounts(data.comments_count || 0, data.saves_count || 0, data.shares_count || 0);
+    }
   };
 
-  const fetchSavesCount = async () => {
-    const { count } = await supabase
-      .from('saved_videos')
-      .select('*', { count: 'exact', head: true })
-      .eq('video_id', video.id);
+  useEffect(() => {
+    setLikesCount(video.likes_count || 0);
+    setViewsCount(video.views_count || 0);
+    setCommentsCount(video.comments_count || 0);
+    setSavesCount(video.saves_count || 0);
+    setSharesCount(video.shares_count || 0);
+  }, [video.id, video.likes_count, video.views_count, video.comments_count, video.saves_count, video.shares_count]);
 
-    const nextSavesCount = count || 0;
-    const existingCache = videoEngagementCache.get(video.id);
-    videoEngagementCache.set(video.id, {
-      commentsCount: existingCache?.commentsCount ?? commentsCount,
-      savesCount: nextSavesCount,
-      fetchedAt: Date.now(),
-    });
-    setSavesCount(nextSavesCount);
-  };
+  useEffect(() => {
+    if (!isActive) return;
+
+    const channel = supabase
+      .channel(`video-engagement-${video.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'videos', filter: `id=eq.${video.id}` },
+        (payload) => {
+          const next = payload.new as Partial<VideoPlayerProps['video']>;
+          applyVideoCounters(next);
+          cacheEngagementCounts(next.comments_count || 0, next.saves_count || 0, next.shares_count || 0);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [video.id, isActive, applyVideoCounters, cacheEngagementCounts]);
 
   // Handle active state - play/pause based on visibility with better mobile support
   useEffect(() => {
@@ -941,6 +975,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
   const incrementViewCount = async () => {
     try {
       // Use atomic RPC function to prevent race conditions
+      setViewsCount(prev => prev + 1);
       await supabase.rpc('increment_video_views', { _video_id: video.id });
     } catch (error) {
       console.error('Failed to increment view count:', error);
@@ -1379,6 +1414,7 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         videoEngagementCache.set(video.id, {
           commentsCount: existingEngagementCache?.commentsCount ?? commentsCount,
           savesCount: Math.max(0, (existingEngagementCache?.savesCount ?? savesCount) - 1),
+          sharesCount: existingEngagementCache?.sharesCount ?? sharesCount,
           fetchedAt: Date.now(),
         });
         toast.success('Removed from saved');
@@ -1398,12 +1434,62 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
         videoEngagementCache.set(video.id, {
           commentsCount: existingEngagementCache?.commentsCount ?? commentsCount,
           savesCount: (existingEngagementCache?.savesCount ?? savesCount) + 1,
+          sharesCount: existingEngagementCache?.sharesCount ?? sharesCount,
           fetchedAt: Date.now(),
         });
         toast.success('Saved to watch later!');
       }
     } catch (error) {
       toast.error('Failed to save video');
+    }
+  };
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    triggerHaptic('light');
+
+    const shareUrl = `${window.location.origin}/profile/${video.creator_id}`;
+    const shareData = {
+      title: video.title || 'DiskieReels',
+      text: video.description || video.title || 'Watch this reel on DiskieReels',
+      url: shareUrl,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success('Share link copied');
+      } else {
+        toast.success('Share link ready');
+      }
+
+      if (currentUserId) {
+        setSharesCount(prev => prev + 1);
+        const existingEngagementCache = videoEngagementCache.get(video.id);
+        videoEngagementCache.set(video.id, {
+          commentsCount: existingEngagementCache?.commentsCount ?? commentsCount,
+          savesCount: existingEngagementCache?.savesCount ?? savesCount,
+          sharesCount: (existingEngagementCache?.sharesCount ?? sharesCount) + 1,
+          fetchedAt: Date.now(),
+        });
+
+        const { error } = await supabase
+          .from('video_shares')
+          .insert({ video_id: video.id, user_id: currentUserId, share_target: navigator.share ? 'native' : 'copy_link' });
+
+        if (error) {
+          setSharesCount(prev => Math.max(0, prev - 1));
+          throw error;
+        }
+      }
+
+      onPositiveAction?.();
+    } catch (error: any) {
+      if (error?.name !== 'AbortError') {
+        toast.error('Failed to share reel');
+      }
     }
   };
 
@@ -2000,6 +2086,14 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
           <span className="text-[9px] text-white font-medium">{likesCount}</span>
         </button>
 
+        {/* Views */}
+        <div className="flex flex-col items-center">
+          <div className="rounded-full h-9 w-9 flex items-center justify-center text-white">
+            <Eye className="h-5 w-5" />
+          </div>
+          <span className="text-[9px] text-white font-medium">{viewsCount}</span>
+        </div>
+
         {/* Comment */}
         <button
           onClick={(e) => handleActionClick(e, onCommentsClick)}
@@ -2009,6 +2103,17 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
             <MessageCircle className="h-5 w-5" />
           </div>
           <span className="text-[9px] text-white font-medium">{commentsCount}</span>
+        </button>
+
+        {/* Share */}
+        <button
+          onClick={handleShare}
+          className="flex flex-col items-center"
+        >
+          <div className="rounded-full h-9 w-9 flex items-center justify-center text-white">
+            <Share2 className="h-5 w-5" />
+          </div>
+          <span className="text-[9px] text-white font-medium">{sharesCount}</span>
         </button>
 
         {/* Send Stars - only for non-owners */}

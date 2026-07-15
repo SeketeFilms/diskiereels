@@ -35,9 +35,10 @@ interface CommentsSheetProps {
   isOpen: boolean;
   onClose: () => void;
   currentUserId: string;
+  onCommentChange?: (delta: number) => void;
 }
 
-const CommentsSheet = ({ videoId, isOpen, onClose, currentUserId }: CommentsSheetProps) => {
+const CommentsSheet = ({ videoId, isOpen, onClose, currentUserId, onCommentChange }: CommentsSheetProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [replyTo, setReplyTo] = useState<{ id: string; username: string } | null>(null);
@@ -73,7 +74,7 @@ const CommentsSheet = ({ videoId, isOpen, onClose, currentUserId }: CommentsShee
 
   const fetchComments = async () => {
     // Fetch comments with profile info including avatar
-    const { data: commentsData } = await supabase
+    const { data: commentsData, error } = await supabase
       .from('comments')
       .select(`
         *,
@@ -82,26 +83,30 @@ const CommentsSheet = ({ videoId, isOpen, onClose, currentUserId }: CommentsShee
       .eq('video_id', videoId)
       .order('created_at', { ascending: false });
 
-    if (!commentsData) {
+    if (error || !commentsData) {
       setComments([]);
       return;
     }
 
     // Fetch likes for all comments
     const commentIds = commentsData.map(c => c.id);
-    const { data: likesData } = await supabase
-      .from('comment_likes')
-      .select('comment_id')
-      .in('comment_id', commentIds)
-      .eq('user_id', currentUserId);
+    const likesData = commentIds.length > 0 && currentUserId
+      ? (await supabase
+          .from('comment_likes')
+          .select('comment_id')
+          .in('comment_id', commentIds)
+          .eq('user_id', currentUserId)).data
+      : [];
 
     const likedCommentIds = new Set(likesData?.map(l => l.comment_id) || []);
 
     // Get like counts for all comments
-    const { data: likeCounts } = await supabase
-      .from('comment_likes')
-      .select('comment_id')
-      .in('comment_id', commentIds);
+    const likeCounts = commentIds.length > 0
+      ? (await supabase
+          .from('comment_likes')
+          .select('comment_id')
+          .in('comment_id', commentIds)).data
+      : [];
 
     const likeCountMap = new Map<string, number>();
     likeCounts?.forEach(l => {
@@ -126,15 +131,18 @@ const CommentsSheet = ({ videoId, isOpen, onClose, currentUserId }: CommentsShee
         return;
       }
 
-      await supabase.from('comments').insert({
+      const { error } = await supabase.from('comments').insert({
         video_id: videoId,
         user_id: currentUserId,
         content: validation.data.content,
         parent_id: replyTo?.id || null
       });
 
+      if (error) throw error;
+
       setNewComment('');
       setReplyTo(null);
+      onCommentChange?.(1);
       fetchComments();
       toast.success(replyTo ? 'Reply posted!' : 'Comment posted!');
     } catch (error) {
@@ -175,7 +183,9 @@ const CommentsSheet = ({ videoId, isOpen, onClose, currentUserId }: CommentsShee
 
   const handleDeleteComment = async (commentId: string) => {
     try {
-      await supabase.from('comments').delete().eq('id', commentId);
+      const { error } = await supabase.from('comments').delete().eq('id', commentId);
+      if (error) throw error;
+      onCommentChange?.(-1);
       fetchComments();
       toast.success('Comment deleted');
     } catch (error) {
@@ -254,20 +264,25 @@ const CommentsSheet = ({ videoId, isOpen, onClose, currentUserId }: CommentsShee
               return (
                 <div key={comment.id} className="space-y-2">
                   <div className="flex gap-3">
-                    {comment.profiles.avatar_url ? (
+                    {comment.profiles?.avatar_url ? (
                       <img 
                         src={comment.profiles.avatar_url} 
-                        alt={comment.profiles.username}
+                        alt={comment.profiles.username || 'User'}
                         className="h-8 w-8 rounded-full object-cover flex-shrink-0"
                       />
                     ) : (
                       <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center font-bold text-sm flex-shrink-0 text-primary-foreground">
-                        {comment.profiles.selected_avatar || comment.profiles.username[0].toUpperCase()}
+                        {comment.profiles?.selected_avatar || comment.profiles?.username?.[0]?.toUpperCase() || 'U'}
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-sm">{comment.profiles.username}</span>
+                        <button
+                          className="font-semibold text-sm hover:text-primary transition-colors"
+                          onClick={() => window.location.assign(`/profile/${comment.user_id}`)}
+                        >
+                          {comment.profiles?.username || 'Unknown'}
+                        </button>
                         <span className="text-xs text-muted-foreground">
                           {new Date(comment.created_at).toLocaleDateString()}
                         </span>
@@ -287,7 +302,7 @@ const CommentsSheet = ({ videoId, isOpen, onClose, currentUserId }: CommentsShee
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => setReplyTo({ id: comment.id, username: comment.profiles.username })}
+                          onClick={() => setReplyTo({ id: comment.id, username: comment.profiles?.username || 'Unknown' })}
                           className="h-7 px-2"
                         >
                           <Reply className="h-3 w-3 mr-1" />
@@ -341,20 +356,25 @@ const CommentsSheet = ({ videoId, isOpen, onClose, currentUserId }: CommentsShee
                   {/* Replies - only shown when expanded */}
                   {isExpanded && replies.map((reply) => (
                     <div key={reply.id} className="ml-12 flex gap-3">
-                      {reply.profiles.avatar_url ? (
+                      {reply.profiles?.avatar_url ? (
                         <img 
                           src={reply.profiles.avatar_url} 
-                          alt={reply.profiles.username}
+                          alt={reply.profiles.username || 'User'}
                           className="h-6 w-6 rounded-full object-cover flex-shrink-0"
                         />
                       ) : (
                         <div className="h-6 w-6 rounded-full bg-accent flex items-center justify-center font-bold text-xs flex-shrink-0">
-                          {reply.profiles.selected_avatar || reply.profiles.username[0].toUpperCase()}
+                          {reply.profiles?.selected_avatar || reply.profiles?.username?.[0]?.toUpperCase() || 'U'}
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-xs">{reply.profiles.username}</span>
+                          <button
+                            className="font-semibold text-xs hover:text-primary transition-colors"
+                            onClick={() => window.location.assign(`/profile/${reply.user_id}`)}
+                          >
+                            {reply.profiles?.username || 'Unknown'}
+                          </button>
                           <span className="text-xs text-muted-foreground">
                             {new Date(reply.created_at).toLocaleDateString()}
                           </span>

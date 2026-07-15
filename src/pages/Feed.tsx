@@ -32,6 +32,9 @@ interface Video {
   creator_id: string;
   likes_count: number;
   views_count: number;
+  comments_count?: number;
+  saves_count?: number;
+  shares_count?: number;
   tags?: string[] | null;
   thumbnail_url?: string | null;
   subtitles?: SubtitleSegment[] | null;
@@ -680,6 +683,15 @@ const Feed = () => {
             trackPositiveAction();
           }}
           currentUserId={currentUserId}
+          onCommentChange={(delta) => {
+            const nextVideos = videosRef.current.map(video =>
+              video.id === selectedVideoId
+                ? { ...video, comments_count: Math.max(0, (video.comments_count || 0) + delta) }
+                : video
+            );
+            videosRef.current = nextVideos;
+            setVideos(nextVideos);
+          }}
         />
         
         {/* Rating Prompt */}

@@ -23,6 +23,9 @@ interface Video {
   video_url: string;
   likes_count: number;
   views_count: number;
+  comments_count?: number;
+  saves_count?: number;
+  shares_count?: number;
   tags: string[] | null;
   creator_id: string;
   subtitles?: any;
@@ -119,12 +122,17 @@ const DesktopCommentsPanel = ({ video, currentUserId }: { video: Video; currentU
   const handleSubmitComment = async () => {
     const result = commentSchema.safeParse({ content: newComment });
     if (!result.success || !currentUserId) return;
-    await supabase.from('comments').insert({
+    const { error } = await supabase.from('comments').insert({
       video_id: video.id,
       user_id: currentUserId,
       content: result.data.content,
     });
+    if (error) {
+      toast.error('Failed to post comment');
+      return;
+    }
     setNewComment('');
+    setCommentsCount(prev => prev + 1);
     fetchComments();
   };
 
@@ -199,7 +207,12 @@ const DesktopCommentsPanel = ({ video, currentUserId }: { video: Video; currentU
                   {comment.user_id === currentUserId && (
                     <button
                       onClick={async () => {
-                        await supabase.from('comments').delete().eq('id', comment.id).eq('user_id', currentUserId);
+                        const { error } = await supabase.from('comments').delete().eq('id', comment.id).eq('user_id', currentUserId);
+                        if (error) {
+                          toast.error('Failed to delete comment');
+                          return;
+                        }
+                        setCommentsCount(prev => Math.max(0, prev - 1));
                         fetchComments();
                         toast.success('Comment deleted');
                       }}

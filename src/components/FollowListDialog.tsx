@@ -36,30 +36,50 @@ const FollowListDialog = ({ open, onOpenChange, userId, mode, totalCount }: Foll
     const from = targetPage * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
-    const selectRelation = mode === 'followers'
-      ? 'follower_id, profiles:follower_id ( id, username, avatar_url, is_verified )'
-      : 'following_id, profiles:following_id ( id, username, avatar_url, is_verified )';
     const filterCol = mode === 'followers' ? 'following_id' : 'follower_id';
+    const userCol = mode === 'followers' ? 'follower_id' : 'following_id';
 
-    const { data, error } = await supabase
+    const { data: follows, error: followsError } = await supabase
       .from('follows')
-      .select(selectRelation)
+      .select(userCol)
       .eq(filterCol, userId)
       .order('created_at', { ascending: false })
       .range(from, to);
 
-    if (!error && data) {
-      const list = data.map((row: any) => {
-        const p = row.profiles;
-        return {
-          id: p?.id || row[mode === 'followers' ? 'follower_id' : 'following_id'],
-          username: p?.username || 'Unknown',
-          avatar_url: p?.avatar_url || null,
-          is_verified: !!p?.is_verified,
-        };
+    if (!followsError && follows) {
+      const ids = follows.map((row: any) => row[userCol]).filter(Boolean);
+      let profilesById = new Map<string, FollowUser>();
+
+      if (ids.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, username, avatar_url, is_verified')
+          .in('id', ids);
+
+        profilesById = new Map(
+          (profiles || []).map((p: any) => [
+            p.id,
+            {
+              id: p.id,
+              username: p.username || 'Unknown',
+              avatar_url: p.avatar_url || null,
+              is_verified: !!p.is_verified,
+            },
+          ])
+        );
+      }
+
+      const list = ids.map((id: string) => profilesById.get(id) || {
+        id,
+        username: 'Unknown',
+        avatar_url: null,
+        is_verified: false,
       });
+
       setUsers(prev => targetPage === 0 ? list : [...prev, ...list]);
       setHasMore(list.length === PAGE_SIZE);
+    } else {
+      setHasMore(false);
     }
     setLoading(false);
   }, [userId, mode]);
@@ -102,7 +122,7 @@ const FollowListDialog = ({ open, onOpenChange, userId, mode, totalCount }: Foll
               key={u.id}
               onClick={() => {
                 onOpenChange(false);
-                navigate(`/profile?userId=${u.id}`);
+                navigate(`/profile/${u.id}`);
               }}
               className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted transition-colors text-left"
             >
