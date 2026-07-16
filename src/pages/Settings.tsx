@@ -20,6 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import ResponsiveLayout from "@/components/ResponsiveLayout";
+import ThemePicker from "@/components/ThemePicker";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -509,12 +510,9 @@ const Settings = () => {
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="theme">
-                  <AccordionTrigger className="text-xs">Theme</AccordionTrigger>
+                  <AccordionTrigger className="text-xs">App Theme</AccordionTrigger>
                   <AccordionContent>
-                    <div className="flex items-center justify-between">
-                      <Label className="flex items-center gap-2 text-xs">{theme === "dark" ? <Moon className="h-3 w-3" /> : <Sun className="h-3 w-3" />}{theme === "dark" ? "Dark" : "Light"}</Label>
-                      <Switch checked={theme === "dark"} onCheckedChange={toggleTheme} />
-                    </div>
+                    <ThemePicker />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

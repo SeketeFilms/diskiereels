@@ -81,18 +81,22 @@ const BottomNav = () => {
   };
 
   return (
-    <nav className="fixed bottom-4 left-4 right-4 bg-card/95 backdrop-blur-lg border-2 border-border rounded-3xl shadow-2xl z-50 max-w-lg mx-auto">
-      <div className="flex items-center justify-around h-16 px-2 relative">
-        <button onClick={() => navigate('/feed')} className={`flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all ${isActive('/feed') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
-          <Film className="h-5 w-5" /><span className="text-[10px] font-semibold">Reels</span>
+    <nav className="fixed bottom-3 left-3 right-3 bg-card/95 backdrop-blur-lg border-2 border-primary/40 rounded-3xl shadow-elevated z-50 max-w-lg mx-auto">
+      <div className="flex items-end justify-around h-16 px-2 relative">
+        <button onClick={() => navigate('/feed')} className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-2xl transition-all ${isActive('/feed') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
+          <Film className="h-5 w-5" /><span className="text-[10px] font-semibold">Diskie</span>
         </button>
-        <button onClick={() => navigate('/search')} className={`flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all ${isActive('/search') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
+        <button onClick={() => navigate('/search')} className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-2xl transition-all ${isActive('/search') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
           <Search className="h-5 w-5" /><span className="text-[10px] font-semibold">Explore</span>
         </button>
-        <button onClick={() => navigate('/upload')} className="flex items-center justify-center -mt-3 w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg hover:scale-110 active:scale-95 transition-all">
-          <Upload className="h-4 w-4" />
+        <button
+          onClick={() => navigate('/upload')}
+          aria-label="Upload"
+          className="flex items-center justify-center w-12 h-12 -mt-6 rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 ring-background hover:scale-105 active:scale-95 transition-all"
+        >
+          <Upload className="h-6 w-6" strokeWidth={2.5} />
         </button>
-        <button onClick={() => navigate('/notifications')} className={`relative flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all ${isActive('/notifications') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
+        <button onClick={() => navigate('/notifications')} className={`relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-2xl transition-all ${isActive('/notifications') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
           <div className="relative">
             <Bell className="h-5 w-5" />
             {unreadNotifCount > 0 && (
@@ -103,7 +107,7 @@ const BottomNav = () => {
           </div>
           <span className="text-[10px] font-semibold">Notifications</span>
         </button>
-        <button onClick={() => navigate(currentUserId ? `/profile/${currentUserId}` : '/profile')} className={`flex flex-col items-center gap-1 px-3 py-2 rounded-2xl transition-all ${isActive('/profile') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
+        <button onClick={() => navigate(currentUserId ? `/profile/${currentUserId}` : '/profile')} className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-2xl transition-all ${isActive('/profile') ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
           <User className="h-5 w-5" /><span className="text-[10px] font-semibold">Profile</span>
         </button>
       </div>

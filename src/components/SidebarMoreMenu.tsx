@@ -315,15 +315,15 @@ const SidebarMoreMenu = ({ isCreative }: SidebarMoreMenuProps) => {
               onClick={toggleTheme}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-foreground hover:bg-muted transition-colors"
             >
-              {theme === 'dark' ? (
-                <>
-                  <Sun className="h-4 w-4" />
-                  <span>Light Mode</span>
-                </>
-              ) : (
+              {theme === 'diskie-green' ? (
                 <>
                   <Moon className="h-4 w-4" />
                   <span>Dark Mode</span>
+                </>
+              ) : (
+                <>
+                  <Sun className="h-4 w-4" />
+                  <span>Cycle Theme</span>
                 </>
               )}
             </button>
