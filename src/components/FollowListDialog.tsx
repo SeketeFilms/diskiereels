@@ -2,11 +2,12 @@ import { useEffect, useState, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Loader2, BadgeCheck } from 'lucide-react';
+import { Loader2, BadgeCheck, RefreshCw, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
 const PAGE_SIZE = 20;
+const MAX_AUTO_RETRIES = 2;
 
 interface FollowUser {
   id: string;
@@ -29,32 +30,37 @@ const FollowListDialog = ({ open, onOpenChange, userId, mode, totalCount }: Foll
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchPage = useCallback(async (targetPage: number) => {
+  const fetchPage = useCallback(async (targetPage: number, attempt = 0): Promise<void> => {
     if (!userId) return;
     setLoading(true);
+    setError(null);
     const from = targetPage * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
     const filterCol = mode === 'followers' ? 'following_id' : 'follower_id';
     const userCol = mode === 'followers' ? 'follower_id' : 'following_id';
 
-    const { data: follows, error: followsError } = await supabase
-      .from('follows')
-      .select(userCol)
-      .eq(filterCol, userId)
-      .order('created_at', { ascending: false })
-      .range(from, to);
+    try {
+      const { data: follows, error: followsError } = await supabase
+        .from('follows')
+        .select(userCol)
+        .eq(filterCol, userId)
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
-    if (!followsError && follows) {
-      const ids = follows.map((row: any) => row[userCol]).filter(Boolean);
+      if (followsError) throw followsError;
+
+      const ids = (follows || []).map((row: any) => row[userCol]).filter(Boolean);
       let profilesById = new Map<string, FollowUser>();
 
       if (ids.length > 0) {
-        const { data: profiles } = await supabase
+        const { data: profiles, error: profErr } = await supabase
           .from('profiles')
           .select('id, username, avatar_url, is_verified')
           .in('id', ids);
+        if (profErr) throw profErr;
 
         profilesById = new Map(
           (profiles || []).map((p: any) => [
@@ -70,25 +76,33 @@ const FollowListDialog = ({ open, onOpenChange, userId, mode, totalCount }: Foll
       }
 
       const list = ids.map((id: string) => profilesById.get(id) || {
-        id,
-        username: 'Unknown',
-        avatar_url: null,
-        is_verified: false,
+        id, username: 'Unknown', avatar_url: null, is_verified: false,
       });
 
       setUsers(prev => targetPage === 0 ? list : [...prev, ...list]);
       setHasMore(list.length === PAGE_SIZE);
-    } else {
+
+      // Auto-retry once if we expected results but got none on first page
+      if (targetPage === 0 && list.length === 0 && totalCount > 0 && attempt < MAX_AUTO_RETRIES) {
+        setTimeout(() => fetchPage(0, attempt + 1), 600);
+      }
+    } catch (e: any) {
+      setError(e?.message || 'Failed to load list');
       setHasMore(false);
+      if (attempt < MAX_AUTO_RETRIES) {
+        setTimeout(() => fetchPage(targetPage, attempt + 1), 800);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, [userId, mode]);
+  }, [userId, mode, totalCount]);
 
   useEffect(() => {
     if (open) {
       setUsers([]);
       setPage(0);
       setHasMore(true);
+      setError(null);
       fetchPage(0);
     }
   }, [open, fetchPage]);
@@ -97,6 +111,13 @@ const FollowListDialog = ({ open, onOpenChange, userId, mode, totalCount }: Foll
     const next = page + 1;
     setPage(next);
     fetchPage(next);
+  };
+
+  const refresh = () => {
+    setUsers([]);
+    setPage(0);
+    setHasMore(true);
+    fetchPage(0);
   };
 
   const title = mode === 'followers' ? 'Followers' : 'Following';
@@ -108,14 +129,42 @@ const FollowListDialog = ({ open, onOpenChange, userId, mode, totalCount }: Foll
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <DialogTitle>{title}</DialogTitle>
+              <DialogDescription>{description}</DialogDescription>
+            </div>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={refresh}
+              disabled={loading}
+              aria-label="Refresh"
+              className="h-8 w-8 flex-shrink-0"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </DialogHeader>
         <div className="max-h-[60vh] overflow-y-auto space-y-2 -mx-1 px-1">
-          {users.length === 0 && !loading && (
-            <p className="text-center text-muted-foreground py-8 text-sm">
-              {mode === 'followers' ? 'No followers yet' : 'Not following anyone yet'}
-            </p>
+          {error && (
+            <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/10 rounded-lg p-2">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <span className="flex-1">{error}</span>
+              <Button size="sm" variant="outline" onClick={refresh}>Retry</Button>
+            </div>
+          )}
+          {users.length === 0 && !loading && !error && (
+            <div className="text-center py-8 space-y-3">
+              <p className="text-sm text-muted-foreground">
+                {mode === 'followers' ? 'No followers yet' : 'Not following anyone yet'}
+              </p>
+              {totalCount > 0 && (
+                <Button size="sm" variant="outline" onClick={refresh}>
+                  <RefreshCw className="h-3.5 w-3.5 mr-2" /> Refresh
+                </Button>
+              )}
+            </div>
           )}
           {users.map(u => (
             <button

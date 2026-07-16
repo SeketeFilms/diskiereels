@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* Soccer Green & White Theme */
+    /* Default (fallback) — Diskie Green light */
     --background: 0 0% 100%;
     --foreground: 150 10% 10%;
 
@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 150 10% 10%;
 
-    --primary: 145 63% 42%; /* Soccer Green */
+    --primary: 145 63% 42%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 150 5% 95%;
@@ -23,7 +23,7 @@
     --muted: 150 5% 95%;
     --muted-foreground: 150 5% 45%;
 
-    --accent: 38 92% 50%; /* Gold accent */
+    --accent: 145 63% 42%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -35,64 +35,120 @@
 
     --radius: 1rem;
 
-    /* Fun colors */
     --fun-yellow: 48 96% 53%;
     --fun-green: 145 63% 42%;
     --fun-blue: 217 91% 60%;
     --fun-purple: 271 76% 53%;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(145 63% 42%), hsl(160 60% 45%));
-    --gradient-fun: linear-gradient(135deg, hsl(145 63% 42%), hsl(38 92% 50%), hsl(48 96% 53%));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-fun: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--fun-yellow)));
 
-    /* Shadows */
     --shadow-card: 0 4px 12px hsl(0 0% 0% / 0.08);
     --shadow-elevated: 0 8px 24px hsl(0 0% 0% / 0.12);
   }
 
-  .dark {
-    /* Dark Soccer Theme */
-    --background: 220 20% 8%;
+  /* ============================================================
+     Diskie Green — light theme with soccer green accents
+     ============================================================ */
+  .diskie-green {
+    --background: 0 0% 100%;
+    --foreground: 150 10% 10%;
+    --card: 150 5% 97%;
+    --card-foreground: 150 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 10% 10%;
+    --primary: 145 63% 38%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 150 5% 95%;
+    --secondary-foreground: 150 10% 10%;
+    --muted: 150 5% 95%;
+    --muted-foreground: 150 5% 45%;
+    --accent: 145 63% 42%;
+    --accent-foreground: 0 0% 100%;
+    --border: 150 5% 88%;
+    --input: 150 5% 95%;
+    --ring: 145 63% 42%;
+  }
+
+  /* ============================================================
+     Luminous Moss — DEFAULT — deep black + vivid lime green
+     matches the reference screenshots
+     ============================================================ */
+  .luminous-moss {
+    --background: 0 0% 4%;
     --foreground: 0 0% 98%;
 
-    --card: 220 18% 12%;
+    --card: 0 0% 6%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 220 18% 10%;
+    --popover: 0 0% 6%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 145 63% 42%; /* Soccer Green */
-    --primary-foreground: 0 0% 100%;
+    --primary: 135 85% 50%;              /* vivid green */
+    --primary-foreground: 0 0% 6%;
 
-    --secondary: 220 15% 16%;
+    --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 15% 16%;
-    --muted-foreground: 220 10% 60%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 38 92% 50%; /* Gold accent */
-    --accent-foreground: 0 0% 100%;
+    --accent: 135 85% 50%;
+    --accent-foreground: 0 0% 6%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 15% 20%;
-    --input: 220 15% 16%;
-    --ring: 145 63% 42%;
+    --border: 135 60% 22%;               /* subtle green outlines everywhere */
+    --input: 0 0% 10%;
+    --ring: 135 85% 50%;
 
-    /* Fun colors */
-    --fun-yellow: 48 96% 53%;
-    --fun-green: 145 63% 42%;
-    --fun-blue: 217 91% 60%;
-    --fun-purple: 271 76% 53%;
-
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(145 63% 42%), hsl(160 60% 45%));
-    --gradient-fun: linear-gradient(135deg, hsl(145 63% 42%), hsl(38 92% 50%), hsl(48 96% 53%));
-
-    /* Shadows */
-    --shadow-card: 0 4px 12px hsl(0 0% 0% / 0.4);
+    --gradient-primary: linear-gradient(135deg, hsl(135 85% 50%), hsl(150 85% 45%));
+    --shadow-card: 0 4px 12px hsl(135 85% 40% / 0.08);
     --shadow-elevated: 0 8px 24px hsl(0 0% 0% / 0.6);
+  }
+
+  /* ============================================================
+     Tiffany — deep black + teal
+     ============================================================ */
+  .tiffany {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 172 76% 50%;              /* tiffany teal */
+    --primary-foreground: 0 0% 6%;
+
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 172 76% 50%;
+    --accent-foreground: 0 0% 6%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 172 50% 20%;
+    --input: 0 0% 10%;
+    --ring: 172 76% 50%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(172 76% 50%), hsl(185 76% 45%));
+    --shadow-card: 0 4px 12px hsl(172 76% 40% / 0.08);
+    --shadow-elevated: 0 8px 24px hsl(0 0% 0% / 0.6);
+  }
+
+  /* Legacy `.dark` kept for any component that still checks it — matches Luminous Moss */
+  .dark {
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
   }
 }
 
@@ -111,17 +167,17 @@
   html {
     scroll-behavior: smooth;
   }
-  
+
   button, a, [role="button"] {
     touch-action: manipulation;
   }
-  
+
   video {
     will-change: auto;
     transform: translateZ(0);
     backface-visibility: hidden;
   }
-  
+
   .feed-container,
   [data-scroll-container] {
     overflow-y: scroll;
