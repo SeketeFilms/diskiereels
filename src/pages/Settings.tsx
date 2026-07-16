@@ -20,6 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import ResponsiveLayout from "@/components/ResponsiveLayout";
+import ThemePicker from "@/components/ThemePicker";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
