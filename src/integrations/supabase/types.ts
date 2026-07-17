@@ -106,13 +106,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "comment_likes_comment_id_fkey"
-            columns: ["comment_id"]
-            isOneToOne: false
-            referencedRelation: "comments"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "comment_likes_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -127,7 +120,6 @@ export type Database = {
           created_at: string
           id: string
           parent_id: string | null
-          updated_at: string
           user_id: string
           video_id: string
         }
@@ -136,7 +128,6 @@ export type Database = {
           created_at?: string
           id?: string
           parent_id?: string | null
-          updated_at?: string
           user_id: string
           video_id: string
         }
@@ -145,7 +136,6 @@ export type Database = {
           created_at?: string
           id?: string
           parent_id?: string | null
-          updated_at?: string
           user_id?: string
           video_id?: string
         }
@@ -155,13 +145,6 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "comments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "comments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -704,13 +687,6 @@ export type Database = {
           video_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "notifications_comment_id_fkey"
-            columns: ["comment_id"]
-            isOneToOne: false
-            referencedRelation: "comments"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "notifications_video_id_fkey"
             columns: ["video_id"]
