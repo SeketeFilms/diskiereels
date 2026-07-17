@@ -129,25 +129,23 @@ const Upload = () => {
     });
   };
 
-  const validateVideoDuration = (videoFile: File): Promise<{ valid: boolean; duration: number }> => {
+  const getVideoDuration = (videoFile: File): Promise<number> => {
     return new Promise((resolve) => {
       const video = document.createElement('video');
       video.preload = 'metadata';
-      
       video.onloadedmetadata = () => {
         const duration = video.duration;
         URL.revokeObjectURL(video.src);
-        resolve({ valid: duration <= 120, duration }); // Max 120 seconds (2 minutes)
+        resolve(duration || 0);
       };
-      
       video.onerror = () => {
         URL.revokeObjectURL(video.src);
-        resolve({ valid: false, duration: 0 });
+        resolve(0);
       };
-      
       video.src = URL.createObjectURL(videoFile);
     });
   };
+
 
   // Extract hashtags from title
   const extractHashtags = (text: string): string[] => {
