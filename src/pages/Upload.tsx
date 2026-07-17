@@ -207,12 +207,8 @@ const Upload = () => {
       return;
     }
 
-    // Check file size (max 250MB)
-    const maxSize = 250 * 1024 * 1024; // 250MB in bytes
-    if (videoFile.size > maxSize) {
-      toast.error('Video file is too large. Maximum size is 250MB');
-      return;
-    }
+    // No file size limit — uploads of any size are allowed
+    // No duration limit — clips of any length are allowed
 
     // Validate orientation (must be portrait)
     toast.info('Validating video...');
@@ -222,12 +218,9 @@ const Upload = () => {
       return;
     }
 
-    // Validate duration (max 2 minutes)
-    const { valid: isValidDuration, duration } = await validateVideoDuration(videoFile);
-    if (!isValidDuration) {
-      toast.error(`Video is too long (${Math.floor(duration)}s). Maximum duration is 2 minutes (120s)`);
-      return;
-    }
+    // Read duration for metadata only (no limit enforced)
+    const duration = await getVideoDuration(videoFile);
+
 
     setLoading(true);
     setUploadProgress(0);
