@@ -73,13 +73,10 @@ const CommentsSheet = ({ videoId, isOpen, onClose, currentUserId, onCommentChang
   };
 
   const fetchComments = async () => {
-    // Fetch comments with profile info including avatar
+    // Fetch base comments (no join — profiles is fetched separately below)
     const { data: commentsData, error } = await supabase
       .from('comments')
-      .select(`
-        *,
-        profiles(username, avatar_url, selected_avatar)
-      `)
+      .select('*')
       .eq('video_id', videoId)
       .order('created_at', { ascending: false });
 
@@ -88,8 +85,24 @@ const CommentsSheet = ({ videoId, isOpen, onClose, currentUserId, onCommentChang
       return;
     }
 
-    // Fetch likes for all comments
-    const commentIds = commentsData.map(c => c.id);
+    // Fetch profiles for the comment authors
+    const userIds = Array.from(new Set(commentsData.map((c: any) => c.user_id).filter(Boolean)));
+    const profilesById = new Map<string, { username: string; avatar_url: string; selected_avatar: string }>();
+    if (userIds.length > 0) {
+      const { data: profs } = await supabase
+        .from('profiles')
+        .select('id, username, avatar_url, selected_avatar')
+        .in('id', userIds);
+      (profs || []).forEach((p: any) => {
+        profilesById.set(p.id, {
+          username: p.username || 'Unknown',
+          avatar_url: p.avatar_url || '',
+          selected_avatar: p.selected_avatar || '',
+        });
+      });
+    }
+
+    const commentIds = commentsData.map((c: any) => c.id);
     const likesData = commentIds.length > 0 && currentUserId
       ? (await supabase
           .from('comment_likes')
@@ -98,9 +111,8 @@ const CommentsSheet = ({ videoId, isOpen, onClose, currentUserId, onCommentChang
           .eq('user_id', currentUserId)).data
       : [];
 
-    const likedCommentIds = new Set(likesData?.map(l => l.comment_id) || []);
+    const likedCommentIds = new Set(likesData?.map((l: any) => l.comment_id) || []);
 
-    // Get like counts for all comments
     const likeCounts = commentIds.length > 0
       ? (await supabase
           .from('comment_likes')
@@ -109,18 +121,20 @@ const CommentsSheet = ({ videoId, isOpen, onClose, currentUserId, onCommentChang
       : [];
 
     const likeCountMap = new Map<string, number>();
-    likeCounts?.forEach(l => {
+    likeCounts?.forEach((l: any) => {
       likeCountMap.set(l.comment_id, (likeCountMap.get(l.comment_id) || 0) + 1);
     });
 
-    const enrichedComments = commentsData.map(c => ({
+    const enrichedComments = commentsData.map((c: any) => ({
       ...c,
+      profiles: profilesById.get(c.user_id) || { username: 'Unknown', avatar_url: '', selected_avatar: '' },
       likes_count: likeCountMap.get(c.id) || 0,
-      is_liked: likedCommentIds.has(c.id)
+      is_liked: likedCommentIds.has(c.id),
     }));
 
-    setComments(enrichedComments);
+    setComments(enrichedComments as any);
   };
+
 
   const handleSubmit = useCallback(async () => {
     try {

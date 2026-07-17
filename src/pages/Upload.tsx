@@ -129,25 +129,23 @@ const Upload = () => {
     });
   };
 
-  const validateVideoDuration = (videoFile: File): Promise<{ valid: boolean; duration: number }> => {
+  const getVideoDuration = (videoFile: File): Promise<number> => {
     return new Promise((resolve) => {
       const video = document.createElement('video');
       video.preload = 'metadata';
-      
       video.onloadedmetadata = () => {
         const duration = video.duration;
         URL.revokeObjectURL(video.src);
-        resolve({ valid: duration <= 120, duration }); // Max 120 seconds (2 minutes)
+        resolve(duration || 0);
       };
-      
       video.onerror = () => {
         URL.revokeObjectURL(video.src);
-        resolve({ valid: false, duration: 0 });
+        resolve(0);
       };
-      
       video.src = URL.createObjectURL(videoFile);
     });
   };
+
 
   // Extract hashtags from title
   const extractHashtags = (text: string): string[] => {
@@ -209,12 +207,8 @@ const Upload = () => {
       return;
     }
 
-    // Check file size (max 250MB)
-    const maxSize = 250 * 1024 * 1024; // 250MB in bytes
-    if (videoFile.size > maxSize) {
-      toast.error('Video file is too large. Maximum size is 250MB');
-      return;
-    }
+    // No file size limit — uploads of any size are allowed
+    // No duration limit — clips of any length are allowed
 
     // Validate orientation (must be portrait)
     toast.info('Validating video...');
@@ -224,12 +218,9 @@ const Upload = () => {
       return;
     }
 
-    // Validate duration (max 2 minutes)
-    const { valid: isValidDuration, duration } = await validateVideoDuration(videoFile);
-    if (!isValidDuration) {
-      toast.error(`Video is too long (${Math.floor(duration)}s). Maximum duration is 2 minutes (120s)`);
-      return;
-    }
+    // Read duration for metadata only (no limit enforced)
+    const duration = await getVideoDuration(videoFile);
+
 
     setLoading(true);
     setUploadProgress(0);
@@ -383,7 +374,7 @@ const Upload = () => {
       if (error.message?.includes('Failed to fetch')) {
         errorMessage = 'Network error. Check your connection and try again.';
       } else if (error.message?.includes('payload')) {
-        errorMessage = 'File too large. Maximum size is 250MB.';
+        errorMessage = 'File exceeds the server upload payload limit. Try a smaller chunk or contact support.';
       } else if (error.message) {
         errorMessage = error.message;
       }
