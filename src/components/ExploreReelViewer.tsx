@@ -84,14 +84,33 @@ const DesktopCommentsPanel = ({ video, currentUserId }: { video: Video; currentU
   const fetchComments = async () => {
     const { data, count } = await supabase
       .from('comments')
-      .select('*, profiles(username, avatar_url, selected_avatar)', { count: 'exact' })
+      .select('*', { count: 'exact' })
       .eq('video_id', video.id)
       .is('parent_id', null)
       .order('created_at', { ascending: false })
       .limit(50);
-    setComments(data || []);
+    const rows = data || [];
+    const userIds = Array.from(new Set(rows.map((c: any) => c.user_id).filter(Boolean)));
+    const profilesById = new Map<string, any>();
+    if (userIds.length > 0) {
+      const { data: profs } = await supabase
+        .from('profiles')
+        .select('id, username, avatar_url, selected_avatar')
+        .in('id', userIds);
+      (profs || []).forEach((p: any) => profilesById.set(p.id, {
+        username: p.username || 'Unknown',
+        avatar_url: p.avatar_url || '',
+        selected_avatar: p.selected_avatar || '',
+      }));
+    }
+    const enriched = rows.map((c: any) => ({
+      ...c,
+      profiles: profilesById.get(c.user_id) || { username: 'Unknown', avatar_url: '', selected_avatar: '' },
+    }));
+    setComments(enriched as any);
     setCommentsCount(count || 0);
   };
+
 
   const handleLike = async () => {
     if (!currentUserId) return;
