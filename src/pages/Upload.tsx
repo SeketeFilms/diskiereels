@@ -374,7 +374,7 @@ const Upload = () => {
       if (error.message?.includes('Failed to fetch')) {
         errorMessage = 'Network error. Check your connection and try again.';
       } else if (error.message?.includes('payload')) {
-        errorMessage = 'File too large. Maximum size is 250MB.';
+        errorMessage = 'File exceeds the server upload payload limit. Try a smaller chunk or contact support.';
       } else if (error.message) {
         errorMessage = error.message;
       }
