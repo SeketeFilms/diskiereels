@@ -120,6 +120,7 @@ export type Database = {
           created_at: string
           id: string
           parent_id: string | null
+          updated_at: string | null
           user_id: string
           video_id: string
         }
@@ -128,6 +129,7 @@ export type Database = {
           created_at?: string
           id?: string
           parent_id?: string | null
+          updated_at?: string | null
           user_id: string
           video_id: string
         }
@@ -136,15 +138,16 @@ export type Database = {
           created_at?: string
           id?: string
           parent_id?: string | null
+          updated_at?: string | null
           user_id?: string
           video_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "comments_parent_id_fkey"
-            columns: ["parent_id"]
+            foreignKeyName: "comments_video_id_fkey"
+            columns: ["video_id"]
             isOneToOne: false
-            referencedRelation: "comments"
+            referencedRelation: "diskie_public_reels"
             referencedColumns: ["id"]
           },
           {
@@ -336,15 +339,7 @@ export type Database = {
           token?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "device_tokens_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       documents: {
         Row: {
@@ -441,10 +436,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "likes_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "likes_video_id_fkey"
+            columns: ["video_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "diskie_public_reels"
             referencedColumns: ["id"]
           },
           {
@@ -691,6 +686,13 @@ export type Database = {
             foreignKeyName: "notifications_video_id_fkey"
             columns: ["video_id"]
             isOneToOne: false
+            referencedRelation: "diskie_public_reels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
             referencedRelation: "videos"
             referencedColumns: ["id"]
           },
@@ -886,14 +888,17 @@ export type Database = {
           bio: string | null
           cover_photo_url: string | null
           created_at: string
+          display_name: string | null
           facebook_url: string | null
           followers_count: number
           following_count: number
+          full_name: string | null
           id: string
           instagram_url: string | null
           is_premium: boolean | null
           is_verified: boolean | null
           likes_count: number
+          name: string | null
           selected_avatar: string | null
           social_links_order: string[] | null
           social_links_visible: string[] | null
@@ -913,14 +918,17 @@ export type Database = {
           bio?: string | null
           cover_photo_url?: string | null
           created_at?: string
+          display_name?: string | null
           facebook_url?: string | null
           followers_count?: number
           following_count?: number
+          full_name?: string | null
           id?: string
           instagram_url?: string | null
           is_premium?: boolean | null
           is_verified?: boolean | null
           likes_count?: number
+          name?: string | null
           selected_avatar?: string | null
           social_links_order?: string[] | null
           social_links_visible?: string[] | null
@@ -940,14 +948,17 @@ export type Database = {
           bio?: string | null
           cover_photo_url?: string | null
           created_at?: string
+          display_name?: string | null
           facebook_url?: string | null
           followers_count?: number
           following_count?: number
+          full_name?: string | null
           id?: string
           instagram_url?: string | null
           is_premium?: boolean | null
           is_verified?: boolean | null
           likes_count?: number
+          name?: string | null
           selected_avatar?: string | null
           social_links_order?: string[] | null
           social_links_visible?: string[] | null
@@ -964,38 +975,54 @@ export type Database = {
       }
       push_notifications: {
         Row: {
+          actor_id: string | null
           body: string
           created_at: string | null
+          data: Json | null
+          error: string | null
           id: string
+          message: string | null
+          recipient_id: string | null
           sent: boolean | null
+          status: string | null
           title: string
+          type: string | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
+          actor_id?: string | null
           body: string
           created_at?: string | null
+          data?: Json | null
+          error?: string | null
           id?: string
+          message?: string | null
+          recipient_id?: string | null
           sent?: boolean | null
+          status?: string | null
           title: string
+          type?: string | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
+          actor_id?: string | null
           body?: string
           created_at?: string | null
+          data?: Json | null
+          error?: string | null
           id?: string
+          message?: string | null
+          recipient_id?: string | null
           sent?: boolean | null
+          status?: string | null
           title?: string
+          type?: string | null
+          updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "push_notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       reports: {
         Row: {
@@ -1051,15 +1078,7 @@ export type Database = {
           user_id?: string
           video_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "saved_videos_video_id_fkey"
-            columns: ["video_id"]
-            isOneToOne: false
-            referencedRelation: "videos"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       star_balances: {
         Row: {
@@ -1144,6 +1163,13 @@ export type Database = {
           video_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "star_transactions_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "diskie_public_reels"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "star_transactions_video_id_fkey"
             columns: ["video_id"]
@@ -1263,6 +1289,7 @@ export type Database = {
       video_analytics: {
         Row: {
           completed: boolean | null
+          created_at: string | null
           device_type: string | null
           id: string
           video_id: string
@@ -1272,6 +1299,7 @@ export type Database = {
         }
         Insert: {
           completed?: boolean | null
+          created_at?: string | null
           device_type?: string | null
           id?: string
           video_id: string
@@ -1281,6 +1309,7 @@ export type Database = {
         }
         Update: {
           completed?: boolean | null
+          created_at?: string | null
           device_type?: string | null
           id?: string
           video_id?: string
@@ -1288,22 +1317,7 @@ export type Database = {
           watch_duration?: number
           watched_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "fk_video"
-            columns: ["video_id"]
-            isOneToOne: false
-            referencedRelation: "videos"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "video_analytics_video_id_fkey"
-            columns: ["video_id"]
-            isOneToOne: false
-            referencedRelation: "videos"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       video_downloads: {
         Row: {
@@ -1330,6 +1344,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_downloads_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "diskie_public_reels"
             referencedColumns: ["id"]
           },
           {
@@ -1375,10 +1396,44 @@ export type Database = {
             foreignKeyName: "video_shares_video_id_fkey"
             columns: ["video_id"]
             isOneToOne: false
+            referencedRelation: "diskie_public_reels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_shares_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
             referencedRelation: "videos"
             referencedColumns: ["id"]
           },
         ]
+      }
+      video_views: {
+        Row: {
+          created_at: string
+          id: string
+          video_id: string
+          viewed_on: string
+          viewer_id: string | null
+          viewer_key: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          video_id: string
+          viewed_on?: string
+          viewer_id?: string | null
+          viewer_key?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          video_id?: string
+          viewed_on?: string
+          viewer_id?: string | null
+          viewer_key?: string | null
+        }
+        Relationships: []
       }
       videos: {
         Row: {
@@ -1456,10 +1511,80 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      diskie_public_reels: {
+        Row: {
+          avatar_url: string | null
+          category: string | null
+          comments_count: number | null
+          created_at: string | null
+          creator_id: string | null
+          creator_name: string | null
+          description: string | null
+          id: string | null
+          likes_count: number | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+          username: string | null
+          video_url: string | null
+          views_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "videos_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      diskie_actor_name: { Args: { actor: string }; Returns: string }
+      enqueue_push_notification:
+        | {
+            Args: { actor: string; message: string; target_user: string }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              actor: string
+              push_body: string
+              push_data?: Json
+              push_title: string
+              push_type: string
+              target_user: string
+            }
+            Returns: string
+          }
       ensure_current_user_profile: { Args: never; Returns: Json }
+      get_all_visible_reels: {
+        Args: never
+        Returns: {
+          avatar_url: string | null
+          category: string | null
+          comments_count: number | null
+          created_at: string | null
+          creator_id: string | null
+          creator_name: string | null
+          description: string | null
+          id: string | null
+          likes_count: number | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+          username: string | null
+          video_url: string | null
+          views_count: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "diskie_public_reels"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_backend_status: { Args: never; Returns: Json }
       get_creator_monetization_leaderboard: {
         Args: never
@@ -1486,7 +1611,11 @@ export type Database = {
         }
         Returns: boolean
       }
-      increment_video_views: { Args: { _video_id: string }; Returns: undefined }
+      increment_video_views: { Args: { _video_id: string }; Returns: number }
+      recalculate_video_counts: {
+        Args: { target_video: string }
+        Returns: undefined
+      }
       set_parental_pin: {
         Args: { _raw_pin: string; _user_id: string }
         Returns: undefined
