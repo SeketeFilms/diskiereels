@@ -108,6 +108,18 @@ const FollowListDialog = ({ open, onOpenChange, userId, mode, totalCount }: Foll
     }
   }, [open, fetchPage]);
 
+  // Realtime: refresh the list instantly when this user gains/loses a follow
+  useFollowRealtime((row) => {
+    if (!open || !userId) return;
+    const relevant = !row.follower_id || row.follower_id === userId || row.following_id === userId;
+    if (!relevant) return;
+    setUsers([]);
+    setPage(0);
+    setHasMore(true);
+    fetchPage(0);
+  });
+
+
   const loadMore = () => {
     const next = page + 1;
     setPage(next);
