@@ -187,6 +187,28 @@ const Profile = () => {
     loadProfile();
   }, [userIdParam]);
 
+  // Realtime: keep follow status + counts in sync without a refresh
+  useFollowRealtime((row) => {
+    const targetUserId = userIdParam || currentUserId;
+    if (!targetUserId) return;
+
+    const touchesTarget =
+      !row.follower_id || // DELETE without ids -> refetch defensively
+      row.following_id === targetUserId ||
+      row.follower_id === targetUserId;
+
+    if (touchesTarget) {
+      fetchFollowCounts(targetUserId);
+    }
+
+    if (currentUserId && targetUserId !== currentUserId) {
+      if (!row.follower_id || row.follower_id === currentUserId) {
+        checkIfFollowingUser(currentUserId, targetUserId);
+      }
+    }
+  });
+
+
   const fetchVerificationStatus = async (userId: string) => {
     const { data } = await supabase
       .from('creator_verifications')
