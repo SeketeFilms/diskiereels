@@ -36,10 +36,15 @@ export const useFollowRealtime = (
         'postgres_changes',
         { event: 'DELETE', schema: 'public', table: 'follows' },
         (payload) => {
-          const row = payload.old as FollowRow;
-          if (row?.follower_id && row?.following_id) handlerRef.current(row, 'DELETE');
+          // Requires REPLICA IDENTITY FULL for follower/following ids to be present.
+          const row = (payload.old || {}) as Partial<FollowRow>;
+          handlerRef.current(
+            { follower_id: row.follower_id || '', following_id: row.following_id || '' },
+            'DELETE'
+          );
         }
       )
+
       .subscribe();
 
     return () => {
