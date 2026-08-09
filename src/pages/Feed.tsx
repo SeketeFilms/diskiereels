@@ -13,6 +13,7 @@ import { RefreshCw, Loader2 } from 'lucide-react';
 
 import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { useFollowRealtime } from '@/hooks/useFollowRealtime';
 import { useAppRating } from '@/hooks/useAppRating';
 import { useChangelog } from '@/hooks/useChangelog';
 

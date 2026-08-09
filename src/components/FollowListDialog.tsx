@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, BadgeCheck, RefreshCw, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { useFollowRealtime } from '@/hooks/useFollowRealtime';
 
 const PAGE_SIZE = 20;
 const MAX_AUTO_RETRIES = 2;

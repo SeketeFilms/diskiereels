@@ -12,6 +12,7 @@ import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 import { useFullscreen } from '@/hooks/useFullscreen';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { useFollowRealtime } from '@/hooks/useFollowRealtime';
 import { addWatermarkToVideo, WatermarkController } from '@/lib/videoWatermark';
 import {
   DropdownMenu,

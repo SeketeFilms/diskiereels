@@ -17,6 +17,7 @@ import ProfileSkeleton from '@/components/ProfileSkeleton';
 import MilestoneConfetti from '@/components/MilestoneConfetti';
 import VerificationRequestDialog from '@/components/VerificationRequestDialog';
 import FollowListDialog from '@/components/FollowListDialog';
+import { useFollowRealtime } from '@/hooks/useFollowRealtime';
 import { checkAndTriggerMilestone, MilestoneType } from '@/hooks/useMilestoneTracker';
 import {
   Dialog,
