@@ -13,6 +13,7 @@ import { RefreshCw, Loader2 } from 'lucide-react';
 
 import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { useFollowRealtime } from '@/hooks/useFollowRealtime';
 import { useAppRating } from '@/hooks/useAppRating';
 import { useChangelog } from '@/hooks/useChangelog';
 
@@ -175,6 +176,15 @@ const Feed = () => {
     setFollowingIds(ids);
     return ids;
   };
+
+  // Realtime: keep the Following feed source list current
+  useFollowRealtime((row) => {
+    if (!currentUserId) return;
+    if (row.follower_id && row.follower_id !== currentUserId) return;
+    fetchFollowingUsers(currentUserId);
+  });
+
+
 
   const fetchBlockedUsers = async (userId: string): Promise<string[]> => {
     const { data: blocks } = await supabase

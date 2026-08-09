@@ -12,6 +12,7 @@ import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 import { useFullscreen } from '@/hooks/useFullscreen';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { useFollowRealtime } from '@/hooks/useFollowRealtime';
 import { addWatermarkToVideo, WatermarkController } from '@/lib/videoWatermark';
 import {
   DropdownMenu,
@@ -1038,6 +1039,16 @@ const VideoPlayer = ({ video, currentUserId, isPremium, isActive, onCommentsClic
 
     setIsFollowing(nextFollowing);
   };
+
+  // Realtime: reflect follow/unfollow of this creator made anywhere in the app
+  useFollowRealtime((row) => {
+    if (!currentUserId || currentUserId === video.creator_id) return;
+    if (row.follower_id && row.follower_id !== currentUserId) return;
+    if (row.following_id && row.following_id !== video.creator_id) return;
+    checkIfFollowing();
+  });
+
+
 
   const checkIfBlocked = async () => {
     if (!currentUserId || currentUserId === video.creator_id) return;

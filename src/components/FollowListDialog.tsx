@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, BadgeCheck, RefreshCw, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { useFollowRealtime } from '@/hooks/useFollowRealtime';
 
 const PAGE_SIZE = 20;
 const MAX_AUTO_RETRIES = 2;
@@ -106,6 +107,18 @@ const FollowListDialog = ({ open, onOpenChange, userId, mode, totalCount }: Foll
       fetchPage(0);
     }
   }, [open, fetchPage]);
+
+  // Realtime: refresh the list instantly when this user gains/loses a follow
+  useFollowRealtime((row) => {
+    if (!open || !userId) return;
+    const relevant = !row.follower_id || row.follower_id === userId || row.following_id === userId;
+    if (!relevant) return;
+    setUsers([]);
+    setPage(0);
+    setHasMore(true);
+    fetchPage(0);
+  });
+
 
   const loadMore = () => {
     const next = page + 1;
