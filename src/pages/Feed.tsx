@@ -177,6 +177,15 @@ const Feed = () => {
     return ids;
   };
 
+  // Realtime: keep the Following feed source list current
+  useFollowRealtime((row) => {
+    if (!currentUserId) return;
+    if (row.follower_id && row.follower_id !== currentUserId) return;
+    fetchFollowingUsers(currentUserId);
+  });
+
+
+
   const fetchBlockedUsers = async (userId: string): Promise<string[]> => {
     const { data: blocks } = await supabase
       .from('blocks')
