@@ -899,6 +899,7 @@ export type Database = {
           is_verified: boolean | null
           likes_count: number
           name: string | null
+          onesignal_external_id: string | null
           selected_avatar: string | null
           social_links_order: string[] | null
           social_links_visible: string[] | null
@@ -929,6 +930,7 @@ export type Database = {
           is_verified?: boolean | null
           likes_count?: number
           name?: string | null
+          onesignal_external_id?: string | null
           selected_avatar?: string | null
           social_links_order?: string[] | null
           social_links_visible?: string[] | null
@@ -959,6 +961,7 @@ export type Database = {
           is_verified?: boolean | null
           likes_count?: number
           name?: string | null
+          onesignal_external_id?: string | null
           selected_avatar?: string | null
           social_links_order?: string[] | null
           social_links_visible?: string[] | null
