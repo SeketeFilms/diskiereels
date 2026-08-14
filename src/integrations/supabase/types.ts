@@ -1619,6 +1619,7 @@ export type Database = {
         Args: { target_video: string }
         Returns: undefined
       }
+      record_reel_share: { Args: { _video_id: string }; Returns: undefined }
       set_parental_pin: {
         Args: { _raw_pin: string; _user_id: string }
         Returns: undefined
@@ -1653,6 +1654,8 @@ export type Database = {
         | "reply"
         | "new_video"
         | "star_gift"
+        | "share"
+        | "save"
       user_type: "viewer" | "creative"
     }
     CompositeTypes: {
@@ -1789,6 +1792,8 @@ export const Constants = {
         "reply",
         "new_video",
         "star_gift",
+        "share",
+        "save",
       ],
       user_type: ["viewer", "creative"],
     },
