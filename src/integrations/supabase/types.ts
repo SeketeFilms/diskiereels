@@ -1027,6 +1027,36 @@ export type Database = {
         }
         Relationships: []
       }
+      push_templates: {
+        Row: {
+          body_template: string
+          created_at: string
+          enabled: boolean
+          event_type: string
+          id: string
+          title_template: string
+          updated_at: string
+        }
+        Insert: {
+          body_template: string
+          created_at?: string
+          enabled?: boolean
+          event_type: string
+          id?: string
+          title_template: string
+          updated_at?: string
+        }
+        Update: {
+          body_template?: string
+          created_at?: string
+          enabled?: boolean
+          event_type?: string
+          id?: string
+          title_template?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           created_at: string | null
