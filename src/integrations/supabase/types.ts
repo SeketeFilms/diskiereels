@@ -1027,6 +1027,36 @@ export type Database = {
         }
         Relationships: []
       }
+      push_templates: {
+        Row: {
+          body_template: string
+          created_at: string
+          enabled: boolean
+          event_type: string
+          id: string
+          title_template: string
+          updated_at: string
+        }
+        Insert: {
+          body_template: string
+          created_at?: string
+          enabled?: boolean
+          event_type: string
+          id?: string
+          title_template: string
+          updated_at?: string
+        }
+        Update: {
+          body_template?: string
+          created_at?: string
+          enabled?: boolean
+          event_type?: string
+          id?: string
+          title_template?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           created_at: string | null
@@ -1619,6 +1649,7 @@ export type Database = {
         Args: { target_video: string }
         Returns: undefined
       }
+      record_reel_share: { Args: { _video_id: string }; Returns: undefined }
       set_parental_pin: {
         Args: { _raw_pin: string; _user_id: string }
         Returns: undefined
@@ -1653,6 +1684,8 @@ export type Database = {
         | "reply"
         | "new_video"
         | "star_gift"
+        | "share"
+        | "save"
       user_type: "viewer" | "creative"
     }
     CompositeTypes: {
@@ -1789,6 +1822,8 @@ export const Constants = {
         "reply",
         "new_video",
         "star_gift",
+        "share",
+        "save",
       ],
       user_type: ["viewer", "creative"],
     },
