@@ -31,6 +31,20 @@ Deno.serve(async (req) => {
       return json({ error: 'user_id is required' }, 400)
     }
 
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    )
+
+    // Prefer the stored OneSignal external id; fall back to the user id.
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onesignal_external_id')
+      .eq('id', userId)
+      .maybeSingle()
+
+    const externalId = (profile as any)?.onesignal_external_id || userId
+
     const res = await fetch('https://api.onesignal.com/notifications', {
       method: 'POST',
       headers: {
@@ -39,7 +53,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         app_id: ONESIGNAL_APP_ID,
-        include_aliases: { external_id: [userId] },
+        include_aliases: { external_id: [externalId] },
         target_channel: 'push',
         headings: { en: title },
         contents: { en: body },
@@ -51,10 +65,6 @@ Deno.serve(async (req) => {
 
     // Best-effort status update on the queued row
     if (id) {
-      const supabase = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-      )
       await supabase
         .from('push_notifications')
         .update({
