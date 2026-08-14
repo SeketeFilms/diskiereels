@@ -27,6 +27,7 @@ import PWAQA from "./pages/PWAQA";
 import CompleteProfile from "./pages/CompleteProfile";
 import AdminBackendStatus from "./pages/AdminBackendStatus";
 import DiskieAI from "./components/DiskieAI";
+import PushPermissionPrompt from "./components/PushPermissionPrompt";
 import { useBackendStartupCheck } from "./hooks/useBackendStartupCheck";
 
 const queryClient = new QueryClient({
@@ -71,6 +72,7 @@ const AppContent = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
       <DiskieAI />
+      <PushPermissionPrompt />
     </>
   );
 };
