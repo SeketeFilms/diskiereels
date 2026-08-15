@@ -144,6 +144,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "comments_user_id_profiles_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "comments_video_id_fkey"
             columns: ["video_id"]
             isOneToOne: false
@@ -552,6 +559,48 @@ export type Database = {
           },
         ]
       }
+      notification_delivery_logs: {
+        Row: {
+          created_at: string
+          dedupe_key: string
+          event_type: string
+          id: string
+          notification_id: string | null
+          provider_id: string | null
+          request_body: Json | null
+          response_body: Json | null
+          response_code: number | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dedupe_key: string
+          event_type: string
+          id?: string
+          notification_id?: string | null
+          provider_id?: string | null
+          request_body?: Json | null
+          response_body?: Json | null
+          response_code?: number | null
+          status: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dedupe_key?: string
+          event_type?: string
+          id?: string
+          notification_id?: string | null
+          provider_id?: string | null
+          request_body?: Json | null
+          response_body?: Json | null
+          response_code?: number | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_logs: {
         Row: {
           created_at: string | null
@@ -580,10 +629,14 @@ export type Database = {
           follows_enabled: boolean | null
           id: string
           likes_enabled: boolean | null
+          messages_enabled: boolean
           new_videos_enabled: boolean | null
           push_enabled: boolean | null
           replies_enabled: boolean | null
+          saves_enabled: boolean
+          shares_enabled: boolean
           sound_enabled: boolean | null
+          star_gifts_enabled: boolean
           updated_at: string | null
           user_id: string
         }
@@ -593,10 +646,14 @@ export type Database = {
           follows_enabled?: boolean | null
           id?: string
           likes_enabled?: boolean | null
+          messages_enabled?: boolean
           new_videos_enabled?: boolean | null
           push_enabled?: boolean | null
           replies_enabled?: boolean | null
+          saves_enabled?: boolean
+          shares_enabled?: boolean
           sound_enabled?: boolean | null
+          star_gifts_enabled?: boolean
           updated_at?: string | null
           user_id: string
         }
@@ -606,10 +663,14 @@ export type Database = {
           follows_enabled?: boolean | null
           id?: string
           likes_enabled?: boolean | null
+          messages_enabled?: boolean
           new_videos_enabled?: boolean | null
           push_enabled?: boolean | null
           replies_enabled?: boolean | null
+          saves_enabled?: boolean
+          shares_enabled?: boolean
           sound_enabled?: boolean | null
+          star_gifts_enabled?: boolean
           updated_at?: string | null
           user_id?: string
         }
@@ -647,6 +708,30 @@ export type Database = {
           },
         ]
       }
+      notification_templates: {
+        Row: {
+          body_template: string
+          enabled: boolean
+          event_type: string
+          title_template: string
+          updated_at: string
+        }
+        Insert: {
+          body_template: string
+          enabled?: boolean
+          event_type: string
+          title_template: string
+          updated_at?: string
+        }
+        Update: {
+          body_template?: string
+          enabled?: boolean
+          event_type?: string
+          title_template?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           actor_id: string
@@ -654,6 +739,7 @@ export type Database = {
           created_at: string | null
           id: string
           is_read: boolean | null
+          message: string | null
           recipient_id: string | null
           type: Database["public"]["Enums"]["notification_type"]
           user_id: string
@@ -665,6 +751,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_read?: boolean | null
+          message?: string | null
           recipient_id?: string | null
           type: Database["public"]["Enums"]["notification_type"]
           user_id: string
@@ -676,6 +763,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_read?: boolean | null
+          message?: string | null
           recipient_id?: string | null
           type?: Database["public"]["Enums"]["notification_type"]
           user_id?: string
@@ -1479,6 +1567,7 @@ export type Database = {
           duration: number | null
           id: string
           likes_count: number
+          reports_count: number
           saves_count: number
           shares_count: number
           subtitles: Json | null
@@ -1500,6 +1589,7 @@ export type Database = {
           duration?: number | null
           id?: string
           likes_count?: number
+          reports_count?: number
           saves_count?: number
           shares_count?: number
           subtitles?: Json | null
@@ -1521,6 +1611,7 @@ export type Database = {
           duration?: number | null
           id?: string
           likes_count?: number
+          reports_count?: number
           saves_count?: number
           shares_count?: number
           subtitles?: Json | null
@@ -1574,6 +1665,10 @@ export type Database = {
       }
     }
     Functions: {
+      create_reel_comment: {
+        Args: { _content: string; _parent_id?: string; _video_id: string }
+        Returns: Json
+      }
       diskie_actor_name: { Args: { actor: string }; Returns: string }
       enqueue_push_notification:
         | {
@@ -1649,7 +1744,15 @@ export type Database = {
         Args: { target_video: string }
         Returns: undefined
       }
+      recalculate_video_like_comment_counts: {
+        Args: { target_video: string }
+        Returns: undefined
+      }
       record_reel_share: { Args: { _video_id: string }; Returns: undefined }
+      report_reel: {
+        Args: { _reason?: string; _video_id: string }
+        Returns: Json
+      }
       set_parental_pin: {
         Args: { _raw_pin: string; _user_id: string }
         Returns: undefined
@@ -1665,6 +1768,10 @@ export type Database = {
       set_profile_pin_admin: {
         Args: { _raw_pin: string; _user_id: string }
         Returns: undefined
+      }
+      set_reel_like: {
+        Args: { _liked: boolean; _video_id: string }
+        Returns: Json
       }
       verify_parental_pin: {
         Args: { _raw_pin: string; _user_id: string }
