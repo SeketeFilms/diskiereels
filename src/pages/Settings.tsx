@@ -678,6 +678,9 @@ const Settings = () => {
           <Collapsible open={openSections.includes('notifications')}>
             <SectionHeader title="Notifications" section="notifications" />
             <CollapsibleContent className="mt-2 bg-card rounded-xl border border-border p-3">
+              <Button variant="outline" size="sm" className="w-full mb-3" onClick={() => navigate('/settings/notifications')}>
+                Open notification settings
+              </Button>
               <Accordion type="single" collapsible>
                 <AccordionItem value="notification-types">
                   <AccordionTrigger className="text-xs">Notification Types</AccordionTrigger>
