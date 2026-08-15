@@ -26,9 +26,11 @@ import Leaderboard from "./pages/Leaderboard";
 import PWAQA from "./pages/PWAQA";
 import CompleteProfile from "./pages/CompleteProfile";
 import AdminBackendStatus from "./pages/AdminBackendStatus";
+import NotificationSettings from "./pages/NotificationSettings";
 import DiskieAI from "./components/DiskieAI";
 import PushPermissionPrompt from "./components/PushPermissionPrompt";
 import { useBackendStartupCheck } from "./hooks/useBackendStartupCheck";
+import { usePushDeepLinks } from "./hooks/usePushDeepLinks";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +46,7 @@ const queryClient = new QueryClient({
 
 const AppContent = () => {
   useBackendStartupCheck();
+  usePushDeepLinks();
   return (
     <>
       <Routes>
@@ -58,6 +61,7 @@ const AppContent = () => {
         <Route path="/profile/:userId" element={<Profile />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/settings/notifications" element={<NotificationSettings />} />
         <Route path="/video-analytics/:videoId" element={<VideoAnalytics />} />
         <Route path="/creator-dashboard" element={<CreatorDashboard />} />
         <Route path="/milestones" element={<Milestones />} />
