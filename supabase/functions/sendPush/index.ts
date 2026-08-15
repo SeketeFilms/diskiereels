@@ -88,19 +88,22 @@ Deno.serve(async (req) => {
     })
 
     const result = await res.json().catch(() => ({}))
+    // OneSignal returns 200 even when no device matched the alias — treat that as a failure.
+    const hasErrors = !!(result as any)?.errors
+    const delivered = res.ok && !hasErrors
 
     // Best-effort status update on the queued row
     if (id) {
       await supabase
         .from('push_notifications')
         .update({
-          status: res.ok ? 'sent' : 'failed',
-          error: res.ok ? null : JSON.stringify(result).slice(0, 500),
+          status: delivered ? 'sent' : 'failed',
+          error: delivered ? null : JSON.stringify((result as any)?.errors ?? result).slice(0, 500),
         })
         .eq('id', id)
     }
 
-    return json({ ok: res.ok, result }, res.ok ? 200 : 502)
+    return json({ ok: delivered, deep_link: deepLink, result }, res.ok ? 200 : 502)
   } catch (e) {
     return json({ error: String(e) }, 500)
   }
