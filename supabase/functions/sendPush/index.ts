@@ -83,7 +83,6 @@ Deno.serve(async (req) => {
         headings: { en: title },
         contents: { en: body },
         data: { ...data, type, notification_id: id, url: deepLink },
-        url: undefined,
         web_url: `${APP_URL}${deepLink}`,
       }),
     })
