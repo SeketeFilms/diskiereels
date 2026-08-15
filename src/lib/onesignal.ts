@@ -108,3 +108,25 @@ export const logoutOneSignal = async () => {
     /* noop */
   }
 };
+
+type PushOpenedHandler = (data: Record<string, any>) => void;
+
+/** Registers a handler that fires when the user taps a push notification. */
+export const onPushOpened = async (handler: PushOpenedHandler) => {
+  const ready = await initOneSignal();
+  if (!ready) return;
+
+  try {
+    if (isNativePush()) {
+      nativePlugin?.Notifications?.addEventListener('click', (event: any) => {
+        handler(event?.notification?.additionalData ?? {});
+      });
+    } else {
+      webSdk?.Notifications?.addEventListener('click', (event: any) => {
+        handler(event?.notification?.additionalData ?? {});
+      });
+    }
+  } catch (err) {
+    console.warn('[OneSignal] click listener failed:', err);
+  }
+};
