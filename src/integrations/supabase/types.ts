@@ -1670,6 +1670,13 @@ export type Database = {
         Returns: Json
       }
       diskie_actor_name: { Args: { actor: string }; Returns: string }
+      diskie_mentioned_profiles: {
+        Args: { body: string }
+        Returns: {
+          user_id: string
+          username: string
+        }[]
+      }
       enqueue_push_notification:
         | {
             Args: { actor: string; message: string; target_user: string }
@@ -1773,6 +1780,10 @@ export type Database = {
         Args: { _liked: boolean; _video_id: string }
         Returns: Json
       }
+      set_reel_saved: {
+        Args: { _saved: boolean; _video_id: string }
+        Returns: Json
+      }
       verify_parental_pin: {
         Args: { _raw_pin: string; _user_id: string }
         Returns: boolean
@@ -1793,6 +1804,8 @@ export type Database = {
         | "star_gift"
         | "share"
         | "save"
+        | "mention"
+        | "tag"
       user_type: "viewer" | "creative"
     }
     CompositeTypes: {
@@ -1931,6 +1944,8 @@ export const Constants = {
         "star_gift",
         "share",
         "save",
+        "mention",
+        "tag",
       ],
       user_type: ["viewer", "creative"],
     },
