@@ -126,6 +126,8 @@ const Feed = () => {
   const preloadedVideosRef = useRef<Set<string>>(new Set());
   const preloadCleanupTimersRef = useRef<Map<string, number>>(new Map());
   const videosRef = useRef<Video[]>([]);
+  const pageOrderRef = useRef<number[]>([]);
+
 
   // Parental screen-time lock removed
 
@@ -204,14 +206,30 @@ const Feed = () => {
     tab?: 'forYou' | 'following',
     followIds?: string[]
   ) => {
-    const from = pageNum * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
-    
     // Use provided values or fall back to state
     const idsToFilter = blockedIds || blockedUserIds;
     const currentTab = tab || activeTab;
     const currentFollowIds = followIds || followingIds;
-    
+
+    // Build a randomized page order once per session/refresh so the whole
+    // catalogue gets reshuffled, not just each individual page.
+    if (reset || pageOrderRef.current.length === 0) {
+      let countQuery = supabase.from('videos').select('id', { count: 'exact', head: true });
+      if (idsToFilter.length > 0) {
+        countQuery = countQuery.not('creator_id', 'in', `(${idsToFilter.join(',')})`);
+      }
+      if (currentTab === 'following' && currentFollowIds.length > 0) {
+        countQuery = countQuery.in('creator_id', currentFollowIds);
+      }
+      const { count } = await countQuery;
+      const totalPages = Math.max(1, Math.ceil((count || 0) / PAGE_SIZE));
+      pageOrderRef.current = shuffleArray(Array.from({ length: totalPages }, (_, i) => i));
+    }
+
+    const mappedPage = pageOrderRef.current[pageNum] ?? pageNum;
+    const from = mappedPage * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+
     let query = supabase
       .from('videos')
       .select(`
@@ -221,6 +239,7 @@ const Feed = () => {
       `)
       .order('created_at', { ascending: false })
       .range(from, to);
+
     
     // Filter out videos from blocked users
     if (idsToFilter.length > 0) {
@@ -253,10 +272,9 @@ const Feed = () => {
       subtitles: video.subtitles as unknown as SubtitleSegment[] | null
     }));
     
-    if (transformedVideos.length < PAGE_SIZE) {
-      hasMoreRef.current = false;
-      setHasMore(false);
-    }
+    const morePages = pageNum + 1 < pageOrderRef.current.length;
+    hasMoreRef.current = morePages;
+    setHasMore(morePages);
 
     // Shuffle videos for variety
     const shuffledVideos = shuffleArray(transformedVideos);
@@ -265,14 +283,14 @@ const Feed = () => {
       videosRef.current = shuffledVideos;
       setVideos(shuffledVideos);
       setPage(0);
-      hasMoreRef.current = transformedVideos.length === PAGE_SIZE;
-      setHasMore(transformedVideos.length === PAGE_SIZE);
     } else {
-      const merged = [...videosRef.current, ...shuffledVideos];
+      const seen = new Set(videosRef.current.map(v => v.id));
+      const merged = [...videosRef.current, ...shuffledVideos.filter(v => !seen.has(v.id))];
       videosRef.current = merged;
       setVideos(merged);
     }
   };
+
 
   const fetchUserProfile = async (userId: string) => {
     const { data: profile } = await supabase
