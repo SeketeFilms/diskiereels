@@ -70,21 +70,60 @@ Deno.serve(async (req) => {
 
     const externalId = (profile as any)?.onesignal_external_id || userId
 
+    // Rich media: reel thumbnail as the big image, actor avatar as the icon.
+    const isHttps = (u: unknown): u is string =>
+      typeof u === 'string' && u.startsWith('https://')
+
+    let bigPicture: string | null = null
+    let largeIcon: string | null = null
+
+    if (data?.video_id) {
+      const { data: video } = await supabase
+        .from('videos')
+        .select('thumbnail_url')
+        .eq('id', data.video_id)
+        .maybeSingle()
+      if (isHttps((video as any)?.thumbnail_url)) bigPicture = (video as any).thumbnail_url
+    }
+
+    const actorId = data?.actor_id || data?.follower_id
+    if (actorId) {
+      const { data: actor } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', actorId)
+        .maybeSingle()
+      if (isHttps((actor as any)?.avatar_url)) largeIcon = (actor as any).avatar_url
+    }
+
+    const notification: Record<string, unknown> = {
+      app_id: ONESIGNAL_APP_ID,
+      include_aliases: { external_id: [externalId] },
+      target_channel: 'push',
+      headings: { en: title },
+      contents: { en: body },
+      data: { ...data, type, notification_id: id, url: deepLink },
+      web_url: `${APP_URL}${deepLink}`,
+      android_accent_color: 'FF1DB954',
+    }
+
+    if (bigPicture) {
+      notification.big_picture = bigPicture
+      notification.ios_attachments = { id1: bigPicture }
+      notification.chrome_web_image = bigPicture
+    }
+    if (largeIcon) {
+      notification.large_icon = largeIcon
+      notification.chrome_web_icon = largeIcon
+    }
+
     const res = await fetch('https://api.onesignal.com/notifications', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Key ${ONESIGNAL_REST_API_KEY}`,
       },
-      body: JSON.stringify({
-        app_id: ONESIGNAL_APP_ID,
-        include_aliases: { external_id: [externalId] },
-        target_channel: 'push',
-        headings: { en: title },
-        contents: { en: body },
-        data: { ...data, type, notification_id: id, url: deepLink },
-        web_url: `${APP_URL}${deepLink}`,
-      }),
+      body: JSON.stringify(notification),
     })
 
     const result = await res.json().catch(() => ({}))
