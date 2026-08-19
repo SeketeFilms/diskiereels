@@ -126,6 +126,8 @@ const Feed = () => {
   const preloadedVideosRef = useRef<Set<string>>(new Set());
   const preloadCleanupTimersRef = useRef<Map<string, number>>(new Map());
   const videosRef = useRef<Video[]>([]);
+  const pageOrderRef = useRef<number[]>([]);
+
 
   // Parental screen-time lock removed
 
