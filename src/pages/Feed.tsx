@@ -272,10 +272,9 @@ const Feed = () => {
       subtitles: video.subtitles as unknown as SubtitleSegment[] | null
     }));
     
-    if (transformedVideos.length < PAGE_SIZE) {
-      hasMoreRef.current = false;
-      setHasMore(false);
-    }
+    const morePages = pageNum + 1 < pageOrderRef.current.length;
+    hasMoreRef.current = morePages;
+    setHasMore(morePages);
 
     // Shuffle videos for variety
     const shuffledVideos = shuffleArray(transformedVideos);
@@ -284,14 +283,14 @@ const Feed = () => {
       videosRef.current = shuffledVideos;
       setVideos(shuffledVideos);
       setPage(0);
-      hasMoreRef.current = transformedVideos.length === PAGE_SIZE;
-      setHasMore(transformedVideos.length === PAGE_SIZE);
     } else {
-      const merged = [...videosRef.current, ...shuffledVideos];
+      const seen = new Set(videosRef.current.map(v => v.id));
+      const merged = [...videosRef.current, ...shuffledVideos.filter(v => !seen.has(v.id))];
       videosRef.current = merged;
       setVideos(merged);
     }
   };
+
 
   const fetchUserProfile = async (userId: string) => {
     const { data: profile } = await supabase
