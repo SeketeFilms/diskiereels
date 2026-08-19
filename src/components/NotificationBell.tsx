@@ -271,7 +271,7 @@ const NotificationBell = () => {
       case 'follow':
         return `${username} started following you`;
       case 'new_video':
-        return `${username} uploaded a new video${notification.video?.title ? ` "${notification.video.title}"` : ''}`;
+        return `${username} uploaded a new reel — you follow them${notification.video?.title ? ` · "${notification.video.title}"` : ''}`;
       case 'star_gift':
         return `${username} sent you stars! ⭐`;
       default:
