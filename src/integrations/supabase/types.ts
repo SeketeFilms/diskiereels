@@ -629,6 +629,7 @@ export type Database = {
           follows_enabled: boolean | null
           id: string
           likes_enabled: boolean | null
+          mentions_enabled: boolean
           messages_enabled: boolean
           new_videos_enabled: boolean | null
           push_enabled: boolean | null
@@ -637,6 +638,7 @@ export type Database = {
           shares_enabled: boolean
           sound_enabled: boolean | null
           star_gifts_enabled: boolean
+          tags_enabled: boolean
           updated_at: string | null
           user_id: string
         }
@@ -646,6 +648,7 @@ export type Database = {
           follows_enabled?: boolean | null
           id?: string
           likes_enabled?: boolean | null
+          mentions_enabled?: boolean
           messages_enabled?: boolean
           new_videos_enabled?: boolean | null
           push_enabled?: boolean | null
@@ -654,6 +657,7 @@ export type Database = {
           shares_enabled?: boolean
           sound_enabled?: boolean | null
           star_gifts_enabled?: boolean
+          tags_enabled?: boolean
           updated_at?: string | null
           user_id: string
         }
@@ -663,6 +667,7 @@ export type Database = {
           follows_enabled?: boolean | null
           id?: string
           likes_enabled?: boolean | null
+          mentions_enabled?: boolean
           messages_enabled?: boolean
           new_videos_enabled?: boolean | null
           push_enabled?: boolean | null
@@ -671,6 +676,7 @@ export type Database = {
           shares_enabled?: boolean
           sound_enabled?: boolean | null
           star_gifts_enabled?: boolean
+          tags_enabled?: boolean
           updated_at?: string | null
           user_id?: string
         }
@@ -736,10 +742,12 @@ export type Database = {
         Row: {
           actor_id: string
           comment_id: string | null
+          conversation_id: string | null
           created_at: string | null
           id: string
           is_read: boolean | null
           message: string | null
+          message_id: string | null
           recipient_id: string | null
           type: Database["public"]["Enums"]["notification_type"]
           user_id: string
@@ -748,10 +756,12 @@ export type Database = {
         Insert: {
           actor_id: string
           comment_id?: string | null
+          conversation_id?: string | null
           created_at?: string | null
           id?: string
           is_read?: boolean | null
           message?: string | null
+          message_id?: string | null
           recipient_id?: string | null
           type: Database["public"]["Enums"]["notification_type"]
           user_id: string
@@ -760,10 +770,12 @@ export type Database = {
         Update: {
           actor_id?: string
           comment_id?: string | null
+          conversation_id?: string | null
           created_at?: string | null
           id?: string
           is_read?: boolean | null
           message?: string | null
+          message_id?: string | null
           recipient_id?: string | null
           type?: Database["public"]["Enums"]["notification_type"]
           user_id?: string
@@ -1677,7 +1689,16 @@ export type Database = {
           username: string
         }[]
       }
+      enqueue_message_notification: {
+        Args: {
+          _content?: string
+          _conversation_id: string
+          _message_id?: string
+        }
+        Returns: undefined
+      }
       enqueue_push_notification:
+        | { Args: { notification_id: string }; Returns: undefined }
         | {
             Args: { actor: string; message: string; target_user: string }
             Returns: undefined
@@ -1806,6 +1827,7 @@ export type Database = {
         | "save"
         | "mention"
         | "tag"
+        | "message"
       user_type: "viewer" | "creative"
     }
     CompositeTypes: {
@@ -1946,6 +1968,7 @@ export const Constants = {
         "save",
         "mention",
         "tag",
+        "message",
       ],
       user_type: ["viewer", "creative"],
     },
